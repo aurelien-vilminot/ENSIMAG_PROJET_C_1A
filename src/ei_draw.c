@@ -1,6 +1,7 @@
 #include "ei_draw.h"
-#include "single_linked_list.h"
 
+#include "single_linked_list.h"
+#include "ei_draw_button.h"
 
 /* Cette fonction doit peut-être directement d'adapter au fonctions qui l'utilisent.
  * En tout cas, il faut absolument qu'en paramètre soit donné les coordonnées limite et pas le clipper.
@@ -611,4 +612,33 @@ int	ei_copy_surface	(ei_surface_t destination, const ei_rect_t* dst_rect, ei_sur
         hw_surface_unlock(source);
         hw_surface_unlock(destination);
         return 0;
+}
+
+/**
+ * @brief   Draw button
+ *
+ * @param widget
+ * @param surface
+ * @param pick_surface
+ * @param clipper
+ */
+void                    ei_draw_button          (ei_widget_t*	        widget,
+                                                 ei_surface_t		surface,
+                                                 ei_surface_t		pick_surface,
+                                                 ei_rect_t*		clipper) {
+        ei_rect_t rect = ei_rect(ei_point(20, 20), ei_size(300, 200));
+        ei_rect_t rect2 = ei_rect(ei_point(25, 25), ei_size(290, 190));
+        uint32_t radius = 30;
+
+        ei_color_t color = {0xff, 0x00, 0x00, 0xff};
+        ei_color_t color2 = {0x00, 0x00, 0xff, 0xff};
+        ei_color_t color3 = {0x00, 0xff, 0x00, 0xff};
+
+        ei_linked_point_t *pts = rounded_frame(rect, radius, TOP);
+        ei_linked_point_t *pts2 = rounded_frame(rect, radius, BOTTOM);
+        ei_linked_point_t *pts3 = rounded_frame(rect2, radius, FULL);
+
+        ei_draw_polygon(surface, pts, color, clipper);
+        ei_draw_polygon(surface, pts2, color3, clipper);
+        ei_draw_polygon(surface, pts3, color2, clipper);
 }

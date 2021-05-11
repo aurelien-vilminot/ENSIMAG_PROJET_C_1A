@@ -61,7 +61,7 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
 
 
 ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_name) {
-        while (ll) {
+        while (ll != NULL) {
                 char * class_name_node = ll->name;
                 char * class_name_param = ei_widgetclass_stringname(class_name);
                 if (strcmp(class_name_node, class_name_param) == 0) {
@@ -76,22 +76,24 @@ ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_na
  * Allocation memory
  * @return
  */
-struct ei_widget_t* button_alloc_func() {
-        ei_button_t * m_button = malloc(sizeof(ei_button_t));
-        m_button = NULL;
-        return (struct ei_widget_t *) m_button;
+ei_widget_t* button_alloc_func() {
+        ei_button_t * m_button = calloc(1, sizeof(ei_button_t));
+
+        // Allocate memory for all attributes
+        m_button->color = calloc(1, sizeof(ei_color_t));
+
+
+        return (ei_widget_t *) m_button;
 }
 
-struct ei_widget_t* top_level_alloc_func() {
-        ei_top_level_t * m_toplevel = malloc(sizeof(ei_top_level_t));
-        m_toplevel = NULL;
+ei_widget_t* top_level_alloc_func() {
+        ei_top_level_t * m_toplevel = calloc(1, sizeof(ei_top_level_t));
         return (struct ei_widget_t *) m_toplevel;
 }
 
-struct ei_widget_t* frame_alloc_func() {
-        ei_frame_t * m_frame = malloc(sizeof(ei_frame_t));
-        m_frame = NULL;
-        return (struct ei_widget_t *) m_frame;
+ei_widget_t* frame_alloc_func() {
+        ei_frame_t * m_frame = calloc(1, sizeof(ei_frame_t));
+        return (ei_widget_t *) m_frame;
 }
 
 /**
@@ -102,19 +104,19 @@ void button_release(struct ei_widget_t*	widget) {
         // Cast into button widget to delete its ressources
         ei_button_t * button_widget = (ei_button_t*) widget;
 
-        if (button_widget->color != NULL) free(&button_widget->color);
-        if (button_widget->border_width != NULL) free(&button_widget->border_width);
-        if (button_widget->corner_radius != NULL) free(&button_widget->corner_radius);
-        if (button_widget->relief != NULL) free(&button_widget->relief);
-        if (button_widget->text != NULL) free(&button_widget->text);
-        if (button_widget->text_font != NULL) free(&button_widget->text_font);
-        if (button_widget->text_color != NULL) free(&button_widget->text_color);
-        if (button_widget->text_anchor != NULL) free(&button_widget->text_anchor);
-        if (button_widget->img != NULL) free(&button_widget->img);
-        if (button_widget->img_rect != NULL) free(&button_widget->img_rect);
-        if (button_widget->img_anchor != NULL) free(&button_widget->img_anchor);
-        if (button_widget->callback != NULL) free(&button_widget->callback);
-        if (button_widget->user_param != NULL) free(&button_widget->user_param);
+        if (button_widget->color) free(&button_widget->color);
+        if (button_widget->border_width) free(&button_widget->border_width);
+        if (button_widget->corner_radius) free(&button_widget->corner_radius);
+        if (button_widget->relief) free(&button_widget->relief);
+        if (button_widget->text) free(&button_widget->text);
+        if (button_widget->text_font) free(&button_widget->text_font);
+        if (button_widget->text_color) free(&button_widget->text_color);
+        if (button_widget->text_anchor) free(&button_widget->text_anchor);
+        if (button_widget->img) free(&button_widget->img);
+        if (button_widget->img_rect) free(&button_widget->img_rect);
+        if (button_widget->img_anchor) free(&button_widget->img_anchor);
+        if (button_widget->callback) free(&button_widget->callback);
+        if (button_widget->user_param) free(&button_widget->user_param);
 }
 
 void top_level_release(struct ei_widget_t* widget) {
@@ -122,29 +124,28 @@ void top_level_release(struct ei_widget_t* widget) {
         // Cast into top_level widget to delete its ressources
         struct ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
 
-        if (top_level_widget->color = NULL) free(&top_level_widget->color);
-        if (top_level_widget-> border_width= NULL) free(&top_level_widget->border_width);
-        if (top_level_widget->title = NULL) free(&top_level_widget->title);
-        if (top_level_widget-> closable= NULL) free(&top_level_widget->closable);
-        if (top_level_widget->resizable = NULL) free(&top_level_widget->resizable);
-        if (top_level_widget->min_size = NULL) free(&top_level_widget->min_size);
-
+        if (top_level_widget->color) free(&top_level_widget->color);
+        if (top_level_widget-> border_width) free(&top_level_widget->border_width);
+        if (top_level_widget->title) free(&top_level_widget->title);
+        if (top_level_widget-> closable) free(&top_level_widget->closable);
+        if (top_level_widget->resizable) free(&top_level_widget->resizable);
+        if (top_level_widget->min_size) free(&top_level_widget->min_size);
 }
 
 void frame_release(struct ei_widget_t* widget) {
         // Cast into frame widget to delete its ressources
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
 
-        if (frame_widget->color != NULL) free(&frame_widget->color);
-        if (frame_widget->border_width != NULL) free(&frame_widget->border_width);
-        if (frame_widget->relief != NULL) free(&frame_widget->relief);
-        if (frame_widget->text != NULL) free(&frame_widget->text);
-        if (frame_widget->text_font != NULL) free(&frame_widget->text_font);
-        if (frame_widget->text_color != NULL) free(&frame_widget->text_color);
-        if (frame_widget->text_anchor != NULL) free(&frame_widget->text_anchor);
-        if (frame_widget->img != NULL) free(&frame_widget->img);
-        if (frame_widget->img_rect != NULL) free(&frame_widget->img_rect);
-        if (frame_widget->img_anchor != NULL) free(&frame_widget->img_anchor);
+        if (frame_widget->color) free(&frame_widget->color);
+        if (frame_widget->border_width) free(&frame_widget->border_width);
+        if (frame_widget->relief) free(&frame_widget->relief);
+        if (frame_widget->text) free(&frame_widget->text);
+        if (frame_widget->text_font) free(&frame_widget->text_font);
+        if (frame_widget->text_color) free(&frame_widget->text_color);
+        if (frame_widget->text_anchor) free(&frame_widget->text_anchor);
+        if (frame_widget->img) free(&frame_widget->img);
+        if (frame_widget->img_rect) free(&frame_widget->img_rect);
+        if (frame_widget->img_anchor) free(&frame_widget->img_anchor);
 }
 
 /**
