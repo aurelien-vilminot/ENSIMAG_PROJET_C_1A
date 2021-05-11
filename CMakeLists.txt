@@ -86,7 +86,7 @@ set(LIB_EI_SOURCES
 	 ${SRC}/ei_draw_button.c
 	 ${SRC}/ei_widget.c
 	 ${SRC}/ei_application.c
-)
+	 ${SRC}/ei_placer.c)
 
 add_library(ei STATIC			${LIB_EI_SOURCES})
 
