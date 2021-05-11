@@ -651,4 +651,14 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         ei_draw_polygon(surface, pts_top, color_top, clipper);
         ei_draw_polygon(surface, pts_bottom, color_bottom, clipper);
         ei_draw_polygon(surface, pts_middle, color_middle, clipper);
+
+        // Display text
+        ei_size_t *destination_size = malloc(sizeof(ei_size_t));
+        hw_text_compute_size(*button->text, button->text_font, &(destination_size->width), &(destination_size->height));
+        int place_text_x = (int) size_x - destination_size->width / 2;
+        int place_text_y = (int) size_y - destination_size->height / 2;
+        ei_point_t place_text = {place_text_x, place_text_y};
+        ei_draw_text(surface, &place_text, *button->text , button->text_font, *button->text_color, clipper);
+        
+        free(destination_size);
 }
