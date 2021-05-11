@@ -1,7 +1,7 @@
 #include "ei_draw.h"
 
 #include "single_linked_list.h"
-#include "ei_draw_button.h"
+#include "ei_create_button.h"
 #include "widget_manager.h"
 
 /* Cette fonction doit peut-être directement d'adapter au fonctions qui l'utilisent.
@@ -629,20 +629,29 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                                                  ei_rect_t*		clipper) {
         ei_button_t *button = (ei_button_t*) widget;
 
-        // TODO : régler bordure bouton (taille et emplacement)
-        int size_x = button->widget->requested_size.width;
-        int size_y = button->widget->requested_size.height;
+        // Get size and place parameters
+        int width_button = button->widget->requested_size.width;
+        int height_button = button->widget->requested_size.height;
         int place_x = button->widget->screen_location.top_left.x;
         int place_y = button->widget->screen_location.top_left.y;
-        ei_rect_t middle_rect = ei_rect(ei_point(place_x - 5, place_y - 5), ei_size(size_x - 10, size_y - 10));
-        ei_rect_t border_rect = ei_rect(ei_point(place_x, place_y), ei_size(size_x, size_y));
-
+        
+        // Set size and place for the rectangle used to model the center of the button (all without border) 
+        ei_size_t size_middle_button = {width_button - 2*(*button->border_width), height_button - 2*(*button->border_width)};
+        ei_point_t place_middle_button = {place_x + (*button->border_width), place_y + (*button->border_width)};
+        ei_rect_t middle_rect = ei_rect(place_middle_button, size_middle_button);
+        
+        // Rectangle used for border
+        ei_rect_t border_rect = ei_rect(ei_point(place_x, place_y), ei_size(width_button, height_button));
+        
+        ei_color_t base_color = *button->color;
         // TODO : régler différence de couleur avec les bords
         ei_color_t color_top = *button->color;
-        ei_color_t color_middle = *button->color;
         ei_color_t color_bottom = *button->color;
+        
+        // Set color param in the widget for the center part of the button
+        ei_color_t color_middle = base_color;
 
-        // Get all points for button
+        // Get all points for button modelization
         ei_linked_point_t *pts_top = rounded_frame(border_rect, *button->corner_radius, TOP);
         ei_linked_point_t *pts_middle = rounded_frame(middle_rect, *button->corner_radius, FULL);
         ei_linked_point_t *pts_bottom = rounded_frame(border_rect, *button->corner_radius, BOTTOM);
@@ -655,8 +664,8 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         // Display text
         ei_size_t *destination_size = malloc(sizeof(ei_size_t));
         hw_text_compute_size(*button->text, button->text_font, &(destination_size->width), &(destination_size->height));
-        int place_text_x = (int) size_x - destination_size->width / 2;
-        int place_text_y = (int) size_y - destination_size->height / 2;
+        int place_text_x = (int) width_button - destination_size->width / 2;
+        int place_text_y = (int) height_button - destination_size->height / 2;
         ei_point_t place_text = {place_text_x, place_text_y};
         ei_draw_text(surface, &place_text, *button->text , button->text_font, *button->text_color, clipper);
         

@@ -67,4 +67,13 @@ void button_release(ei_widget_t* widget);
 void top_level_release(ei_widget_t* widget);
 void frame_release(ei_widget_t* widget);
 
+/**
+ * Draw functions
+ */
+
+void                    ei_draw_button          (ei_widget_t*	widget,
+                                                 ei_surface_t		surface,
+                                                 ei_surface_t		pick_surface,
+                                                 ei_rect_t*		clipper);
+
 #endif //PROJETC_IG_WIDGET_MANAGER_H

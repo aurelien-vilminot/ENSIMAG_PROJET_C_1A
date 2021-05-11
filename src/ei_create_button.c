@@ -1,4 +1,4 @@
-#include "ei_draw_button.h"
+#include "ei_create_button.h"
 #include "single_linked_list.h"
 
 // TODO : commentaires
@@ -8,7 +8,7 @@ ei_linked_point_t*       arc                     (ei_point_t             center,
                                                  double_t               end_angle) {
         // Init linked list
         struct ei_linked_point_t *ll = malloc(sizeof(struct ei_linked_point_t *));
-        struct ei_linked_point_t *backup = ll;
+        struct ei_linked_point_t *head_list = ll;
 
         // Always the shortest path
         while (end_angle < begin_angle) {
@@ -35,7 +35,7 @@ ei_linked_point_t*       arc                     (ei_point_t             center,
                 ll->next = next_point;
                 ll = next_point;
         }
-        return backup;
+        return head_list;
 }
 
 // TODO : commentaires
@@ -44,7 +44,7 @@ ei_linked_point_t*       rounded_frame           (ei_rect_t              rectang
                                                   ei_part_frame           part) {
         // Init linked list
         struct ei_linked_point_t *ll = malloc(sizeof(struct ei_linked_point_t *));
-        struct ei_linked_point_t *backup = ll;
+        struct ei_linked_point_t *head_list = ll;
 
         int32_t x0 = rectangle.top_left.x;
         int32_t y0 = rectangle.top_left.y;
@@ -95,7 +95,7 @@ ei_linked_point_t*       rounded_frame           (ei_rect_t              rectang
 
                         // Link the last point to the first one
                         struct ei_linked_point_t *last_point = malloc(sizeof(struct ei_linked_point_t *));
-                        last_point = ll_arc_bottom_left;
+                        *last_point = *ll_arc_bottom_left;
                         last_point->next = NULL;
                         end_point_top_left->next = last_point;
                 } else {
@@ -131,7 +131,7 @@ ei_linked_point_t*       rounded_frame           (ei_rect_t              rectang
 
                         // Link the last point to the first one
                         struct ei_linked_point_t *last_point = malloc(sizeof(struct ei_linked_point_t *));
-                        last_point = ll_arc_mid_bottom_left;
+                        *last_point = *ll_arc_mid_bottom_left;
                         last_point->next = NULL;
                         p_left->next = last_point;
                 }
@@ -175,11 +175,11 @@ ei_linked_point_t*       rounded_frame           (ei_rect_t              rectang
 
                 // Link the last point to the first one
                 struct ei_linked_point_t *last_point = malloc(sizeof(struct ei_linked_point_t *));
-                last_point = ll_arc_top_left;
+                *last_point = *ll_arc_top_left;
                 last_point->next = NULL;
                 end_point_mid_top_right->next = last_point;
         }
-        return backup;
+        return head_list;
 }
 
 /*

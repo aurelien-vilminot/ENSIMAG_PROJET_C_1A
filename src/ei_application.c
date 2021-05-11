@@ -54,7 +54,7 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         // BUTTON
         BUTTON.allocfunc = &button_alloc_func;
         BUTTON.releasefunc = &button_release;
-        // BUTTON->draw_func = &button_drawfunc;
+        BUTTON.drawfunc = &ei_draw_button;
         BUTTON.setdefaultsfunc = NULL; BUTTON.geomnotifyfunc = NULL; BUTTON.handlefunc = NULL;
         BUTTON.next = &TOP_LEVEL;
 

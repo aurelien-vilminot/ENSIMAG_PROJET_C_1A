@@ -8,7 +8,7 @@
 #include "ei_draw.h"
 #include "ei_types.h"
 #include "ei_event.h"
-#include "../src/ei_draw_button.h"
+#include "../src/ei_create_button.h"
 
 
 /* test_line --
@@ -224,39 +224,37 @@ void test_arc(ei_surface_t surface, ei_rect_t* clipper) {
 
 // TODO : batterie de tests complets
 void test_rounded_frame(ei_surface_t surface, ei_rect_t* clipper) {
-        ei_rect_t rect = ei_rect(ei_point(20, 20), ei_size(300, 200));
-        ei_rect_t rect2 = ei_rect(ei_point(25, 25), ei_size(290, 190));
+        // Display a button
+
+        ei_rect_t rect_border = ei_rect(ei_point(20, 20), ei_size(300, 200));
+        ei_rect_t rect_center = ei_rect(ei_point(25, 25), ei_size(290, 190));
         uint32_t radius = 30;
 
-        ei_color_t color = {0xff, 0x00, 0x00, 0xff};
-        ei_color_t color2 = {0x00, 0x00, 0xff, 0xff};
-        ei_color_t color3 = {0x00, 0xff, 0x00, 0xff};
+        ei_color_t top_color = {0xff, 0x00, 0x00, 0xff};
+        ei_color_t bottom_color = {0x00, 0x00, 0xff, 0xff};
+        ei_color_t center_color = {0x00, 0xff, 0x00, 0xff};
 
-        ei_linked_point_t *pts = rounded_frame(rect, radius, TOP);
-        ei_linked_point_t *pts2 = rounded_frame(rect, radius, BOTTOM);
-        ei_linked_point_t *pts3 = rounded_frame(rect2, radius, FULL);
+        ei_linked_point_t *top = rounded_frame(rect_border, radius, TOP);
+        ei_linked_point_t *bottom = rounded_frame(rect_border, radius, BOTTOM);
+        ei_linked_point_t *center = rounded_frame(rect_center, radius, FULL);
 
-        ei_draw_polygon(surface, pts, color, clipper);
-        ei_draw_polygon(surface, pts2, color3, clipper);
-        ei_draw_polygon(surface, pts3, color2, clipper);
+        ei_draw_polygon(surface, top, top_color, clipper);
+        ei_draw_polygon(surface, bottom, center_color, clipper);
+        ei_draw_polygon(surface, center, bottom_color, clipper);
 
-        //separate both rectangles
+        // Separate border and center rectangles
 
-        rect = ei_rect(ei_point(300, 300), ei_size(300, 200));
-        rect2 = ei_rect(ei_point(400, 400), ei_size(290, 190));
+        rect_border = ei_rect(ei_point(300, 300), ei_size(300, 200));
+        rect_center = ei_rect(ei_point(400, 400), ei_size(290, 190));
         radius = 90;
 
-        pts = rounded_frame(rect, radius, TOP);
-        pts2 = rounded_frame(rect, radius, BOTTOM);
-        pts3 = rounded_frame(rect2, radius, FULL);
+        top = rounded_frame(rect_border, radius, TOP);
+        bottom = rounded_frame(rect_border, radius, BOTTOM);
+        center = rounded_frame(rect_center, radius, FULL);
 
-        ei_draw_polygon(surface, pts, color, clipper);
-        ei_draw_polygon(surface, pts2, color3, clipper);
-        ei_draw_polygon(surface, pts3, color2, clipper);
-
-// commentaire pour push
-
-
+        ei_draw_polygon(surface, top, top_color, clipper);
+        ei_draw_polygon(surface, bottom, center_color, clipper);
+        ei_draw_polygon(surface, center, bottom_color, clipper);
 }
 
 void test_draw_text(ei_surface_t surface, ei_rect_t* clipper){
