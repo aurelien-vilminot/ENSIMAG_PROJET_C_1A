@@ -81,18 +81,54 @@ ei_widget_t* button_alloc_func() {
 
         // Allocate memory for all attributes
         m_button->color = calloc(1, sizeof(ei_color_t));
-
+        m_button->border_width = calloc(1, sizeof(int));
+        m_button->corner_radius = calloc(1, sizeof(int));
+        m_button->relief = calloc(1, sizeof(ei_relief_t));
+        m_button->text = calloc(1, sizeof(char*));
+        m_button->text_font = calloc(1, sizeof(ei_font_t));
+        m_button->text_color = calloc(1, sizeof(ei_color_t));
+        m_button->text_anchor = calloc(1, sizeof(ei_anchor_t));
+        m_button->img = calloc(1, sizeof(ei_surface_t));
+        m_button->img_rect = calloc(1, sizeof(ei_rect_t*));
+        m_button->img_anchor = calloc(1, sizeof(ei_anchor_t));
+        m_button->callback = calloc(1, sizeof(ei_callback_t));
+        m_button->user_param = calloc(1, sizeof(void*));
 
         return (ei_widget_t *) m_button;
 }
 
 ei_widget_t* top_level_alloc_func() {
         ei_top_level_t * m_toplevel = calloc(1, sizeof(ei_top_level_t));
+
+        // Allocate memory for all attributes
+
+        m_toplevel->color = calloc(1, sizeof(ei_color_t));
+        m_toplevel->border_width = calloc(1, sizeof(int));
+        m_toplevel->title = calloc(1, sizeof(char*));
+        m_toplevel->closable = calloc(1, sizeof(ei_bool_t));
+        m_toplevel->resizable = calloc(1, sizeof(ei_axis_set_t));
+        m_toplevel->min_size = calloc(1, sizeof(ei_size_t*));
+
         return (struct ei_widget_t *) m_toplevel;
+
 }
 
 ei_widget_t* frame_alloc_func() {
         ei_frame_t * m_frame = calloc(1, sizeof(ei_frame_t));
+
+        //Allocate memory for all attributes
+
+        m_frame->color = calloc(1, sizeof(ei_color_t));
+        m_frame->border_width = calloc(1, sizeof(int));
+        m_frame->relief = calloc(1, sizeof(ei_relief_t));
+        m_frame->text = calloc(1, sizeof(char*));
+        m_frame->text_font = calloc(1, sizeof(ei_font_t));
+        m_frame->text_color = calloc(1, sizeof(ei_color_t));
+        m_frame->text_anchor = calloc(1, sizeof(ei_anchor_t));
+        m_frame->img = calloc(1, sizeof(ei_surface_t));
+        m_frame->img_rect = calloc(1, sizeof(ei_rect_t));
+        m_frame->img_anchor = calloc(1, sizeof(ei_anchor_t));
+
         return (ei_widget_t *) m_frame;
 }
 
