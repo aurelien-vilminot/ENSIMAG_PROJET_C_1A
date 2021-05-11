@@ -63,8 +63,8 @@ struct ei_widget_t* frame_alloc_func();
  * Release memory
  * @return
  */
-void button_release();
-void top_level_release();
-void frame_release();
+void button_release(struct ei_widget_t*	widget);
+void top_level_release(struct ei_widget_t* widget);
+void frame_release(struct ei_widget_t* widget);
 
 #endif //PROJETC_IG_WIDGET_MANAGER_H

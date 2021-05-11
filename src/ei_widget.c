@@ -98,17 +98,54 @@ struct ei_widget_t* frame_alloc_func() {
  * Release memory
  * @return
  */
-//void button_release() {
-//        (void);
-//}
-//
-//void top_level_release() {
-//        (void);
-//}
-//
-//void frame_release() {
-//        (void)
-//}
+void button_release(struct ei_widget_t*	widget) {
+        // Cast into button widget to delete its ressources
+        ei_button_t * button_widget = (ei_button_t*) widget;
+
+        button_widget->color = color;
+        button_widget->border_width = border_width;
+        button_widget->corner_radius = corner_radius;
+        button_widget->relief = relief;
+        button_widget->text = text;
+        button_widget->text_font = text_font;
+        button_widget->text_color = text_color;
+        button_widget->text_anchor = text_anchor;
+        button_widget->img = img;
+        button_widget->img_rect = img_rect;
+        button_widget->img_anchor = img_anchor;
+        button_widget->callback = callback;
+        button_widget->user_param = user_param;
+}
+
+void top_level_release(struct ei_widget_t* widget) {
+
+        // Cast into top_level widget to delete its ressources
+        struct ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
+
+        top_level_widget->color = color;
+        top_level_widget->border_width = border_width;
+        top_level_widget->title = title;
+        top_level_widget->closable = closable;
+        top_level_widget->resizable = resizable;
+        top_level_widget->min_size = min_size;
+
+}
+
+void frame_release(struct ei_widget_t* widget) {
+        // Cast into frame widget to delete its ressources
+        ei_frame_t * frame_widget = (ei_frame_t*) widget;
+
+        if (frame_widget->color != NULL) free(&frame_widget->color);
+        if (frame_widget->border_width != NULL) free(&frame_widget->border_width);
+        if (frame_widget->relief != NULL) free(&frame_widget->relief);
+        if (frame_widget->text != NULL) free(&frame_widget->text);
+        if (frame_widget->text_font != NULL) free(&frame_widget->text_font);
+        if (frame_widget->text_color != NULL) free(&frame_widget->text_color);
+        if (frame_widget->text_anchor != NULL) free(&frame_widget->text_anchor);
+        if (frame_widget->img != NULL) free(&frame_widget->img);
+        if (frame_widget->img_rect != NULL) free(&frame_widget->img_rect);
+        if (frame_widget->img_anchor != NULL) free(&frame_widget->img_anchor);
+}
 
 /**
  * @brief	Configures the attributes of widgets of the class "frame".
@@ -150,17 +187,17 @@ struct ei_widget_t* frame_alloc_func() {
  *				Defaults to \ref ei_anc_center.
  */
 void			ei_frame_configure		(ei_widget_t*		widget,
-                                                               ei_size_t*		requested_size,
-                                                               const ei_color_t*	color,
-                                                               int*			border_width,
-                                                               ei_relief_t*		relief,
-                                                               char**			text,
-                                                               ei_font_t*		text_font,
-                                                               ei_color_t*		text_color,
-                                                               ei_anchor_t*		text_anchor,
-                                                               ei_surface_t*		img,
-                                                               ei_rect_t**		img_rect,
-                                                               ei_anchor_t*		img_anchor) {
+                                                       ei_size_t*		requested_size,
+                                                       const ei_color_t*	color,
+                                                       int*			border_width,
+                                                       ei_relief_t*		relief,
+                                                       char**			text,
+                                                       ei_font_t*		text_font,
+                                                       ei_color_t*		text_color,
+                                                       ei_anchor_t*		text_anchor,
+                                                       ei_surface_t*		img,
+                                                       ei_rect_t**		img_rect,
+                                                       ei_anchor_t*		img_anchor) {
         // Cast into frame widget to configure it
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
 
@@ -259,7 +296,7 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
                                                                   ei_axis_set_t*		resizable,
                                                                   ei_size_t**		min_size) {
         // Cast into top_level widget to configure it
-        struct ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
+        ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
 
         top_level_widget->widget->requested_size = *requested_size;
         top_level_widget->color = color;
