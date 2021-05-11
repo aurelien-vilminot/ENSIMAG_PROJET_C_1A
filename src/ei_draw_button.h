@@ -5,6 +5,7 @@
 #include "ei_types.h"
 #include "hw_interface.h"
 #include "ei_widget.h"
+#include "ei_utils.h"
 
 /**
  * @brief	//TODO : commenter
@@ -15,7 +16,7 @@ typedef enum {
         FULL            = 2
 } ei_part_frame;
 
-ei_linked_point_t*       arc                     (ei_point_t             center,
+ei_linked_point_t*       arc                     (ei_point_t            center,
                                                  uint32_t               radius,
                                                  double_t               begin_angle,
                                                  double_t               end_angle);

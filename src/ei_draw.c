@@ -2,6 +2,7 @@
 
 #include "single_linked_list.h"
 #include "ei_draw_button.h"
+#include "widget_manager.h"
 
 /* Cette fonction doit peut-être directement d'adapter au fonctions qui l'utilisent.
  * En tout cas, il faut absolument qu'en paramètre soit donné les coordonnées limite et pas le clipper.
@@ -626,19 +627,28 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                                                  ei_surface_t		surface,
                                                  ei_surface_t		pick_surface,
                                                  ei_rect_t*		clipper) {
-        ei_rect_t rect = ei_rect(ei_point(20, 20), ei_size(300, 200));
-        ei_rect_t rect2 = ei_rect(ei_point(25, 25), ei_size(290, 190));
-        uint32_t radius = 30;
+        ei_button_t *button = (ei_button_t*) widget;
 
-        ei_color_t color = {0xff, 0x00, 0x00, 0xff};
-        ei_color_t color2 = {0x00, 0x00, 0xff, 0xff};
-        ei_color_t color3 = {0x00, 0xff, 0x00, 0xff};
+        // TODO : régler bordure bouton (taille et emplacement)
+        int size_x = button->widget->requested_size.width;
+        int size_y = button->widget->requested_size.height;
+        int place_x = button->widget->screen_location.top_left.x;
+        int place_y = button->widget->screen_location.top_left.y;
+        ei_rect_t middle_rect = ei_rect(ei_point(place_x - 5, place_y - 5), ei_size(size_x - 10, size_y - 10));
+        ei_rect_t border_rect = ei_rect(ei_point(place_x, place_y), ei_size(size_x, size_y));
 
-        ei_linked_point_t *pts = rounded_frame(rect, radius, TOP);
-        ei_linked_point_t *pts2 = rounded_frame(rect, radius, BOTTOM);
-        ei_linked_point_t *pts3 = rounded_frame(rect2, radius, FULL);
+        // TODO : régler différence de couleur avec les bords
+        ei_color_t color_top = *button->color;
+        ei_color_t color_middle = *button->color;
+        ei_color_t color_bottom = *button->color;
 
-        ei_draw_polygon(surface, pts, color, clipper);
-        ei_draw_polygon(surface, pts2, color3, clipper);
-        ei_draw_polygon(surface, pts3, color2, clipper);
+        // Get all points for button
+        ei_linked_point_t *pts_top = rounded_frame(border_rect, *button->corner_radius, TOP);
+        ei_linked_point_t *pts_middle = rounded_frame(middle_rect, *button->corner_radius, FULL);
+        ei_linked_point_t *pts_bottom = rounded_frame(border_rect, *button->corner_radius, BOTTOM);
+
+        // Display button
+        ei_draw_polygon(surface, pts_top, color_top, clipper);
+        ei_draw_polygon(surface, pts_bottom, color_bottom, clipper);
+        ei_draw_polygon(surface, pts_middle, color_middle, clipper);
 }
