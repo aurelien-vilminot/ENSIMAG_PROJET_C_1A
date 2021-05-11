@@ -102,19 +102,19 @@ void button_release(struct ei_widget_t*	widget) {
         // Cast into button widget to delete its ressources
         ei_button_t * button_widget = (ei_button_t*) widget;
 
-        button_widget->color = color;
-        button_widget->border_width = border_width;
-        button_widget->corner_radius = corner_radius;
-        button_widget->relief = relief;
-        button_widget->text = text;
-        button_widget->text_font = text_font;
-        button_widget->text_color = text_color;
-        button_widget->text_anchor = text_anchor;
-        button_widget->img = img;
-        button_widget->img_rect = img_rect;
-        button_widget->img_anchor = img_anchor;
-        button_widget->callback = callback;
-        button_widget->user_param = user_param;
+        if (button_widget->color != NULL) free(&button_widget->color);
+        if (button_widget->border_width != NULL) free(&button_widget->border_width);
+        if (button_widget->corner_radius != NULL) free(&button_widget->corner_radius);
+        if (button_widget->relief != NULL) free(&button_widget->relief);
+        if (button_widget->text != NULL) free(&button_widget->text);
+        if (button_widget->text_font != NULL) free(&button_widget->text_font);
+        if (button_widget->text_color != NULL) free(&button_widget->text_color);
+        if (button_widget->text_anchor != NULL) free(&button_widget->text_anchor);
+        if (button_widget->img != NULL) free(&button_widget->img);
+        if (button_widget->img_rect != NULL) free(&button_widget->img_rect);
+        if (button_widget->img_anchor != NULL) free(&button_widget->img_anchor);
+        if (button_widget->callback != NULL) free(&button_widget->callback);
+        if (button_widget->user_param != NULL) free(&button_widget->user_param);
 }
 
 void top_level_release(struct ei_widget_t* widget) {
@@ -122,12 +122,12 @@ void top_level_release(struct ei_widget_t* widget) {
         // Cast into top_level widget to delete its ressources
         struct ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
 
-        top_level_widget->color = color;
-        top_level_widget->border_width = border_width;
-        top_level_widget->title = title;
-        top_level_widget->closable = closable;
-        top_level_widget->resizable = resizable;
-        top_level_widget->min_size = min_size;
+        if (top_level_widget->color = NULL) free(&top_level_widget->color);
+        if (top_level_widget-> border_width= NULL) free(&top_level_widget->border_width);
+        if (top_level_widget->title = NULL) free(&top_level_widget->title);
+        if (top_level_widget-> closable= NULL) free(&top_level_widget->closable);
+        if (top_level_widget->resizable = NULL) free(&top_level_widget->resizable);
+        if (top_level_widget->min_size = NULL) free(&top_level_widget->min_size);
 
 }
 
