@@ -2,14 +2,9 @@
 #include "ei_widget.h"
 #include "widget_manager.h"
 
-// All classes of widget
-static ei_widgetclass_t FRAME;
-static ei_widgetclass_t TOP_LEVEL;
-static ei_widgetclass_t BUTTON;
-
 // Root elements
-ei_surface_t *ROOT_WINDOW = NULL;
-ei_widget_t ROOT_FRAME;
+ei_surface_t *root_windows = NULL;
+ei_widget_t root_frame;
 
 /**
  * \brief	Creates an application.
@@ -36,37 +31,58 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         //TODO: Registers all classes of widget. For now some pointers are NULL, but after implementation of
         // functions they must be initialized.
 
-        // FRAME
-        FRAME.allocfunc = &frame_alloc_func;
-        FRAME.releasefunc = &frame_release;
-        // FRAME->draw_func = &frame_drawfunc;
+        // Register class name
+        strcpy(frame_class.name, "frame");
+        strcpy(top_level_class.name, "top_level");
+        strcpy(button_class.name, "button");
 
-        FRAME.setdefaultsfunc = NULL; FRAME.geomnotifyfunc = NULL; FRAME.handlefunc = NULL;
-        FRAME.next = NULL;
-
-        // TOP_LEVEL
-        TOP_LEVEL.allocfunc = &top_level_alloc_func;
-        TOP_LEVEL.releasefunc = &top_level_release;
-        // TOP_LEVEL->draw_func = &top_level_drawfunc;
-        TOP_LEVEL.setdefaultsfunc = NULL; TOP_LEVEL.geomnotifyfunc = NULL; TOP_LEVEL.handlefunc = NULL;
-        TOP_LEVEL.next = &FRAME;
-
-        // BUTTON
-        BUTTON.allocfunc = &button_alloc_func;
-        BUTTON.releasefunc = &button_release;
-        BUTTON.drawfunc = &ei_draw_button;
-        BUTTON.setdefaultsfunc = NULL; BUTTON.geomnotifyfunc = NULL; BUTTON.handlefunc = NULL;
-        BUTTON.next = &TOP_LEVEL;
+        // Register classes
+        ei_widgetclass_register(&frame_class);
+        ei_widgetclass_register(&top_level_class);
+        ei_widgetclass_register(&button_class);
 
         // Creates the root window. It is released by calling hw_quit later.
-        ROOT_WINDOW = hw_create_window(main_window_size, fullscreen);
+        root_windows = hw_create_window(main_window_size, fullscreen);
 
         // Initialize root frame (root widget).
-        ROOT_FRAME.wclass = &FRAME;
-        ROOT_FRAME.parent = NULL;
-        ROOT_FRAME.next_sibling = NULL;
+        root_frame.wclass = &frame_class;
+        root_frame.parent = NULL;
+        root_frame.next_sibling = NULL;
 
-        //TODO:Geometry management is not done for ROOT_FRAME. It has to be done.
+        //TODO:Geometry management is not done for root_frame. It has to be done.
+}
+
+/**
+ * @brief	Registers a class to the program so that widgets of this class can be created.
+ *		This must be done only once per widged class in the application.
+ *
+ * @param	widgetclass	The structure describing the class.
+ */
+void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass) {
+        char * class_name = ei_widgetclass_stringname(widgetclass->name);
+
+        if (strcmp(class_name, "button") == 0) {
+                button_class.allocfunc = &button_alloc_func;
+                button_class.releasefunc = &button_release;
+                button_class.drawfunc = &ei_draw_button;
+                button_class.setdefaultsfunc = &set_default_button;
+                button_class.next = NULL;
+                button_class.geomnotifyfunc = NULL; button_class.handlefunc = NULL;
+        } else if (strcmp(class_name, "top_level") == 0) {
+                top_level_class.allocfunc = &top_level_alloc_func;
+                top_level_class.releasefunc = &top_level_release;
+                top_level_class.drawfunc= &ei_draw_top_level;
+                top_level_class.setdefaultsfunc = &set_default_top_level;
+                top_level_class.next = &button_class;
+                top_level_class.geomnotifyfunc = NULL; top_level_class.handlefunc = NULL;
+        } else if (strcmp(class_name, "frame") == 0) {
+                frame_class.allocfunc = &frame_alloc_func;
+                frame_class.releasefunc = &frame_release;
+                frame_class.drawfunc = &ei_draw_frame;
+                frame_class.setdefaultsfunc = &set_default_frame;
+                frame_class.next = &top_level_class;
+                frame_class.geomnotifyfunc = NULL; frame_class.handlefunc = NULL;
+        }
 }
 
 /**
@@ -82,7 +98,14 @@ void ei_app_free(void){
  *		\ref ei_app_quit_request is called.
  */
 void ei_app_run(void){
-        getchar();
+        if (root_frame.children_head != NULL) {
+                ei_widget_t * current_children = root_frame.children_head;
+                while (current_children != NULL) {
+                        // Call draw function
+                        current_children->wclass->drawfunc;
+                        current_children = current_children->next_sibling;
+                }
+        }
 }
 
 /**
@@ -92,7 +115,7 @@ void ei_app_run(void){
  * @return 			The root widget.
  */
 ei_widget_t* ei_app_root_widget(void){
-        return &ROOT_FRAME;
+        return &root_frame;
 }
 
 /**
@@ -102,5 +125,13 @@ ei_widget_t* ei_app_root_widget(void){
  * @return 			The surface of the root window.
  */
 ei_surface_t ei_app_root_surface(void){
-        return *ROOT_WINDOW;
+        return *root_windows;
+}
+
+/**
+ * \brief	Tells the application to quite. Is usually called by an event handler (for example
+ *		when pressing the "Escape" key).
+ */
+void ei_app_quit_request(void) {
+
 }

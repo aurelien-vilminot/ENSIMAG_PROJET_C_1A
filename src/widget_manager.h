@@ -71,9 +71,27 @@ void frame_release(ei_widget_t* widget);
  * Draw functions
  */
 
-void                    ei_draw_button          (ei_widget_t*	widget,
-                                                 ei_surface_t		surface,
-                                                 ei_surface_t		pick_surface,
-                                                 ei_rect_t*		clipper);
+void ei_draw_button (ei_widget_t* widget,
+                 ei_surface_t		surface,
+                 ei_surface_t		pick_surface,
+                 ei_rect_t*		clipper);
+
+void ei_draw_frame (ei_widget_t* widget,
+                    ei_surface_t		surface,
+                    ei_surface_t		pick_surface,
+                    ei_rect_t*		clipper);
+
+void ei_draw_top_level (ei_widget_t* widget,
+                    ei_surface_t		surface,
+                    ei_surface_t		pick_surface,
+                    ei_rect_t*		clipper);
+
+void set_default_button (ei_widget_t *widget);
+
+void set_default_frame (ei_widget_t *widget);
+
+void set_default_top_level (ei_widget_t *widget);
+
+
 
 #endif //PROJETC_IG_WIDGET_MANAGER_H

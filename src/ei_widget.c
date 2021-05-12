@@ -343,3 +343,15 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
         top_level_widget->resizable = resizable;
         top_level_widget->min_size = min_size;
 }
+
+void set_default_button (ei_widget_t *widget) {
+        ei_button_t * m_button = (ei_button_t*) widget;
+}
+
+void set_default_frame (ei_widget_t *widget) {
+
+}
+
+void set_default_top_level (ei_widget_t *widget) {
+
+}

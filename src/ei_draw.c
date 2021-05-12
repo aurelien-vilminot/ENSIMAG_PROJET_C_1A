@@ -708,3 +708,31 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         
         free(destination_size);
 }
+
+/**
+ * @brief       Draw frame
+ * @param widget
+ * @param surface
+ * @param pick_surface
+ * @param clipper
+ */
+void ei_draw_frame (ei_widget_t* widget,
+                    ei_surface_t		surface,
+                    ei_surface_t		pick_surface,
+                    ei_rect_t*		clipper) {
+        ei_frame_t *frame = (ei_frame_t*) widget;
+
+        if (frame->border_width == 0) {
+                ei_fill(surface, frame->color, clipper);
+                ei_point_t place_text = {frame->widget->screen_location.top_left.x, frame->widget->screen_location.top_left.y};
+                ei_draw_text(surface, &place_text, *frame->text, *frame->text_font, *frame->text_color, clipper);
+        }
+}
+
+void ei_draw_top_level (ei_widget_t* widget,
+                        ei_surface_t		surface,
+                        ei_surface_t		pick_surface,
+                        ei_rect_t*		clipper) {
+
+}
+
