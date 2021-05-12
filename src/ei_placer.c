@@ -44,34 +44,82 @@ void		ei_place	(struct ei_widget_t*	widget,
                                      float*			rel_height){
         // Allocate placer structure
         // TODO : libérer placer param à la destruction
-        widget->placer_params = calloc(1, sizeof(ei_placer_params_t));
-        ei_placer_params_t * struct_placer = widget->placer_params;
+        // TODO : gérer les cas par défaut (voir commentaires en vert)
 
-        // Fill structure, data fields are filled only if the pointeur is not NULL
-        struct_placer->anchor = anchor;
-        if (anchor != NULL) struct_placer->anchor_data = *anchor;
+        if (widget->placer_params == NULL) {
 
-        struct_placer->x = x;
-        if (x != NULL) struct_placer->x_data = *x;
+                widget->placer_params = calloc(1, sizeof(ei_placer_params_t));
+                ei_placer_params_t * struct_placer = widget->placer_params;
 
-        struct_placer->y = y;
-        if (y != NULL) struct_placer->y_data = *y;
+                struct_placer->anchor_data = ei_anc_northwest;
+                struct_placer->anchor = &struct_placer->anchor_data;
+                struct_placer->x = &struct_placer->x_data;
+                struct_placer->y = &struct_placer->y_data;
 
-        struct_placer->w = width;
-        if (width != NULL) struct_placer->w_data = *width;
 
-        struct_placer->h = height;
-        if (height != NULL) struct_placer->h_data= *height;
+        }
 
-        struct_placer->rx = rel_x;
-        if (rel_x != NULL) struct_placer->rx_data= *rel_x;
 
-        struct_placer->ry = rel_y;
-        if (rel_y != NULL) struct_placer->ry_data = *rel_y;
+//        // Fill structure, data fields are filled only if the pointeur is not NULL
+//        struct_placer->anchor = anchor;
+//        if (anchor != NULL) struct_placer->anchor_data = *anchor;
+//
+//        struct_placer->x = x;
+//        if (x != NULL) struct_placer->x_data = *x;
+//
+//        struct_placer->y = y;
+//        if (y != NULL) struct_placer->y_data = *y;
+//
+//        struct_placer->w = width;
+//        if (width != NULL) struct_placer->w_data = *width;
+//
+//        struct_placer->h = height;
+//        if (height != NULL) struct_placer->h_data= *height;
+//
+//        struct_placer->rx = rel_x;
+//        if (rel_x != NULL) struct_placer->rx_data= *rel_x;
+//
+//        struct_placer->ry = rel_y;
+//        if (rel_y != NULL) struct_placer->ry_data = *rel_y;
+//
+//        struct_placer->rw = rel_width;
+//        if (rel_width != NULL) struct_placer->rw_data = *rel_width;
+//
+//        struct_placer->rh = rel_height;
+//        if (rel_height!= NULL) struct_placer->rh_data= *rel_height;
 
-        struct_placer->rw = rel_width;
-        if (rel_width != NULL) struct_placer->rw_data = *rel_width;
+}
 
-        struct_placer->rh = rel_height;
-        if (rel_height!= NULL) struct_placer->rh_data= *rel_height;
+/**
+ * \brief	Tells the placer to remove a widget from the screen and forget about it.
+ *		Note: the widget is not destroyed and still exists in memory.
+ *
+ * @param	widget		The widget to remove from screen.
+ */
+void ei_placer_forget(struct ei_widget_t* widget) {
+        // Delete the concerned widget in its children field parent
+        ei_widget_t *parent = widget->parent;
+        ei_widget_t *current_child = parent->children_head;
+
+        if (current_child == widget) {
+                // Case if the first child is the concerned widget, then remove it of the head
+                parent->children_head = current_child->next_sibling;
+        } else {
+                // Browse the children linked list to delete the concerned child
+                while (current_child->next_sibling != NULL) {
+                        if (current_child->next_sibling == widget) {
+                                ei_widget_t *to_suppr = current_child->next_sibling;
+                                current_child->next_sibling = current_child->next_sibling->next_sibling;
+                                free(to_suppr);
+                        }
+                        current_child = current_child->next_sibling;
+                }
+        }
+
+        // Remove parent of the concerned widget
+        widget->parent = NULL;
+
+        // Delete and free struct placer
+        widget->placer_params = NULL;
+        free(widget->placer_params);
 }

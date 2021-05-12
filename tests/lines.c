@@ -8,7 +8,7 @@
 #include "ei_draw.h"
 #include "ei_types.h"
 #include "ei_event.h"
-#include "../src/ei_create_button.h"
+#include "ei_create_button.h"
 
 
 /* test_line --
