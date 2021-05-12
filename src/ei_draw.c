@@ -74,12 +74,16 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                 // Get int color
                 uint32_t color_int = ei_map_rgba(surface, color);
                 // Max coordinates of clipper
-                uint32_t x_max = clipper->top_left.x + clipper->size.width;
-                uint32_t y_max = clipper->top_left.y + clipper->size.height;
+                uint32_t x_max;
+                uint32_t y_max;
+                if (clipper) {
+                        x_max = clipper->top_left.x + clipper->size.width;
+                        y_max = clipper->top_left.y + clipper->size.height;
+                }
 
                 if (first_point->next == NULL) {
                         // Case only one point
-                        if (is_in_clipper(first_point->point.x, first_point->point.y, x_max, y_max, clipper)) {
+                        if (!clipper || is_in_clipper(first_point->point.x, first_point->point.y, x_max, y_max, clipper)) {
                                 first_pixel[first_point->point.x + first_point->point.y * size.width] = color_int;
                         }
                 } else {
@@ -105,7 +109,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
 
                                                                         do {
                                                                                 ++p1.x;
-                                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                                 }
 
@@ -122,7 +126,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                         dx *= 2;
                                                                         // On trace la ligne
                                                                         do {
-                                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                                 }
                                                                                 ++p1.y;
@@ -142,7 +146,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                         dy *= 2;
                                                                         // On trace la ligne
                                                                         do {
-                                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                                 }
                                                                                 ++p1.x;
@@ -159,7 +163,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                         dx *= 2;
                                                                         // On trace la ligne
                                                                         do {
-                                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                                 }
                                                                                 --p1.y;
@@ -175,7 +179,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                 } else {
                                                         // On trace la ligne
                                                         do {
-                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                 }
                                                                 ++p1.x;
@@ -194,7 +198,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                         dy *= 2;
                                                                         // On trace la ligne
                                                                         do {
-                                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                                 }
                                                                                 p1.x--;
@@ -210,7 +214,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                         dy *= 2;
                                                                         dx *= 2;
                                                                         do {
-                                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                                 }
                                                                                 p1.y++;
@@ -228,7 +232,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                         dx *= 2;
                                                                         dy *= 2;
                                                                         do {
-                                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                                 }
                                                                                 p1.x--;
@@ -242,7 +246,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                         dy *= 2;
                                                                         dx *= 2;
                                                                         do {
-                                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                                 }
                                                                                 p1.y--;
@@ -256,7 +260,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                 } else {
                                                         // Case dy = 0 and dx < 0
                                                         do {
-                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                 }
                                                                 p1.x--;
@@ -270,7 +274,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                 if (dy > 0) {
                                                         // On trace la ligne
                                                         do {
-                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                 }
                                                                 ++p1.y;
@@ -278,7 +282,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                 } else {
                                                         // On trace la ligne
                                                         do {
-                                                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                                                 }
                                                                 --p1.y;
@@ -287,7 +291,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                         }
                                 }
                                 // On trace le pixel final
-                                if (is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
+                                if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                 }
 
@@ -320,16 +324,19 @@ void			ei_draw_polygon		(ei_surface_t			surface,
         uint32_t *first_pixel = (uint32_t*)hw_surface_get_buffer(surface);
 
         // Init clipper size
-        uint32_t x_max = clipper->top_left.x + clipper->size.width;
-        uint32_t y_max = clipper->top_left.y + clipper->size.height;
+        uint32_t x_max;
+        uint32_t y_max;
+        if (clipper) {
+                x_max = clipper->top_left.x + clipper->size.width;
+                y_max = clipper->top_left.y + clipper->size.height;
+        }
 
         // Init TC
         ei_size_t surface_size = hw_surface_get_size(surface);
 
-        // First line where intersect polygon, at first the bottom of the surface
+        // First line where intersect polygon, at first : the bottom of the surface
         int y_first_line = surface_size.height;
 
-        // TODO: modifier la taille du tableau : taille = ymax de tous les points
         int size_tab = surface_size.height;
         struct side **tc = calloc(size_tab, sizeof(struct side*));
         for (uint32_t i = 0 ; i < size_tab ; ++i) {
@@ -364,7 +371,8 @@ void			ei_draw_polygon		(ei_surface_t			surface,
                         new_side->dx = p2.x - p1.x;
                         new_side->dy = p2.y - p1.y;
                         indice_tc = p1.y;
-                        // Update of the first line of intersect
+
+                        // Update of the first and last lines of intersect
                         y_first_line = p1.y < y_first_line ? p1.y : y_first_line;
                 }
                 new_side->error = 0;
@@ -411,7 +419,7 @@ void			ei_draw_polygon		(ei_surface_t			surface,
                         // Color all the concerned pixels
                         for (int32_t i = begin_fill ; i < end_fill ; ++i) {
                                 uint32_t pixel_index = i + y_first_line * surface_size.width;
-                                if (is_in_clipper(i, y_first_line, x_max, y_max, clipper)) {
+                                if (!clipper || is_in_clipper(i, y_first_line, x_max, y_max, clipper)) {
                                         first_pixel[pixel_index] = color_int;
                                 }
                         }
@@ -493,13 +501,17 @@ void			ei_fill			(ei_surface_t		surface,
         uint32_t color_int = ei_map_rgba(surface, *color);
 
         // Max coordinates of clipper
-        uint32_t x_max = clipper->top_left.x + clipper->size.width;
-        uint32_t y_max = clipper->top_left.y + clipper->size.height;
+        uint32_t x_max;
+        uint32_t y_max;
+        if (clipper) {
+                x_max = clipper->top_left.x + clipper->size.width;
+                y_max = clipper->top_left.y + clipper->size.height;
+        }
 
         // Put color on each pixels of the surface which are in the clipper
         for (int y = 0; y < size.height; y++){
                 for(int x=0; x < size.width; x++){
-                        if (is_in_clipper(x, y, x_max, y_max, clipper)) {
+                        if (!clipper || is_in_clipper(x, y, x_max, y_max, clipper)) {
                                 *first_pixel++ = color_int;
                         } else {
                                 first_pixel++;

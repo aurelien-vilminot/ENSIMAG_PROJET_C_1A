@@ -2,6 +2,7 @@
 #include "ei_application.h"
 #include "ei_widget.h"
 #include "widget_manager.h"
+#include "ei_event.h"
 
 
 /**
@@ -95,7 +96,22 @@ void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass) {
  *		(ie. calls \ref hw_quit).
  */
 void ei_app_free(void){
+        // Delete linked list classes
+        ei_widgetclass_t *linked_list_classes = frame_class;
+        while (linked_list_classes->next != NULL) {
+                ei_widgetclass_t *to_suppr = linked_list_classes;
+                linked_list_classes->next = linked_list_classes->next;
+                to_suppr = NULL;
+                free(to_suppr);
+                linked_list_classes = linked_list_classes->next;
+        }
+        linked_list_classes = NULL;
+        free(linked_list_classes);
 
+        // Delete all existing widgets
+        ei_widget_destroy(root_frame);
+        // Release the hardware
+        hw_quit();
 }
 
 /**
@@ -103,16 +119,45 @@ void ei_app_free(void){
  *		\ref ei_app_quit_request is called.
  */
 void ei_app_run(void){
-        if (root_frame->children_head != NULL) {
-                ei_widget_t *current_children = root_frame->children_head;
-                while (current_children != NULL) {
-                        // Call draw function
-                        // TODO : changer paramètres
-                        current_children->wclass->drawfunc(root_frame, root_windows, NULL, NULL);
-                        current_children = current_children->next_sibling;
+        // Wait for a key press.
+        // TODO : utiliser ei_app_quit_request pour la condition du while
+        ei_event_t event;
+        event.type = ei_ev_none;
+        while (event.type != ei_ev_keydown) {
+                // Draw root
+                root_frame->wclass->drawfunc(root_frame, root_windows, NULL, NULL);
+
+                // Depth course of each widgets
+                if (root_frame->children_head != NULL) {
+
+                        // Get the first child and the first child of its child (this could be NULL)
+                        ei_widget_t *current_widget = root_frame->children_head;
+                        ei_widget_t *first_next_child = current_widget->children_head;
+
+                        do {
+                                while (current_widget != NULL) {
+                                        if (first_next_child == NULL) {
+                                                // Put the first child, if it doesn't store
+                                                first_next_child = current_widget->children_head;
+                                        }
+
+                                        // Call draw function
+                                        // TODO : changer paramètre surface, pick surface, clipper
+                                        current_widget->wclass->drawfunc(current_widget, root_windows, NULL, NULL);
+
+                                        current_widget = current_widget->next_sibling;
+                                }
+
+                                // Change deep level
+                                current_widget = first_next_child;
+                                first_next_child = NULL;
+                        } while (current_widget != NULL);
                 }
+
+                // Update screen and event
+                hw_surface_update_rects(root_windows, NULL);
+                hw_event_wait_next(&event);
         }
-        root_frame->wclass->drawfunc(root_frame, root_windows, NULL, NULL);
 }
 
 /**

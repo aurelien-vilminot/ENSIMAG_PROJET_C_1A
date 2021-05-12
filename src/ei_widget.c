@@ -22,9 +22,9 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
                                                              ei_widget_t*		parent,
                                                              void*			user_data,
                                                              ei_widget_destructor_t destructor) {
-        // Here something corresponds to the ll of ei_widgetclass_t elements.
-        ei_widgetclass_t *something = get_linked_list_classes();
-        ei_widgetclass_t *class = get_class(something, class_name);
+        // ll_classes is a linked list of ei_widgetclass_t elements.
+        ei_widgetclass_t *ll_classes = get_linked_list_classes();
+        ei_widgetclass_t *class = get_class(ll_classes, class_name);
 
         if (class){
                 // Initialisation by functions of ei_widgetclass_t
@@ -56,7 +56,33 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
  * @param	widget		The widget that is to be destroyed.
  */
 void			ei_widget_destroy		(ei_widget_t*		widget) {
-        // TO be done recursively, enjoy Aurelien !
+        // Depth course of each widgets
+        if (widget->children_head!= NULL) {
+
+                // Get the first child and the first child of its child (this could be NULL)
+                ei_widget_t *current_widget = widget->children_head;
+                ei_widget_t *first_next_child = current_widget->children_head;
+
+                do {
+                        while (current_widget != NULL) {
+                                if (first_next_child == NULL) {
+                                        // Put the first child, if it doesn't store
+                                        first_next_child = current_widget->children_head;
+                                }
+
+                                // Call destructor if it provided
+                                if (current_widget->destructor) {
+                                        current_widget->destructor(current_widget);
+                                }
+
+                                current_widget = current_widget->next_sibling;
+                        }
+
+                        // Change deep level
+                        current_widget = first_next_child;
+                        first_next_child = NULL;
+                } while (current_widget != NULL);
+        }
 }
 
 

@@ -1,3 +1,4 @@
+#include <ei_widget.h>
 #include "ei_placer.h"
 
 /**
@@ -41,5 +42,36 @@ void		ei_place	(struct ei_widget_t*	widget,
                                      float*			rel_y,
                                      float*			rel_width,
                                      float*			rel_height){
+        // Allocate placer structure
+        // TODO : libérer placer param à la destruction
+        widget->placer_params = calloc(1, sizeof(ei_placer_params_t));
+        ei_placer_params_t * struct_placer = widget->placer_params;
 
+        // Fill structure, data fields are filled only if the pointeur is not NULL
+        struct_placer->anchor = anchor;
+        if (anchor != NULL) struct_placer->anchor_data = *anchor;
+
+        struct_placer->x = x;
+        if (x != NULL) struct_placer->x_data = *x;
+
+        struct_placer->y = y;
+        if (y != NULL) struct_placer->y_data = *y;
+
+        struct_placer->w = width;
+        if (width != NULL) struct_placer->w_data = *width;
+
+        struct_placer->h = height;
+        if (height != NULL) struct_placer->h_data= *height;
+
+        struct_placer->rx = rel_x;
+        if (rel_x != NULL) struct_placer->rx_data= *rel_x;
+
+        struct_placer->ry = rel_y;
+        if (rel_y != NULL) struct_placer->ry_data = *rel_y;
+
+        struct_placer->rw = rel_width;
+        if (rel_width != NULL) struct_placer->rw_data = *rel_width;
+
+        struct_placer->rh = rel_height;
+        if (rel_height!= NULL) struct_placer->rh_data= *rel_height;
 }
