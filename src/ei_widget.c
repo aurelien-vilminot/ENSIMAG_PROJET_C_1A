@@ -23,7 +23,7 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
                                                              void*			user_data,
                                                              ei_widget_destructor_t destructor) {
         // Here something corresponds to the ll of ei_widgetclass_t elements.
-        ei_widgetclass_t *something = NULL;
+        ei_widgetclass_t *something = get_linked_list_classes();
         ei_widgetclass_t *class = get_class(something, class_name);
 
         if (class){
@@ -238,7 +238,7 @@ void			ei_frame_configure		(ei_widget_t*		widget,
         // Cast into frame widget to configure it
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
 
-        frame_widget->widget->requested_size = *requested_size != NULL ? *requested_size : frame_widget->widget->requested_size;
+        frame_widget->widget.requested_size = requested_size != NULL ? *requested_size : frame_widget->widget.requested_size;
         frame_widget->color = color != NULL ? color : frame_widget->color;
         frame_widget->border_width = border_width != NULL ? border_width : frame_widget-> border_width;
         frame_widget->relief = relief != NULL ? relief : frame_widget-> relief;
@@ -286,7 +286,7 @@ void			ei_button_configure		(ei_widget_t*		widget,
         // Cast into button widget to configure it
         ei_button_t * button_widget = (ei_button_t*) widget;
 
-        button_widget->widget->requested_size = *requested_size != NULL ? *requested_size : button_widget->widget->requested_size;
+        button_widget->widget.requested_size = requested_size != NULL ? *requested_size : button_widget->widget.requested_size;
         button_widget->color = color != NULL ? color : button_widget->color;
         button_widget->border_width = border_width != NULL ? border_width : button_widget-> border_width;
         button_widget->corner_radius = corner_radius != NULL ? corner_radius : button_widget->corner_radius;
@@ -335,7 +335,7 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
         // Cast into top_level widget to configure it
         ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
 
-        top_level_widget->widget->requested_size = *requested_size != NULL ? *requested_size : top_level_widget->widget->requested_size;
+        top_level_widget->widget.requested_size = requested_size != NULL ? *requested_size : top_level_widget->widget.requested_size;
         top_level_widget->color = color != NULL ? color :top_level_widget->color;
         top_level_widget->border_width = border_width != NULL ? border_width : top_level_widget-> border_width;
         top_level_widget->title = title != NULL ? title :top_level_widget->title;
@@ -345,13 +345,69 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
 }
 
 void set_default_button (ei_widget_t *widget) {
-        ei_button_t * m_button = (ei_button_t*) widget;
+        ei_button_t *button_widget = (ei_button_t*) widget;
+
+        ei_size_t *default_size = malloc(sizeof(ei_size_t));
+        default_size->width = 50;
+        default_size->height = 30;
+        button_widget->widget.requested_size = *default_size;
+
+        ei_color_t *default_color = malloc(sizeof(ei_color_t));
+        default_color->red = 0x7C;
+        default_color->green = 0x87;
+        default_color->blue = 0x8E;
+        default_color->alpha = 0xff;
+        button_widget->color = default_color;
+
+        int * default_border_width = malloc(sizeof(int));
+        *default_border_width = 5;
+        button_widget->border_width = default_border_width;
+
+        int * default_corner_radius = malloc(sizeof(int));
+        *default_corner_radius = 10;
+        button_widget->corner_radius = default_corner_radius;
 }
 
 void set_default_frame (ei_widget_t *widget) {
+        ei_frame_t * frame_widget = (ei_frame_t*) widget;
 
+        ei_size_t *default_size = malloc(sizeof(ei_size_t));
+        default_size->width = 800;
+        default_size->height = 600;
+        frame_widget->widget.requested_size = *default_size;
+
+        ei_color_t *default_color = malloc(sizeof(ei_color_t));
+        default_color->red = 0x89;
+        default_color->green = 0xAb;
+        default_color->blue = 0xE3;
+        default_color->alpha = 0xff;
+        frame_widget->color = default_color;
+
+        int * default_border_width = malloc(sizeof(int));
+        *default_border_width = 0;
+        frame_widget->border_width = default_border_width;
 }
 
 void set_default_top_level (ei_widget_t *widget) {
+        ei_top_level_t *top_level_widget = (ei_top_level_t*) widget;
 
+        ei_size_t *default_size = malloc(sizeof(ei_size_t));
+        default_size->width = 50;
+        default_size->height = 30;
+        top_level_widget->widget.requested_size = *default_size;
+
+        ei_color_t *default_color = malloc(sizeof(ei_color_t));
+        default_color->red = 0xD0;
+        default_color->green = 0xD3;
+        default_color->blue = 0xD4;
+        default_color->alpha = 0xff;
+        top_level_widget->color = default_color;
+
+        int *default_border_width = malloc(sizeof(int));
+        *default_border_width = 5;
+        top_level_widget->border_width = default_border_width;
+
+        ei_bool_t *default_closable = malloc(sizeof(ei_bool_t));
+        *default_closable = EI_TRUE;
+        top_level_widget->closable = default_closable;
 }

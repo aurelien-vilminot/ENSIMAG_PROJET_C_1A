@@ -8,7 +8,7 @@
 #include "application.h"
 
 typedef struct ei_top_level_t {
-        ei_widget_t*		widget;
+        ei_widget_t		widget;
         ei_color_t*		color;
         int*			border_width;
         char**			title;
@@ -18,7 +18,7 @@ typedef struct ei_top_level_t {
 } ei_top_level_t;
 
 typedef struct ei_button_t {
-        ei_widget_t*		widget;
+        ei_widget_t		widget;
         const ei_color_t*	color;
         int*			border_width;
         int*			corner_radius;
@@ -35,7 +35,7 @@ typedef struct ei_button_t {
 } ei_button_t;
 
 typedef struct ei_frame_t {
-        ei_widget_t*		widget;
+        ei_widget_t		widget;
         const ei_color_t*	color;
         int*			border_width;
         ei_relief_t*		relief;

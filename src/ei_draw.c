@@ -630,10 +630,10 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         ei_button_t *button = (ei_button_t*) widget;
 
         // Get size and place parameters
-        int width_button = button->widget->requested_size.width;
-        int height_button = button->widget->requested_size.height;
-        int place_x = button->widget->screen_location.top_left.x;
-        int place_y = button->widget->screen_location.top_left.y;
+        int width_button = button->widget.requested_size.width;
+        int height_button = button->widget.requested_size.height;
+        int place_x = button->widget.screen_location.top_left.x;
+        int place_y = button->widget.screen_location.top_left.y;
         
         // Set size and place for the rectangle used to model the center of the button (all without border) 
         ei_size_t size_middle_button = {width_button - 2*(*button->border_width), height_button - 2*(*button->border_width)};
@@ -642,48 +642,20 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         
         // Rectangle used for border
         ei_rect_t border_rect = ei_rect(ei_point(place_x, place_y), ei_size(width_button, height_button));
-        
+
         ei_color_t base_color = *button->color;
+
+        // Lighten top color
         ei_color_t color_top = *button->color;
-        if (color_top.red <= 205){
-                color_top.red += 50;
-        }
-        else{
-                color_top.red = 255;
-        }
-        if (color_top.green <= 205){
-                color_top.green += 50;
-        }
-        else{
-                color_top.green = 255;
-        }
-        if(color_top.blue <= 205){
-                color_top.blue += 50;
-        }
-        else{
-                color_top.blue = 255;
-        }
+        color_top.red = color_top.red <= 205 ? color_top.red += 50 : 255;
+        color_top.green = color_top.green <= 205 ? color_top.green += 50 : 255;
+        color_top.blue = color_top.blue <= 205 ? color_top.blue += 50 : 255;
 
+        // Darken bottom color
         ei_color_t color_bottom = *button->color;
-
-        if (color_top.red >= 50){
-                color_top.red -= 50;
-        }
-        else{
-                color_top.red = 0;
-        }
-        if (color_top.green >= 50){
-                color_top.green -= 50;
-        }
-        else{
-                color_top.green = 0;
-        }
-        if(color_top.blue >= 50){
-                color_top.blue -= 50;
-        }
-        else{
-                color_top.blue = 0;
-        }
+        color_bottom.red = color_bottom.red >= 50 ? color_bottom.red -= 50 : 0;
+        color_bottom.green = color_bottom.green >= 50 ? color_bottom.green -= 50 : 0;
+        color_bottom.blue = color_top.blue >= 50 ? color_bottom.blue -= 50 : 0;
 
         // Set color param in the widget for the center part of the button
         ei_color_t color_middle = base_color;
@@ -705,7 +677,8 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         int place_text_y = (int) height_button - destination_size->height / 2;
         ei_point_t place_text = {place_text_x, place_text_y};
         ei_draw_text(surface, &place_text, *button->text , button->text_font, *button->text_color, clipper);
-        
+
+        // Free memory
         free(destination_size);
 }
 
@@ -722,10 +695,10 @@ void ei_draw_frame (ei_widget_t* widget,
                     ei_rect_t*		clipper) {
         ei_frame_t *frame = (ei_frame_t*) widget;
 
-        if (frame->border_width == 0) {
+        if (*frame->border_width == 0) {
                 ei_fill(surface, frame->color, clipper);
-                ei_point_t place_text = {frame->widget->screen_location.top_left.x, frame->widget->screen_location.top_left.y};
-                ei_draw_text(surface, &place_text, *frame->text, *frame->text_font, *frame->text_color, clipper);
+//                ei_point_t place_text = {frame->widget.screen_location.top_left.x, frame->widget.screen_location.top_left.y};
+//                ei_draw_text(surface, &place_text, *frame->text, *frame->text_font, *frame->text_color, clipper);
         }
 }
 
