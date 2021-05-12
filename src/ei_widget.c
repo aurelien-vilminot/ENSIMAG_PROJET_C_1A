@@ -238,17 +238,17 @@ void			ei_frame_configure		(ei_widget_t*		widget,
         // Cast into frame widget to configure it
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
 
-        frame_widget->widget->requested_size = *requested_size;
-        frame_widget->color = color;
-        frame_widget->border_width = border_width;
-        frame_widget->relief = relief;
-        frame_widget->text = text;
-        frame_widget->text_font = text_font;
-        frame_widget->text_color = text_color;
-        frame_widget->text_anchor = text_anchor;
-        frame_widget->img = img;
-        frame_widget->img_rect = img_rect;
-        frame_widget->img_anchor = img_anchor;
+        frame_widget->widget->requested_size = *requested_size != NULL ? *requested_size : frame_widget->widget->requested_size;
+        frame_widget->color = color != NULL ? color : frame_widget->color;
+        frame_widget->border_width = border_width != NULL ? border_width : frame_widget-> border_width;
+        frame_widget->relief = relief != NULL ? relief : frame_widget-> relief;
+        frame_widget->text = text != NULL ? text : frame_widget-> text;
+        frame_widget->text_font = text_font != NULL ? text_font : frame_widget-> text_font;
+        frame_widget->text_color = text_color != NULL ? text_color : frame_widget-> text_color;
+        frame_widget->text_anchor = text_anchor != NULL ? text_anchor : frame_widget-> text_anchor;
+        frame_widget->img = img != NULL ? img : frame_widget-> img;
+        frame_widget->img_rect = img_rect != NULL ? img_rect : frame_widget-> img_rect;
+        frame_widget->img_anchor = img_anchor != NULL ? img_anchor : frame_widget-> img_anchor;
 }
 
 
@@ -286,20 +286,20 @@ void			ei_button_configure		(ei_widget_t*		widget,
         // Cast into button widget to configure it
         ei_button_t * button_widget = (ei_button_t*) widget;
 
-        button_widget->widget->requested_size = *requested_size;
-        button_widget->color = color;
-        button_widget->border_width = border_width;
-        button_widget->corner_radius = corner_radius;
-        button_widget->relief = relief;
-        button_widget->text = text;
-        button_widget->text_font = text_font;
-        button_widget->text_color = text_color;
-        button_widget->text_anchor = text_anchor;
-        button_widget->img = img;
-        button_widget->img_rect = img_rect;
-        button_widget->img_anchor = img_anchor;
-        button_widget->callback = callback;
-        button_widget->user_param = user_param;
+        button_widget->widget->requested_size = *requested_size != NULL ? *requested_size : button_widget->widget->requested_size;
+        button_widget->color = color != NULL ? color : button_widget->color;
+        button_widget->border_width = border_width != NULL ? border_width : button_widget-> border_width;
+        button_widget->corner_radius = corner_radius != NULL ? corner_radius : button_widget->corner_radius;
+        button_widget->relief = relief != NULL ? relief : button_widget->relief;
+        button_widget->text = text != NULL ? text : button_widget->text;
+        button_widget->text_font = text_font != NULL ? text_font : button_widget->text_font;
+        button_widget->text_color = text_color != NULL ? text_color : button_widget->text_color;
+        button_widget->text_anchor = text_anchor != NULL ? text_anchor : button_widget->text_anchor;
+        button_widget->img = img != NULL ? img : button_widget->img;
+        button_widget->img_rect = img_rect != NULL ? img_rect : button_widget->img_rect;
+        button_widget->img_anchor = img_anchor != NULL ? img_anchor : button_widget->img_anchor;
+        button_widget->callback = callback != NULL ? callback : button_widget->callback;
+        button_widget->user_param = user_param != NULL ? user_param : button_widget->user_param;
 }
 
 /**
@@ -335,13 +335,13 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
         // Cast into top_level widget to configure it
         ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
 
-        top_level_widget->widget->requested_size = *requested_size;
-        top_level_widget->color = color;
-        top_level_widget->border_width = border_width;
-        top_level_widget->title = title;
-        top_level_widget->closable = closable;
-        top_level_widget->resizable = resizable;
-        top_level_widget->min_size = min_size;
+        top_level_widget->widget->requested_size = *requested_size != NULL ? *requested_size : top_level_widget->widget->requested_size;
+        top_level_widget->color = color != NULL ? color :top_level_widget->color;
+        top_level_widget->border_width = border_width != NULL ? border_width : top_level_widget-> border_width;
+        top_level_widget->title = title != NULL ? title :top_level_widget->title;
+        top_level_widget->closable = closable != NULL ? closable :top_level_widget->closable;
+        top_level_widget->resizable = resizable != NULL ? resizable :top_level_widget->resizable;
+        top_level_widget->min_size = min_size != NULL ? min_size :top_level_widget->min_size;
 }
 
 void set_default_button (ei_widget_t *widget) {
