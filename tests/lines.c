@@ -230,17 +230,17 @@ void test_rounded_frame(ei_surface_t surface, ei_rect_t* clipper) {
         ei_rect_t rect_center = ei_rect(ei_point(25, 25), ei_size(290, 190));
         uint32_t radius = 30;
 
-        ei_color_t top_color = {0xff, 0x00, 0x00, 0xff};
-        ei_color_t bottom_color = {0x00, 0x00, 0xff, 0xff};
-        ei_color_t center_color = {0x00, 0xff, 0x00, 0xff};
+        ei_color_t top_color = {0xB2, 0xB2, 0xB2, 0xff};
+        ei_color_t bottom_color = {0x4E, 0x4E, 0x4E, 0x4E};
+        ei_color_t center_color = {0x7f, 0x7f, 0x7f, 0xff};
 
         ei_linked_point_t *top = rounded_frame(rect_border, radius, TOP);
         ei_linked_point_t *bottom = rounded_frame(rect_border, radius, BOTTOM);
         ei_linked_point_t *center = rounded_frame(rect_center, radius, FULL);
 
         ei_draw_polygon(surface, top, top_color, clipper);
-        ei_draw_polygon(surface, bottom, center_color, clipper);
-        ei_draw_polygon(surface, center, bottom_color, clipper);
+        ei_draw_polygon(surface, bottom, bottom_color, clipper);
+        ei_draw_polygon(surface, center, center_color, clipper);
 
         // Separate border and center rectangles
 
@@ -253,8 +253,8 @@ void test_rounded_frame(ei_surface_t surface, ei_rect_t* clipper) {
         center = rounded_frame(rect_center, radius, FULL);
 
         ei_draw_polygon(surface, top, top_color, clipper);
-        ei_draw_polygon(surface, bottom, center_color, clipper);
-        ei_draw_polygon(surface, center, bottom_color, clipper);
+        ei_draw_polygon(surface, bottom, bottom_color, clipper);
+        ei_draw_polygon(surface, center, center_color, clipper);
 }
 
 void test_draw_text(ei_surface_t surface, ei_rect_t* clipper){

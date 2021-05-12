@@ -644,10 +644,47 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         ei_rect_t border_rect = ei_rect(ei_point(place_x, place_y), ei_size(width_button, height_button));
         
         ei_color_t base_color = *button->color;
-        // TODO : régler différence de couleur avec les bords
         ei_color_t color_top = *button->color;
+        if (color_top.red <= 205){
+                color_top.red += 50;
+        }
+        else{
+                color_top.red = 255;
+        }
+        if (color_top.green <= 205){
+                color_top.green += 50;
+        }
+        else{
+                color_top.green = 255;
+        }
+        if(color_top.blue <= 205){
+                color_top.blue += 50;
+        }
+        else{
+                color_top.blue = 255;
+        }
+
         ei_color_t color_bottom = *button->color;
-        
+
+        if (color_top.red >= 50){
+                color_top.red -= 50;
+        }
+        else{
+                color_top.red = 0;
+        }
+        if (color_top.green >= 50){
+                color_top.green -= 50;
+        }
+        else{
+                color_top.green = 0;
+        }
+        if(color_top.blue >= 50){
+                color_top.blue -= 50;
+        }
+        else{
+                color_top.blue = 0;
+        }
+
         // Set color param in the widget for the center part of the button
         ei_color_t color_middle = base_color;
 
