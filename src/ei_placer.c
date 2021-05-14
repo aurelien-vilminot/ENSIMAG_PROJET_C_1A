@@ -42,52 +42,143 @@ void		ei_place	(struct ei_widget_t*	widget,
                                      float*			rel_y,
                                      float*			rel_width,
                                      float*			rel_height){
-        // Allocate placer structure
-        // TODO : libérer placer param à la destruction
-        // TODO : gérer les cas par défaut (voir commentaires en vert)
-
         if (widget->placer_params == NULL) {
-
+                // At init, there is no placer, so it must be allocated
                 widget->placer_params = calloc(1, sizeof(ei_placer_params_t));
-                ei_placer_params_t * struct_placer = widget->placer_params;
+                ei_placer_params_t *struct_placer = widget->placer_params;
 
-                struct_placer->anchor_data = ei_anc_northwest;
-                struct_placer->anchor = &struct_placer->anchor_data;
-                struct_placer->x = &struct_placer->x_data;
-                struct_placer->y = &struct_placer->y_data;
+                // Fill structure, data fields are filled with a default value if data concerned is NULL
+                if (anchor) {
+                        struct_placer->anchor = anchor;
+                        struct_placer->anchor_data = *anchor;
+                } else {
+                        struct_placer->anchor_data = ei_anc_northwest;
+                        struct_placer->anchor = &struct_placer->anchor_data;
+                }
 
+                if (x) {
+                        struct_placer->x = x;
+                        struct_placer->x_data = *x;
+                } else {
+                        struct_placer->x_data = 0;
+                        struct_placer->x = &struct_placer->x_data;
+                }
 
+                if (y) {
+                        struct_placer->y = y;
+                        struct_placer->y_data = *y;
+                } else {
+                        struct_placer->y_data = 0;
+                        struct_placer->y = &struct_placer->y_data;
+                }
+
+                if (width) {
+                        struct_placer->w = width;
+                        struct_placer->w_data = *width;
+                } else {
+                        if (widget->requested_size.width) {
+                                struct_placer->w_data= widget->requested_size.width;
+                                struct_placer->w = &widget->requested_size.width;
+                        } else {
+                                struct_placer->w_data = 0;
+                                struct_placer->w = &struct_placer->w_data;
+                        }
+                }
+
+                if (height) {
+                        struct_placer->h = height;
+                        struct_placer->h_data = *height;
+                } else {
+                        if (widget->requested_size.height) {
+                                struct_placer->h_data = widget->requested_size.height;
+                                struct_placer->h = &widget->requested_size.height;
+                        } else {
+                                struct_placer->h_data = 0;
+                                struct_placer->h = &struct_placer->h_data;
+                        }
+                }
+
+                if (rel_x) {
+                        struct_placer->rx = rel_x;
+                        struct_placer->rx_data = *rel_x;
+                } else {
+                        struct_placer->rx_data = 0.0;
+                        struct_placer->rx = &struct_placer->rx_data;
+                }
+
+                if (rel_y) {
+                        struct_placer->ry = rel_y;
+                        struct_placer->ry_data = *rel_y;
+                } else {
+                        struct_placer->ry_data = 0.0;
+                        struct_placer->ry = &struct_placer->ry_data;
+                }
+
+                if (rel_width) {
+                        struct_placer->rw = rel_width;
+                        struct_placer->rw_data = *rel_width;
+                } else {
+                        struct_placer->rw_data = 0.0;
+                        struct_placer->rw = &struct_placer->rw_data;
+                }
+
+                if (rel_height) {
+                        struct_placer->rh= rel_height;
+                        struct_placer->rh_data = *rel_height;
+                } else {
+                        struct_placer->rh_data = 0.0;
+                        struct_placer->rh = &struct_placer->rh_data;
+                }
+        } else {
+                // Case if placer already managed
+                ei_placer_params_t *struct_placer = widget->placer_params;
+
+                // Fill structure, data fields are replaced only if data concerned is not NULL
+                if (anchor) {
+                        struct_placer->anchor = anchor;
+                        struct_placer->anchor_data = *anchor;
+                }
+
+                if (x) {
+                        struct_placer->x = x;
+                        struct_placer->x_data = *x;
+                }
+
+                if (y) {
+                        struct_placer->y = y;
+                        struct_placer->y_data = *y;
+                }
+
+                if (width) {
+                        struct_placer->w = width;
+                        struct_placer->w_data = *width;
+                }
+
+                if (height) {
+                        struct_placer->h = height;
+                        struct_placer->h_data = *height;
+                }
+
+                if (rel_x) {
+                        struct_placer->rx = rel_x;
+                        struct_placer->rx_data = *rel_x;
+                }
+
+                if (rel_y) {
+                        struct_placer->ry = rel_y;
+                        struct_placer->ry_data = *rel_y;
+                }
+
+                if (rel_width) {
+                        struct_placer->rw = rel_width;
+                        struct_placer->rw_data = *rel_width;
+                }
+
+                if (rel_height) {
+                        struct_placer->rh= rel_height;
+                        struct_placer->rh_data = *rel_height;
+                }
         }
-
-
-//        // Fill structure, data fields are filled only if the pointeur is not NULL
-//        struct_placer->anchor = anchor;
-//        if (anchor != NULL) struct_placer->anchor_data = *anchor;
-//
-//        struct_placer->x = x;
-//        if (x != NULL) struct_placer->x_data = *x;
-//
-//        struct_placer->y = y;
-//        if (y != NULL) struct_placer->y_data = *y;
-//
-//        struct_placer->w = width;
-//        if (width != NULL) struct_placer->w_data = *width;
-//
-//        struct_placer->h = height;
-//        if (height != NULL) struct_placer->h_data= *height;
-//
-//        struct_placer->rx = rel_x;
-//        if (rel_x != NULL) struct_placer->rx_data= *rel_x;
-//
-//        struct_placer->ry = rel_y;
-//        if (rel_y != NULL) struct_placer->ry_data = *rel_y;
-//
-//        struct_placer->rw = rel_width;
-//        if (rel_width != NULL) struct_placer->rw_data = *rel_width;
-//
-//        struct_placer->rh = rel_height;
-//        if (rel_height!= NULL) struct_placer->rh_data= *rel_height;
-
 }
 
 /**

@@ -418,7 +418,7 @@ void set_default_top_level (ei_widget_t *widget) {
         ei_top_level_t *top_level_widget = (ei_top_level_t*) widget;
 
         ei_size_t *default_size = malloc(sizeof(ei_size_t));
-        default_size->width = 50;
+        default_size->width = 100;
         default_size->height = 30;
         top_level_widget->widget.requested_size = *default_size;
 
