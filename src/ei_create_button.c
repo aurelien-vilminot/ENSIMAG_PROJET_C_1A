@@ -1,7 +1,17 @@
 #include "ei_create_button.h"
 #include "single_linked_list.h"
 
-// TODO : commentaires
+/**
+ * @brief       Generate a linked list of points which represent a bow.
+ *              The linked list is malloc so it must be free by the user of this function.
+ *
+ * @param       center          The bow center represented as an ei_point_t.
+ * @param       radius          The bow angle.
+ * @param       begin_angle     The angle where the bow start.
+ * @param       end_angle       The angle where the bow end.
+ *
+ * @return      The linked list of points.
+ */
 ei_linked_point_t*       arc                     (ei_point_t             center,
                                                  uint32_t               radius,
                                                  double_t               begin_angle,
@@ -38,7 +48,17 @@ ei_linked_point_t*       arc                     (ei_point_t             center,
         return head_list;
 }
 
-// TODO : commentaires
+/**
+ * @brief       Generate a linked list of points which represent a rectangle with rounded edges.
+ *              This function is usually used to create buttons.
+ *
+ * @param       rectangle           The rectangle (size and top-left position) which must be rounded.
+ * @param       rounded_radius      The radius of roundings.
+ * @param       part                The part of rectangle which must be generated.
+ *                                  It could be, top (TOP), bottom(BOTTOM) or the entire rectangle (FULL).
+ *
+ * @return      The linked list of points.
+ */
 ei_linked_point_t*       rounded_frame           (ei_rect_t              rectangle,
                                                  uint32_t                  rounded_radius,
                                                   ei_part_frame           part) {
@@ -182,8 +202,12 @@ ei_linked_point_t*       rounded_frame           (ei_rect_t              rectang
         return head_list;
 }
 
-/*
- * Return the last point of a single linked list
+/**
+ * @brief       Return the last point of a single linked list.
+ *
+ * @param       ll      The linked list.
+ *
+ * @return      The last node of the linked list ll.
  */
 struct ei_linked_point_t * get_last_node(struct ei_linked_point_t *ll) {
         if (ll != NULL) {

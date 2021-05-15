@@ -182,6 +182,18 @@ void		ei_place	(struct ei_widget_t*	widget,
 }
 
 /**
+ * \brief	Tells the placer to recompute the geometry of a widget.
+ *		The widget must have been previsouly placed by a call to \ref ei_place.
+ *		Geometry re-computation is necessary for example when the text label of
+ *		a widget has changed, and thus the widget "natural" size has changed.
+ *
+ * @param	widget		The widget which geometry must be re-computed.
+ */
+void ei_placer_run(struct ei_widget_t* widget) {
+
+}
+
+/**
  * \brief	Tells the placer to remove a widget from the screen and forget about it.
  *		Note: the widget is not destroyed and still exists in memory.
  *

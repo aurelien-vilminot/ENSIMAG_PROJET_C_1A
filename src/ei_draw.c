@@ -12,6 +12,8 @@
  * Sinon elle retourne False
  */
 
+
+// TODO : mettre le if dans clipper (demander à Pierre pour inline)
 static int is_in_clipper(int point_x, int point_y, uint32_t x_max, uint32_t y_max, const ei_rect_t* clipper) {
         return (point_x <= x_max) && (point_y <= y_max) && (point_x >= clipper->top_left.x) && (point_y >= clipper->top_left.y);
 }
