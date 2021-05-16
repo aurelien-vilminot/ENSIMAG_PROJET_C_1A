@@ -179,6 +179,8 @@ void		ei_place	(struct ei_widget_t*	widget,
                         struct_placer->rh_data = *rel_height;
                 }
         }
+
+        ei_placer_run(widget);
 }
 
 /**
@@ -189,8 +191,29 @@ void		ei_place	(struct ei_widget_t*	widget,
  *
  * @param	widget		The widget which geometry must be re-computed.
  */
+ // TODO : gérer l'appel de cet fonction (voir p.26)
 void ei_placer_run(struct ei_widget_t* widget) {
+        ei_anchor_t widget_anchor = widget->placer_params->anchor_data;
 
+        if (widget_anchor == ei_anc_center) {
+
+        } else if (widget_anchor == ei_anc_north) {
+
+        } else if (widget_anchor == ei_anc_northeast) {
+
+        } else if (widget_anchor == ei_anc_northwest) {
+
+        } else if (widget_anchor == ei_anc_south) {
+
+        } else if (widget_anchor == ei_anc_southeast) {
+
+        } else if (widget_anchor == ei_anc_southwest) {
+
+        } else if (widget_anchor == ei_anc_east) {
+
+        } else if (widget_anchor == ei_anc_west) {
+
+        }
 }
 
 /**
