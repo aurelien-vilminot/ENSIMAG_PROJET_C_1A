@@ -87,11 +87,7 @@ void ei_draw_top_level (ei_widget_t* widget,
                     ei_rect_t*		clipper);
 
 void set_default_button (ei_widget_t *widget);
-
 void set_default_frame (ei_widget_t *widget);
-
 void set_default_top_level (ei_widget_t *widget);
-
-
 
 #endif //PROJETC_IG_WIDGET_MANAGER_H

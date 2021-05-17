@@ -3,6 +3,28 @@
 #include "widget_manager.h"
 
 /**
+ * @brief       Update child field of parent. It is a course of linked list.
+ *
+ * @param       widget      The widget child
+ * @param       parent      The child's parent which the children field needs to be updated
+ */
+static void insert_child(ei_widget_t *widget, ei_widget_t *parent) {
+        if (parent->children_head) {
+                ei_widget_t *current_child = parent->children_head;
+                while (current_child->next_sibling) {
+                        current_child = current_child->next_sibling;
+                }
+
+                current_child->next_sibling = widget;
+                parent->children_tail = widget;
+
+        } else {
+                parent->children_head = widget;
+                parent->children_tail = widget;
+        }
+}
+
+/**
  * @brief	Creates a new instance of a widget of some particular class, as a descendant of
  *		an existing widget.
  *
@@ -16,8 +38,6 @@
  *
  * @return			The newly created widget, or NULL if there was an error.
  */
-
-
 ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
                                                              ei_widget_t*		parent,
                                                              void*			user_data,
@@ -37,6 +57,9 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
                 // Please note that none geometrical element is initialised
                 widget_to_return->wclass = class;
                 widget_to_return->parent = parent;
+
+                // Update parent's child, only if parent exists
+                if (parent) insert_child(widget_to_return, parent);
                 widget_to_return->user_data = user_data;
                 widget_to_return->destructor = destructor;
 
@@ -57,7 +80,7 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
  */
 void			ei_widget_destroy		(ei_widget_t*		widget) {
         // Depth course of each widgets
-        if (widget->children_head!= NULL) {
+        if (widget->children_head != NULL) {
 
                 // Get the first child and the first child of its child (this could be NULL)
                 ei_widget_t *current_widget = widget->children_head;

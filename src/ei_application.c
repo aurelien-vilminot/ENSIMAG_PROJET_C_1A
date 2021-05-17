@@ -45,17 +45,16 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         ei_widgetclass_register(top_level_class);
         ei_widgetclass_register(button_class);
 
-        root_frame = ei_widget_create("frame", NULL, NULL, NULL);
-
-        // Creates the root window. It is released by calling hw_quit later.
+        // Creates the root window. It is released by calling hw_quit later
         root_windows = hw_create_window(main_window_size, fullscreen);
 
-        // Initialize root frame (root widget).
+        // Initialize root frame (root widget)
+        root_frame = ei_widget_create("frame", NULL, NULL, NULL);
+        // Geometry management
+        ei_place(root_frame, NULL, NULL, NULL, &main_window_size.width, &main_window_size.height, NULL, NULL, NULL, NULL);
         root_frame->wclass = frame_class;
         root_frame->parent = NULL;
         root_frame->next_sibling = NULL;
-
-        //TODO:Geometry management is not done for root_frame. It has to be done.
 }
 
 /**
@@ -185,7 +184,6 @@ ei_surface_t ei_app_root_surface(void){
  *		when pressing the "Escape" key).
  */
 void ei_app_quit_request(void) {
-
 }
 
 /**

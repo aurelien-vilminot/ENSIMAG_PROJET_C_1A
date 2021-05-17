@@ -709,8 +709,12 @@ void ei_draw_frame (ei_widget_t* widget,
                     ei_rect_t*		clipper) {
         ei_frame_t *frame = (ei_frame_t*) widget;
 
+        ei_rect_t rect = ei_rect(frame->widget.screen_location.top_left, frame->widget.screen_location.size);
+        ei_linked_point_t *pts_frame = rounded_frame(rect, 0, FULL);
+        ei_draw_polygon(surface, pts_frame, *frame->color, clipper);
+
         if (*frame->border_width == 0) {
-                ei_fill(surface, frame->color, clipper);
+
 //                ei_point_t place_text = {frame->widget.screen_location.top_left.x, frame->widget.screen_location.top_left.y};
 //                ei_draw_text(surface, &place_text, *frame->text, *frame->text_font, *frame->text_color, clipper);
         }

@@ -195,24 +195,54 @@ void		ei_place	(struct ei_widget_t*	widget,
 void ei_placer_run(struct ei_widget_t* widget) {
         ei_anchor_t widget_anchor = widget->placer_params->anchor_data;
 
-        if (widget_anchor == ei_anc_center) {
+         widget->screen_location.size.width = widget->placer_params->w_data;
+         widget->screen_location.size.height = widget->placer_params->h_data;
 
-        } else if (widget_anchor == ei_anc_north) {
-
-        } else if (widget_anchor == ei_anc_northeast) {
-
-        } else if (widget_anchor == ei_anc_northwest) {
-
-        } else if (widget_anchor == ei_anc_south) {
-
-        } else if (widget_anchor == ei_anc_southeast) {
-
-        } else if (widget_anchor == ei_anc_southwest) {
-
-        } else if (widget_anchor == ei_anc_east) {
-
-        } else if (widget_anchor == ei_anc_west) {
-
+         switch (widget_anchor) {
+                case ei_anc_center:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - (widget->placer_params->w_data / 2);
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - (widget->placer_params->h_data / 2);
+                        break;
+                case ei_anc_north:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - (widget->placer_params->w_data / 2);
+                        widget->screen_location.top_left.y = widget->placer_params->y_data;
+                        break;
+                case ei_anc_northeast:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - (widget->placer_params->w_data);
+                        widget->screen_location.top_left.y = widget->placer_params->y_data;
+                        break;
+                case ei_anc_northwest:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data;
+                        break;
+                case ei_anc_south:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - (widget->placer_params->w_data / 2);
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - widget->placer_params->h_data;
+                        break;
+                case ei_anc_southeast:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - widget->placer_params->w_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - widget->placer_params->h_data;
+                        break;
+                case ei_anc_southwest:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - widget->placer_params->h_data;
+                        break;
+                case ei_anc_east:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - widget->placer_params->w_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - (widget->placer_params->h_data / 2);
+                        break;
+                case ei_anc_west:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - widget->placer_params->w_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - (widget->placer_params->h_data / 2);
+                        break;
+                case ei_anc_none:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data;
+                        break;
+                default:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data;
+                        break;
         }
 }
 
