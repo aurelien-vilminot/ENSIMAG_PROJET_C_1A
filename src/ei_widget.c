@@ -403,7 +403,7 @@ void set_default_button (ei_widget_t *widget) {
         button_widget->border_width = (int *)&k_default_button_border_width;
         button_widget->corner_radius = (int *)&k_default_button_corner_radius;
         button_widget->text_color = (ei_color_t*)&(ei_font_default_color);
-        button_widget->text_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
+        button_widget->text_font = ei_default_font;
         button_widget->text_anchor = &default_text_button_anchor;
 }
 
@@ -416,7 +416,7 @@ void set_default_frame (ei_widget_t *widget) {
         frame_widget->color = &default_frame_color;
         frame_widget->border_width = &default_frame_border_width;
         frame_widget->text_color = (ei_color_t*)&(ei_font_default_color);
-        frame_widget->text_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
+        frame_widget->text_font = ei_default_font;
         frame_widget->text_anchor = &default_text_frame_anchor;
 }
 
