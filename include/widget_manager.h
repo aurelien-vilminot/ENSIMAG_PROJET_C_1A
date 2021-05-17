@@ -90,4 +90,14 @@ void set_default_button (ei_widget_t *widget);
 void set_default_frame (ei_widget_t *widget);
 void set_default_top_level (ei_widget_t *widget);
 
+/**
+ * Default values of widget parameters
+ */
+
+static ei_size_t default_button_size = {50, 30};
+static ei_color_t default_button_color = {0x7C, 0x87, 0x8E, 0xff};
+static int default_button_border_width = 5;
+static int default_button_corner_radius = 10;
+static ei_anchor_t default_button_anchor = ei_anc_center;
+
 #endif //PROJETC_IG_WIDGET_MANAGER_H

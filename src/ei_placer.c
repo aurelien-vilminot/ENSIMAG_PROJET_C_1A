@@ -232,7 +232,7 @@ void ei_placer_run(struct ei_widget_t* widget) {
                         widget->screen_location.top_left.y = widget->placer_params->y_data - (widget->placer_params->h_data / 2);
                         break;
                 case ei_anc_west:
-                        widget->screen_location.top_left.x = widget->placer_params->x_data - widget->placer_params->w_data;
+                        widget->screen_location.top_left.x = widget->placer_params->x_data;
                         widget->screen_location.top_left.y = widget->placer_params->y_data - (widget->placer_params->h_data / 2);
                         break;
                 case ei_anc_none:

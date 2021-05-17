@@ -18,6 +18,58 @@ static int is_in_clipper(int point_x, int point_y, uint32_t x_max, uint32_t y_ma
         return (point_x <= x_max) && (point_y <= y_max) && (point_x >= clipper->top_left.x) && (point_y >= clipper->top_left.y);
 }
 
+static ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_t *button_place, ei_size_t *button_size) {
+        ei_point_t * text_coord = malloc(sizeof(ei_point_t));
+
+        switch (*text_anchor) {
+                case ei_anc_center:
+                        text_coord->x = button_place->x + (button_size->width - text_size->width) / 2;
+                        text_coord->y = button_place->y + (button_size->height - text_size->height) / 2;
+                        break;
+                case ei_anc_north:
+                        text_coord->x = button_place->x + (button_size->width - text_size->width) / 2;
+                        text_coord->y = button_place->y;
+                        break;
+                case ei_anc_northeast:
+                        text_coord->x = button_place->x + (button_size->width - text_size->width);
+                        text_coord->y = button_place->y;
+                        break;
+                case ei_anc_northwest:
+                        text_coord->x = button_place->x;
+                        text_coord->y = button_place->y;
+                        break;
+                case ei_anc_south:
+                        text_coord->x = button_place->x + (button_size->width - text_size->width) / 2;
+                        text_coord->y = button_place->y + (button_size->height - text_size->height);
+                        break;
+                case ei_anc_southeast:
+                        text_coord->x = button_place->x + (button_size->width - text_size->width);
+                        text_coord->y = button_place->y + (button_size->height - text_size->height);
+                        break;
+                case ei_anc_southwest:
+                        text_coord->x = button_place->x;
+                        text_coord->y = button_place->y + (button_size->height - text_size->height);
+                        break;
+                case ei_anc_east:
+                        text_coord->x = button_place->x + (button_size->width - text_size->width);
+                        text_coord->y = button_place->y + (button_size->height - text_size->height) / 2;
+                        break;
+                case ei_anc_west:
+                        text_coord->x = button_place->x;
+                        text_coord->y = button_place->y + (button_size->height - text_size->height) / 2;
+                        break;
+                case ei_anc_none:
+                        text_coord->x = button_place->x + (button_size->width - text_size->width) / 2;
+                        text_coord->y = button_place->y + (button_size->height - text_size->height) / 2;
+                        break;
+                default:
+                        text_coord->x = button_place->x + (button_size->width - text_size->width) / 2;
+                        text_coord->y = button_place->y + (button_size->height - text_size->height) / 2;
+                        break;
+        }
+        return text_coord;
+}
+
 
 /**
  * \brief	Converts the red, green, blue and alpha components of a color into a 32 bits integer
@@ -684,16 +736,20 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         ei_draw_polygon(surface, pts_bottom, color_bottom, clipper);
         ei_draw_polygon(surface, pts_middle, color_middle, clipper);
 
+        // Create font
+        ei_font_t button_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
+
+        // Configure text place
+        ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
+        hw_text_compute_size(*button->text, button_font, &(text_size->width), &(text_size->height));
+
+        ei_point_t *text_coord = text_place(button->text_anchor, text_size, &button->widget.screen_location.top_left, &button->widget.screen_location.size);
+
         // Display text
-        ei_size_t *destination_size = malloc(sizeof(ei_size_t));
-        hw_text_compute_size(*button->text, button->text_font, &(destination_size->width), &(destination_size->height));
-        int place_text_x = (int) width_button - destination_size->width / 2;
-        int place_text_y = (int) height_button - destination_size->height / 2;
-        ei_point_t place_text = {place_text_x, place_text_y};
-        ei_draw_text(surface, &place_text, *button->text , button->text_font, *button->text_color, clipper);
+        ei_draw_text(surface, text_coord, *button->text , button->text_font, *button->text_color, clipper);
 
         // Free memory
-        free(destination_size);
+        free(text_size);
 }
 
 /**

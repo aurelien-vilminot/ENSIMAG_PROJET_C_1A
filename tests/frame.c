@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 	ei_color_t	frame_color		= {0x88, 0x88, 0x88, 0xff};
 	ei_relief_t	frame_relief		= ei_relief_raised;
 	int		frame_border_width	= 6;
-
+	
 	/* Create the application and change the color of the background. */
 	ei_app_create(screen_size, EI_FALSE);
 	ei_widget_t *smthg = ei_app_root_surface();

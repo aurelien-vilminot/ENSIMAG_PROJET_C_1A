@@ -396,25 +396,13 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
 void set_default_button (ei_widget_t *widget) {
         ei_button_t *button_widget = (ei_button_t*) widget;
 
-        ei_size_t *default_size = malloc(sizeof(ei_size_t));
-        default_size->width = 50;
-        default_size->height = 30;
-        button_widget->widget.requested_size = *default_size;
-
-        ei_color_t *default_color = malloc(sizeof(ei_color_t));
-        default_color->red = 0x7C;
-        default_color->green = 0x87;
-        default_color->blue = 0x8E;
-        default_color->alpha = 0xff;
-        button_widget->color = default_color;
-
-        int * default_border_width = malloc(sizeof(int));
-        *default_border_width = 5;
-        button_widget->border_width = default_border_width;
-
-        int * default_corner_radius = malloc(sizeof(int));
-        *default_corner_radius = 10;
-        button_widget->corner_radius = default_corner_radius;
+        button_widget->widget.requested_size = default_button_size;
+        button_widget->color = &default_button_color;
+        button_widget->border_width = &default_button_border_width;
+        button_widget->corner_radius = &default_button_corner_radius;
+        button_widget->text_color = (ei_color_t*)&(ei_font_default_color);
+        button_widget->text_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
+        button_widget->text_anchor = &default_button_anchor;
 }
 
 void set_default_frame (ei_widget_t *widget) {
@@ -435,6 +423,13 @@ void set_default_frame (ei_widget_t *widget) {
         int * default_border_width = malloc(sizeof(int));
         *default_border_width = 0;
         frame_widget->border_width = default_border_width;
+
+        frame_widget->text_color = (ei_color_t*)&(ei_font_default_color);
+        frame_widget->text_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
+
+        ei_anchor_t * default_anchor = malloc(sizeof(ei_anchor_t));
+        *default_anchor = ei_anc_center;
+        frame_widget->text_anchor = default_anchor;
 }
 
 void set_default_top_level (ei_widget_t *widget) {

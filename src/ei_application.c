@@ -48,6 +48,9 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         // Creates the root window. It is released by calling hw_quit later
         root_windows = hw_create_window(main_window_size, fullscreen);
 
+        // Init default font
+        ei_default_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
+
         // Initialize root frame (root widget)
         root_frame = ei_widget_create("frame", NULL, NULL, NULL);
         // Geometry management

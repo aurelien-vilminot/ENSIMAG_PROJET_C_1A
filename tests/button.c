@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 	/* Create the application and change the color of the background. */
 	ei_app_create(screen_size, EI_FALSE);
 	ei_frame_configure(ei_app_root_widget(), NULL, &root_bgcol, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-	ei_event_set_default_handle_func(process_key);
+	//ei_event_set_default_handle_func(process_key);
 
 	/* Create, configure and place the button on screen. */
 	button = ei_widget_create("button", ei_app_root_widget(), NULL, NULL);
