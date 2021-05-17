@@ -27,9 +27,6 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         // Initialize the hardware. Must be closed at the end of the manipulation.
         hw_init();
 
-        //TODO: Registers all classes of widget. For now some pointers are NULL, but after implementation of
-        // functions they must be initialized.
-
         // Allocate memory for each class
         frame_class = malloc(sizeof(ei_widgetclass_t));
         button_class = malloc(sizeof(ei_widgetclass_t));
@@ -55,9 +52,6 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         root_frame = ei_widget_create("frame", NULL, NULL, NULL);
         // Geometry management
         ei_place(root_frame, NULL, NULL, NULL, &main_window_size.width, &main_window_size.height, NULL, NULL, NULL, NULL);
-        root_frame->wclass = frame_class;
-        root_frame->parent = NULL;
-        root_frame->next_sibling = NULL;
 }
 
 /**

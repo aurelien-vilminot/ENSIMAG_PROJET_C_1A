@@ -48,6 +48,8 @@ typedef struct ei_frame_t {
         ei_anchor_t*		img_anchor;
 } ei_frame_t;
 
+
+// TODO : voir dernière fonction de ei_widgetclass.h
 ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_name);
 
 
