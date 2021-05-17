@@ -723,3 +723,11 @@ void ei_draw_top_level (ei_widget_t* widget,
 
 }
 
+void clipping_off_screen (ei_surface_t surface,
+                          ei_rect_t* clipper){
+
+        //hw_surface_create(ei_size_t size,
+        //TODO et l'insérer dans chaque fonction qui dessine
+
+}
+

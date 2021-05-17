@@ -184,7 +184,7 @@ void test_copy_surface(ei_surface_t surface, ei_rect_t* clipper){
 
 }
 
-// TODO : batterie de tests complets
+
 void test_arc(ei_surface_t surface, ei_rect_t* clipper) {
         ei_point_t center = {200, 200};
         uint32_t radius = 110;
@@ -222,7 +222,7 @@ void test_arc(ei_surface_t surface, ei_rect_t* clipper) {
 
 }
 
-// TODO : batterie de tests complets
+
 void test_rounded_frame(ei_surface_t surface, ei_rect_t* clipper) {
         // Display a button
 
@@ -293,7 +293,7 @@ int main(int argc, char** argv)
 	ei_fill		(main_window, &white, clipper_ptr);
 
 	/* Draw polylines. */
-//	test_line	(main_window, clipper_ptr);
+	test_line	(main_window, clipper_ptr);
 //	test_octogone	(main_window, clipper_ptr);
 //	test_square	(main_window, clipper_ptr);
 //	test_dot	(main_window, clipper_ptr);
