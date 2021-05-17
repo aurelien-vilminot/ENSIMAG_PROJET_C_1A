@@ -394,64 +394,39 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
 }
 
 void set_default_button (ei_widget_t *widget) {
+        // Cast into button widget to configure it
         ei_button_t *button_widget = (ei_button_t*) widget;
 
+        // Set default params initialized in header file
         button_widget->widget.requested_size = default_button_size;
         button_widget->color = &default_button_color;
-        button_widget->border_width = &default_button_border_width;
-        button_widget->corner_radius = &default_button_corner_radius;
+        button_widget->border_width = (int *)&k_default_button_border_width;
+        button_widget->corner_radius = (int *)&k_default_button_corner_radius;
         button_widget->text_color = (ei_color_t*)&(ei_font_default_color);
         button_widget->text_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
-        button_widget->text_anchor = &default_button_anchor;
+        button_widget->text_anchor = &default_text_button_anchor;
 }
 
 void set_default_frame (ei_widget_t *widget) {
+        // Cast into frame widget to configure it
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
 
-        ei_size_t *default_size = malloc(sizeof(ei_size_t));
-        default_size->width = 800;
-        default_size->height = 600;
-        frame_widget->widget.requested_size = *default_size;
-
-        ei_color_t *default_color = malloc(sizeof(ei_color_t));
-        default_color->red = 0x89;
-        default_color->green = 0xAb;
-        default_color->blue = 0xE3;
-        default_color->alpha = 0xff;
-        frame_widget->color = default_color;
-
-        int * default_border_width = malloc(sizeof(int));
-        *default_border_width = 0;
-        frame_widget->border_width = default_border_width;
-
+        // Set default params initialized in header file
+        frame_widget->widget.requested_size = default_frame_size;
+        frame_widget->color = &default_frame_color;
+        frame_widget->border_width = &default_frame_border_width;
         frame_widget->text_color = (ei_color_t*)&(ei_font_default_color);
         frame_widget->text_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
-
-        ei_anchor_t * default_anchor = malloc(sizeof(ei_anchor_t));
-        *default_anchor = ei_anc_center;
-        frame_widget->text_anchor = default_anchor;
+        frame_widget->text_anchor = &default_text_frame_anchor;
 }
 
 void set_default_top_level (ei_widget_t *widget) {
+        // Cast into top_level widget to configure it
         ei_top_level_t *top_level_widget = (ei_top_level_t*) widget;
 
-        ei_size_t *default_size = malloc(sizeof(ei_size_t));
-        default_size->width = 100;
-        default_size->height = 30;
-        top_level_widget->widget.requested_size = *default_size;
-
-        ei_color_t *default_color = malloc(sizeof(ei_color_t));
-        default_color->red = 0xD0;
-        default_color->green = 0xD3;
-        default_color->blue = 0xD4;
-        default_color->alpha = 0xff;
-        top_level_widget->color = default_color;
-
-        int *default_border_width = malloc(sizeof(int));
-        *default_border_width = 5;
-        top_level_widget->border_width = default_border_width;
-
-        ei_bool_t *default_closable = malloc(sizeof(ei_bool_t));
-        *default_closable = EI_TRUE;
-        top_level_widget->closable = default_closable;
+        // Set default params initialized in header file
+        top_level_widget->widget.requested_size = default_top_level_size;
+        top_level_widget->color = &default_top_level_color;
+        top_level_widget->border_width = &default_top_level_border_width;
+        top_level_widget->closable = &default_top_level_closable;
 }
