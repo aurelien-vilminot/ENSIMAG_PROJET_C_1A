@@ -1,3 +1,4 @@
+#include <ei_utils.h>
 #include "ei_widget.h"
 
 #include "widget_manager.h"
@@ -321,20 +322,20 @@ void			ei_frame_configure		(ei_widget_t*		widget,
  *				when called. Defaults to NULL.
  */
 void			ei_button_configure		(ei_widget_t*		widget,
-                                                                ei_size_t*		requested_size,
-                                                                const ei_color_t*	color,
-                                                                int*			border_width,
-                                                                int*			corner_radius,
-                                                                ei_relief_t*		relief,
-                                                                char**			text,
-                                                                ei_font_t*		text_font,
-                                                                ei_color_t*		text_color,
-                                                                ei_anchor_t*		text_anchor,
-                                                                ei_surface_t*		img,
-                                                                ei_rect_t**		img_rect,
-                                                                ei_anchor_t*		img_anchor,
-                                                                ei_callback_t*		callback,
-                                                                void**			user_param) {
+                                                        ei_size_t*		requested_size,
+                                                        const ei_color_t*	color,
+                                                        int*			border_width,
+                                                        int*			corner_radius,
+                                                        ei_relief_t*		relief,
+                                                        char**			text,
+                                                        ei_font_t*		text_font,
+                                                        ei_color_t*		text_color,
+                                                        ei_anchor_t*		text_anchor,
+                                                        ei_surface_t*		img,
+                                                        ei_rect_t**		img_rect,
+                                                        ei_anchor_t*		img_anchor,
+                                                        ei_callback_t*		callback,
+                                                        void**			user_param) {
         // Cast into button widget to configure it
         ei_button_t * button_widget = (ei_button_t*) widget;
 
@@ -377,23 +378,35 @@ void			ei_button_configure		(ei_widget_t*		widget,
  *				its default size.
  */
 void			ei_toplevel_configure		(ei_widget_t*		widget,
-                                                                  ei_size_t*		requested_size,
-                                                                  ei_color_t*		color,
-                                                                  int*			border_width,
-                                                                  char**			title,
-                                                                  ei_bool_t*		closable,
-                                                                  ei_axis_set_t*		resizable,
-                                                                  ei_size_t**		min_size) {
+                                                          ei_size_t*		requested_size,
+                                                          ei_color_t*		color,
+                                                          int*			border_width,
+                                                          char**			title,
+                                                          ei_bool_t*		closable,
+                                                          ei_axis_set_t*		resizable,
+                                                          ei_size_t**		min_size) {
         // Cast into top_level widget to configure it
         ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
 
         top_level_widget->widget.requested_size = requested_size != NULL ? *requested_size : top_level_widget->widget.requested_size;
         top_level_widget->color = color != NULL ? color : top_level_widget->color;
-        top_level_widget->border_width = border_width != NULL ? border_width : top_level_widget-> border_width;
-        top_level_widget->title = title != NULL ? title :top_level_widget->title;
         top_level_widget->closable = closable != NULL ? closable :top_level_widget->closable;
         top_level_widget->resizable = resizable != NULL ? resizable :top_level_widget->resizable;
         top_level_widget->min_size = min_size != NULL ? min_size :top_level_widget->min_size;
+
+        if (border_width || title) {
+                if (top_level_widget->widget.placer_params && (top_level_widget->border_width != border_width || top_level_widget->title != title)) {
+                        // Case when top level has already called ei_place
+                        top_level_widget->border_width = border_width != NULL ? border_width : top_level_widget->border_width;
+                        top_level_widget->title = title != NULL ? title : top_level_widget->title;
+                        ei_placer_run(widget);
+                } else {
+                        // Configure attributes for the first time
+                        top_level_widget->border_width = border_width != NULL ? border_width : top_level_widget->border_width;
+                        top_level_widget->title = title != NULL ? title : top_level_widget->title;
+                }
+        }
+
 }
 
 void set_default_button (ei_widget_t *widget) {
@@ -434,7 +447,6 @@ void set_default_top_level (ei_widget_t *widget) {
         top_level_widget->color = &default_top_level_color;
         top_level_widget->border_width = &default_top_level_border_width;
         top_level_widget->closable = &default_top_level_closable;
-        top_level_widget->widget.content_rect = &top_level_widget->widget.screen_location;
 }
 
 void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
@@ -447,4 +459,79 @@ void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
 
 void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         widget->screen_location = rect;
+
+        ei_top_level_t *top_level_widget = (ei_top_level_t *) widget;
+
+        // Configure text place
+        ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
+        hw_text_compute_size(*top_level_widget->title, ei_default_font, &(text_size->width), &(text_size->height));
+
+        // Get size and place parameters
+        int width_top_level = top_level_widget->widget.screen_location.size.width;
+        int height_top_level = top_level_widget->widget.screen_location.size.height;
+        int place_x = top_level_widget->widget.screen_location.top_left.x;
+        int place_y = top_level_widget->widget.screen_location.top_left.y;
+
+        // Set size and place for the rectangle used to model the content part of the top level (all without border)
+        ei_size_t size_content_rect = {width_top_level - 2*(*top_level_widget->border_width),
+                                       height_top_level - (*top_level_widget->border_width + text_size->height)};
+        ei_point_t place_content_rect = {place_x + (*top_level_widget->border_width), place_y + (text_size->height)};
+
+        // Allocate memory for content_rect
+        ei_rect_t *content_rect = malloc(sizeof(ei_rect_t));
+        content_rect->size = size_content_rect;
+        content_rect->top_left = place_content_rect;
+        top_level_widget->widget.content_rect = content_rect;
+
+        // Free memory
+        free(text_size);
+}
+
+// TODO : commentaires
+ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_t *widget_place, ei_size_t *widget_size) {
+        ei_point_t * text_coord = malloc(sizeof(ei_point_t));
+
+        switch (*text_anchor) {
+                case ei_anc_center:
+                        text_coord->x = widget_place->x + (widget_size->width - text_size->width) / 2;
+                        text_coord->y = widget_place->y + (widget_size->height - text_size->height) / 2;
+                        break;
+                case ei_anc_north:
+                        text_coord->x = widget_place->x + (widget_size->width - text_size->width) / 2;
+                        text_coord->y = widget_place->y;
+                        break;
+                case ei_anc_northeast:
+                        text_coord->x = widget_place->x + (widget_size->width - text_size->width);
+                        text_coord->y = widget_place->y;
+                        break;
+                case ei_anc_northwest:
+                        text_coord->x = widget_place->x;
+                        text_coord->y = widget_place->y;
+                        break;
+                case ei_anc_south:
+                        text_coord->x = widget_place->x + (widget_size->width - text_size->width) / 2;
+                        text_coord->y = widget_place->y + (widget_size->height - text_size->height);
+                        break;
+                case ei_anc_southeast:
+                        text_coord->x = widget_place->x + (widget_size->width - text_size->width);
+                        text_coord->y = widget_place->y + (widget_size->height - text_size->height);
+                        break;
+                case ei_anc_southwest:
+                        text_coord->x = widget_place->x;
+                        text_coord->y = widget_place->y + (widget_size->height - text_size->height);
+                        break;
+                case ei_anc_east:
+                        text_coord->x = widget_place->x + (widget_size->width - text_size->width);
+                        text_coord->y = widget_place->y + (widget_size->height - text_size->height) / 2;
+                        break;
+                case ei_anc_west:
+                        text_coord->x = widget_place->x;
+                        text_coord->y = widget_place->y + (widget_size->height - text_size->height) / 2;
+                        break;
+                case ei_anc_none:
+                        text_coord->x = widget_place->x + (widget_size->width - text_size->width) / 2;
+                        text_coord->y = widget_place->y + (widget_size->height - text_size->height) / 2;
+                        break;
+        }
+        return text_coord;
 }
