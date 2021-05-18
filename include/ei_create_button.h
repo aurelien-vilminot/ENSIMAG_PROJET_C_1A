@@ -57,5 +57,8 @@ ei_linked_point_t*       rounded_frame           (ei_rect_t              rectang
 struct ei_linked_point_t * get_last_node(struct ei_linked_point_t *ll);
 
 
+void free_list(ei_linked_point_t *lc);
+
+
 
 #endif //PROJETC_IG_BUTTON_H
