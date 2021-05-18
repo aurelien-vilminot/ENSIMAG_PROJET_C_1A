@@ -527,6 +527,9 @@ void ei_draw_text (ei_surface_t surface, const ei_point_t* where, const char* te
         ////// IL FAUT ABSOLUMENT QUE ALPHA SOIT EGALE A TRUE ICI
         ei_copy_surface(surface, &destination_rect, text_surface, NULL, EI_TRUE);
 
+        // Free memory
+        free(destination_size);
+
         // Doesn't forget to unlock/free the surfaces
         hw_surface_free(text_surface);
         hw_surface_unlock(surface);
@@ -780,6 +783,9 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                 ei_rect_t img_dest_rect = ei_rect(*img_coord, (*button->img_rect)->size);
 
                 ei_copy_surface(surface, &img_dest_rect, *button->img, *button->img_rect, EI_TRUE);
+
+                // Free memory
+                free(img_coord);
         }
 
         // Text treatment only if there is a text to display
@@ -798,6 +804,7 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
 
                 // Free memory
                 free(text_size);
+                free(text_coord);
         }
 }
 
@@ -927,36 +934,89 @@ void ei_draw_top_level (ei_widget_t*            widget,
                         ei_surface_t		surface,
                         ei_surface_t		pick_surface,
                         ei_rect_t*		clipper) {
+        // TODO : content_rect : intérieur de la fenetre / screen_location : fenetre complete avec bordure ; à modifier dans configure toplevel
 
         ei_top_level_t *top_level = (ei_top_level_t *) widget;
 
-        uint32_t border_top_bar_size = 2;
-        ei_color_t border_color = {0x88, 0x88, 0x88, 0xff};
+        ei_color_t border_color = {0x00, 0x00, 0x00, 0xff};
 
-        if (*top_level->title) {
-                // Configure text place
-                ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
-                hw_text_compute_size(*top_level->title, ei_default_font, &(text_size->width), &(text_size->height));
+        // Configure text place
+        ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
+        hw_text_compute_size(*top_level->title, ei_default_font, &(text_size->width), &(text_size->height));
 
-                // Text place in top bar
-                ei_anchor_t text_anchor = ei_anc_center;
+        // Text place in top bar
+        ei_anchor_t text_anchor = ei_anc_center;
 
-                // Top bar size including border for the height
-                ei_size_t top_bar_size = {top_level->widget.screen_location.size.width,
-                                          text_size->height + 2 * border_top_bar_size};
+        // Top bar size including border for the height
+        ei_size_t top_bar_size = {top_level->widget.screen_location.size.width,
+                                  text_size->height + *top_level->border_width};
 
-                // Get top-left corner of the text
-                ei_point_t *text_coord = text_place(&text_anchor, text_size,
-                                                    &top_level->widget.screen_location.top_left,
-                                                    &top_bar_size);
-
-                // Display text
-                ei_draw_text(surface, text_coord, *top_level->title, ei_default_font, *top_level->color, clipper);
-
-                if (top_level->closable) {
+        // Get top-left corner of the text
+        ei_point_t *text_coord = text_place(&text_anchor, text_size,
+                                            &top_level->widget.screen_location.top_left,
+                                            &top_bar_size);
 
 
-                }
+        // Get size and place parameters
+        int width_top_level = top_level->widget.screen_location.size.width;
+        int height_top_level = top_level->widget.screen_location.size.height;
+        int place_x = top_level->widget.screen_location.top_left.x;
+        int place_y = top_level->widget.screen_location.top_left.y;
+
+        // Set size and place for the rectangle used to model the center part of the top (all without border)
+        ei_size_t size_middle_frame= {width_top_level - 2*(*top_level->border_width),
+                                      height_top_level - (*top_level->border_width + text_size->height)};
+        ei_point_t place_middle_frame = {place_x + (*top_level->border_width), place_y + (text_size->height)};
+        ei_rect_t middle_rect = ei_rect(place_middle_frame, size_middle_frame);
+
+        if (*top_level->border_width != 0) {
+                // Rectangle used for border
+                ei_rect_t border_rect = ei_rect(ei_point(place_x, place_y), ei_size(width_top_level, height_top_level));
+
+                // Get all points for border toplevel modelization
+                ei_linked_point_t *pts_border = rounded_frame(border_rect, 0, FULL);
+
+                // Display border toplevel
+                ei_draw_polygon(surface, pts_border, border_color, clipper);
+
+                // Free memory
+                free_list(pts_border);
         }
+
+        ei_linked_point_t *pts_frame = rounded_frame(middle_rect, 0, FULL);
+        ei_draw_polygon(surface, pts_frame, *top_level->color, clipper);
+
+        // Display text
+        ei_draw_text(surface, text_coord, *top_level->title, ei_default_font, *top_level->color, clipper);
+
+        if (top_level->closable) {
+                int close_button_x = place_x + (text_size->height / 4);
+                int close_button_y = place_y + (text_size->height / 2);
+
+                int close_button_width_height = text_size->height / 2;
+                ei_size_t close_button_size = {close_button_width_height, close_button_width_height};
+
+                int close_button_corner_radius = (text_size->height / 2) / 2;
+                ei_color_t close_button_color = {0xF9, 0x38, 0x22, 0xff};
+                ei_relief_t close_button_relief = ei_relief_none;
+
+                ei_widget_t *close_button = ei_widget_create("button", NULL, NULL, NULL);
+                ei_button_configure(close_button, &close_button_size, &close_button_color, 0, &close_button_corner_radius,
+                                    &close_button_relief, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
+                close_button->screen_location.top_left.x = close_button_x;
+                close_button->screen_location.top_left.y = close_button_y - (close_button_width_height/ 2);
+
+                close_button->screen_location.size = close_button_size;
+
+                close_button->wclass->drawfunc(close_button, surface, pick_surface, clipper);
+        }
+
+        // Free memory
+        free_list(pts_frame);
+        free(text_coord);
+        free(text_size);
+
+        // TODO : gestion min size et resizable
 }
 

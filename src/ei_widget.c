@@ -434,4 +434,17 @@ void set_default_top_level (ei_widget_t *widget) {
         top_level_widget->color = &default_top_level_color;
         top_level_widget->border_width = &default_top_level_border_width;
         top_level_widget->closable = &default_top_level_closable;
+        top_level_widget->widget.content_rect = &top_level_widget->widget.screen_location;
+}
+
+void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
+        widget->screen_location = rect;
+}
+
+void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
+        widget->screen_location = rect;
+}
+
+void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
+        widget->screen_location = rect;
 }
