@@ -27,9 +27,6 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         // Initialize the hardware. Must be closed at the end of the manipulation.
         hw_init();
 
-        //TODO: Registers all classes of widget. For now some pointers are NULL, but after implementation of
-        // functions they must be initialized.
-
         // Allocate memory for each class
         frame_class = malloc(sizeof(ei_widgetclass_t));
         button_class = malloc(sizeof(ei_widgetclass_t));
@@ -45,17 +42,16 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         ei_widgetclass_register(top_level_class);
         ei_widgetclass_register(button_class);
 
-        root_frame = ei_widget_create("frame", NULL, NULL, NULL);
-
-        // Creates the root window. It is released by calling hw_quit later.
+        // Creates the root window. It is released by calling hw_quit later
         root_windows = hw_create_window(main_window_size, fullscreen);
 
-        // Initialize root frame (root widget).
-        root_frame->wclass = frame_class;
-        root_frame->parent = NULL;
-        root_frame->next_sibling = NULL;
+        // Init default font
+        ei_default_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
 
-        //TODO:Geometry management is not done for root_frame. It has to be done.
+        // Initialize root frame (root widget)
+        root_frame = ei_widget_create("frame", NULL, NULL, NULL);
+        // Geometry management
+        ei_place(root_frame, NULL, NULL, NULL, &main_window_size.width, &main_window_size.height, NULL, NULL, NULL, NULL);
 }
 
 /**
@@ -185,7 +181,6 @@ ei_surface_t ei_app_root_surface(void){
  *		when pressing the "Escape" key).
  */
 void ei_app_quit_request(void) {
-
 }
 
 /**

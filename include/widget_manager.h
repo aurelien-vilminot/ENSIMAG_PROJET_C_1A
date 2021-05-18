@@ -48,6 +48,8 @@ typedef struct ei_frame_t {
         ei_anchor_t*		img_anchor;
 } ei_frame_t;
 
+
+// TODO : voir dernière fonction de ei_widgetclass.h
 ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_name);
 
 
@@ -87,11 +89,27 @@ void ei_draw_top_level (ei_widget_t* widget,
                     ei_rect_t*		clipper);
 
 void set_default_button (ei_widget_t *widget);
-
 void set_default_frame (ei_widget_t *widget);
-
 void set_default_top_level (ei_widget_t *widget);
 
+/**
+ * Default values of widget parameters
+ */
+// BUTTON
+static ei_size_t default_button_size = {50, 30};
+static ei_color_t default_button_color = {0x7C, 0x87, 0x8E, 0xff};
+static ei_anchor_t default_text_button_anchor = ei_anc_center;
 
+// FRAME
+static ei_size_t default_frame_size = {400, 400};
+static ei_color_t default_frame_color = {0x89, 0xAb, 0xE3, 0xff};
+static int default_frame_border_width = 0;
+static ei_anchor_t default_text_frame_anchor = ei_anc_center;
+
+// TOP LEVEL
+static ei_size_t default_top_level_size = {400, 50};
+static ei_color_t default_top_level_color = {0xD0, 0xD3, 0xD4, 0xff};
+static int default_top_level_border_width = 0;
+static ei_bool_t default_top_level_closable = EI_TRUE;
 
 #endif //PROJETC_IG_WIDGET_MANAGER_H

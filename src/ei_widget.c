@@ -3,6 +3,28 @@
 #include "widget_manager.h"
 
 /**
+ * @brief       Update child field of parent. It is a course of linked list.
+ *
+ * @param       widget      The widget child
+ * @param       parent      The child's parent which the children field needs to be updated
+ */
+static void insert_child(ei_widget_t *widget, ei_widget_t *parent) {
+        if (parent->children_head) {
+                ei_widget_t *current_child = parent->children_head;
+                while (current_child->next_sibling) {
+                        current_child = current_child->next_sibling;
+                }
+
+                current_child->next_sibling = widget;
+                parent->children_tail = widget;
+
+        } else {
+                parent->children_head = widget;
+                parent->children_tail = widget;
+        }
+}
+
+/**
  * @brief	Creates a new instance of a widget of some particular class, as a descendant of
  *		an existing widget.
  *
@@ -16,8 +38,6 @@
  *
  * @return			The newly created widget, or NULL if there was an error.
  */
-
-
 ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
                                                              ei_widget_t*		parent,
                                                              void*			user_data,
@@ -37,6 +57,9 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
                 // Please note that none geometrical element is initialised
                 widget_to_return->wclass = class;
                 widget_to_return->parent = parent;
+
+                // Update parent's child, only if parent exists
+                if (parent) insert_child(widget_to_return, parent);
                 widget_to_return->user_data = user_data;
                 widget_to_return->destructor = destructor;
 
@@ -57,7 +80,7 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
  */
 void			ei_widget_destroy		(ei_widget_t*		widget) {
         // Depth course of each widgets
-        if (widget->children_head!= NULL) {
+        if (widget->children_head != NULL) {
 
                 // Get the first child and the first child of its child (this could be NULL)
                 ei_widget_t *current_widget = widget->children_head;
@@ -371,69 +394,39 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
 }
 
 void set_default_button (ei_widget_t *widget) {
+        // Cast into button widget to configure it
         ei_button_t *button_widget = (ei_button_t*) widget;
 
-        ei_size_t *default_size = malloc(sizeof(ei_size_t));
-        default_size->width = 50;
-        default_size->height = 30;
-        button_widget->widget.requested_size = *default_size;
-
-        ei_color_t *default_color = malloc(sizeof(ei_color_t));
-        default_color->red = 0x7C;
-        default_color->green = 0x87;
-        default_color->blue = 0x8E;
-        default_color->alpha = 0xff;
-        button_widget->color = default_color;
-
-        int * default_border_width = malloc(sizeof(int));
-        *default_border_width = 5;
-        button_widget->border_width = default_border_width;
-
-        int * default_corner_radius = malloc(sizeof(int));
-        *default_corner_radius = 10;
-        button_widget->corner_radius = default_corner_radius;
+        // Set default params initialized in header file
+        button_widget->widget.requested_size = default_button_size;
+        button_widget->color = &default_button_color;
+        button_widget->border_width = (int *)&k_default_button_border_width;
+        button_widget->corner_radius = (int *)&k_default_button_corner_radius;
+        button_widget->text_color = (ei_color_t*)&(ei_font_default_color);
+        button_widget->text_font = ei_default_font;
+        button_widget->text_anchor = &default_text_button_anchor;
 }
 
 void set_default_frame (ei_widget_t *widget) {
+        // Cast into frame widget to configure it
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
 
-        ei_size_t *default_size = malloc(sizeof(ei_size_t));
-        default_size->width = 800;
-        default_size->height = 600;
-        frame_widget->widget.requested_size = *default_size;
-
-        ei_color_t *default_color = malloc(sizeof(ei_color_t));
-        default_color->red = 0x89;
-        default_color->green = 0xAb;
-        default_color->blue = 0xE3;
-        default_color->alpha = 0xff;
-        frame_widget->color = default_color;
-
-        int * default_border_width = malloc(sizeof(int));
-        *default_border_width = 0;
-        frame_widget->border_width = default_border_width;
+        // Set default params initialized in header file
+        frame_widget->widget.requested_size = default_frame_size;
+        frame_widget->color = &default_frame_color;
+        frame_widget->border_width = &default_frame_border_width;
+        frame_widget->text_color = (ei_color_t*)&(ei_font_default_color);
+        frame_widget->text_font = ei_default_font;
+        frame_widget->text_anchor = &default_text_frame_anchor;
 }
 
 void set_default_top_level (ei_widget_t *widget) {
+        // Cast into top_level widget to configure it
         ei_top_level_t *top_level_widget = (ei_top_level_t*) widget;
 
-        ei_size_t *default_size = malloc(sizeof(ei_size_t));
-        default_size->width = 100;
-        default_size->height = 30;
-        top_level_widget->widget.requested_size = *default_size;
-
-        ei_color_t *default_color = malloc(sizeof(ei_color_t));
-        default_color->red = 0xD0;
-        default_color->green = 0xD3;
-        default_color->blue = 0xD4;
-        default_color->alpha = 0xff;
-        top_level_widget->color = default_color;
-
-        int *default_border_width = malloc(sizeof(int));
-        *default_border_width = 5;
-        top_level_widget->border_width = default_border_width;
-
-        ei_bool_t *default_closable = malloc(sizeof(ei_bool_t));
-        *default_closable = EI_TRUE;
-        top_level_widget->closable = default_closable;
+        // Set default params initialized in header file
+        top_level_widget->widget.requested_size = default_top_level_size;
+        top_level_widget->color = &default_top_level_color;
+        top_level_widget->border_width = &default_top_level_border_width;
+        top_level_widget->closable = &default_top_level_closable;
 }

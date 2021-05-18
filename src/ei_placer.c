@@ -1,3 +1,4 @@
+#include <ei_widget.h>
 #include "ei_placer.h"
 
 /**
@@ -41,6 +42,240 @@ void		ei_place	(struct ei_widget_t*	widget,
                                      float*			rel_y,
                                      float*			rel_width,
                                      float*			rel_height){
+        if (widget->placer_params == NULL) {
+                // At init, there is no placer, so it must be allocated
+                widget->placer_params = calloc(1, sizeof(ei_placer_params_t));
+                ei_placer_params_t *struct_placer = widget->placer_params;
 
-        
+                // Fill structure, data fields are filled with a default value if data concerned is NULL
+                if (anchor) {
+                        struct_placer->anchor = anchor;
+                        struct_placer->anchor_data = *anchor;
+                } else {
+                        struct_placer->anchor_data = ei_anc_northwest;
+                        struct_placer->anchor = &struct_placer->anchor_data;
+                }
+
+                if (x) {
+                        struct_placer->x = x;
+                        struct_placer->x_data = *x;
+                } else {
+                        struct_placer->x_data = 0;
+                        struct_placer->x = &struct_placer->x_data;
+                }
+
+                if (y) {
+                        struct_placer->y = y;
+                        struct_placer->y_data = *y;
+                } else {
+                        struct_placer->y_data = 0;
+                        struct_placer->y = &struct_placer->y_data;
+                }
+
+                if (width) {
+                        struct_placer->w = width;
+                        struct_placer->w_data = *width;
+                } else {
+                        if (widget->requested_size.width) {
+                                struct_placer->w_data= widget->requested_size.width;
+                                struct_placer->w = &widget->requested_size.width;
+                        } else {
+                                struct_placer->w_data = 0;
+                                struct_placer->w = &struct_placer->w_data;
+                        }
+                }
+
+                if (height) {
+                        struct_placer->h = height;
+                        struct_placer->h_data = *height;
+                } else {
+                        if (widget->requested_size.height) {
+                                struct_placer->h_data = widget->requested_size.height;
+                                struct_placer->h = &widget->requested_size.height;
+                        } else {
+                                struct_placer->h_data = 0;
+                                struct_placer->h = &struct_placer->h_data;
+                        }
+                }
+
+                if (rel_x) {
+                        struct_placer->rx = rel_x;
+                        struct_placer->rx_data = *rel_x;
+                } else {
+                        struct_placer->rx_data = 0.0;
+                        struct_placer->rx = &struct_placer->rx_data;
+                }
+
+                if (rel_y) {
+                        struct_placer->ry = rel_y;
+                        struct_placer->ry_data = *rel_y;
+                } else {
+                        struct_placer->ry_data = 0.0;
+                        struct_placer->ry = &struct_placer->ry_data;
+                }
+
+                if (rel_width) {
+                        struct_placer->rw = rel_width;
+                        struct_placer->rw_data = *rel_width;
+                } else {
+                        struct_placer->rw_data = 0.0;
+                        struct_placer->rw = &struct_placer->rw_data;
+                }
+
+                if (rel_height) {
+                        struct_placer->rh= rel_height;
+                        struct_placer->rh_data = *rel_height;
+                } else {
+                        struct_placer->rh_data = 0.0;
+                        struct_placer->rh = &struct_placer->rh_data;
+                }
+        } else {
+                // Case if placer already managed
+                ei_placer_params_t *struct_placer = widget->placer_params;
+
+                // Fill structure, data fields are replaced only if data concerned is not NULL
+                if (anchor) {
+                        struct_placer->anchor = anchor;
+                        struct_placer->anchor_data = *anchor;
+                }
+
+                if (x) {
+                        struct_placer->x = x;
+                        struct_placer->x_data = *x;
+                }
+
+                if (y) {
+                        struct_placer->y = y;
+                        struct_placer->y_data = *y;
+                }
+
+                if (width) {
+                        struct_placer->w = width;
+                        struct_placer->w_data = *width;
+                }
+
+                if (height) {
+                        struct_placer->h = height;
+                        struct_placer->h_data = *height;
+                }
+
+                if (rel_x) {
+                        struct_placer->rx = rel_x;
+                        struct_placer->rx_data = *rel_x;
+                }
+
+                if (rel_y) {
+                        struct_placer->ry = rel_y;
+                        struct_placer->ry_data = *rel_y;
+                }
+
+                if (rel_width) {
+                        struct_placer->rw = rel_width;
+                        struct_placer->rw_data = *rel_width;
+                }
+
+                if (rel_height) {
+                        struct_placer->rh= rel_height;
+                        struct_placer->rh_data = *rel_height;
+                }
+        }
+
+        ei_placer_run(widget);
+}
+
+/**
+ * \brief	Tells the placer to recompute the geometry of a widget.
+ *		The widget must have been previsouly placed by a call to \ref ei_place.
+ *		Geometry re-computation is necessary for example when the text label of
+ *		a widget has changed, and thus the widget "natural" size has changed.
+ *
+ * @param	widget		The widget which geometry must be re-computed.
+ */
+ // TODO : gérer l'appel de cet fonction (voir p.26)
+void ei_placer_run(struct ei_widget_t* widget) {
+        ei_anchor_t widget_anchor = widget->placer_params->anchor_data;
+
+         widget->screen_location.size.width = widget->placer_params->w_data;
+         widget->screen_location.size.height = widget->placer_params->h_data;
+
+         switch (widget_anchor) {
+                case ei_anc_center:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - (widget->placer_params->w_data / 2);
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - (widget->placer_params->h_data / 2);
+                        break;
+                case ei_anc_north:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - (widget->placer_params->w_data / 2);
+                        widget->screen_location.top_left.y = widget->placer_params->y_data;
+                        break;
+                case ei_anc_northeast:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - (widget->placer_params->w_data);
+                        widget->screen_location.top_left.y = widget->placer_params->y_data;
+                        break;
+                case ei_anc_northwest:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data;
+                        break;
+                case ei_anc_south:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - (widget->placer_params->w_data / 2);
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - widget->placer_params->h_data;
+                        break;
+                case ei_anc_southeast:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - widget->placer_params->w_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - widget->placer_params->h_data;
+                        break;
+                case ei_anc_southwest:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - widget->placer_params->h_data;
+                        break;
+                case ei_anc_east:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data - widget->placer_params->w_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - (widget->placer_params->h_data / 2);
+                        break;
+                case ei_anc_west:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data - (widget->placer_params->h_data / 2);
+                        break;
+                case ei_anc_none:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data;
+                        break;
+                default:
+                        widget->screen_location.top_left.x = widget->placer_params->x_data;
+                        widget->screen_location.top_left.y = widget->placer_params->y_data;
+                        break;
+        }
+}
+
+/**
+ * \brief	Tells the placer to remove a widget from the screen and forget about it.
+ *		Note: the widget is not destroyed and still exists in memory.
+ *
+ * @param	widget		The widget to remove from screen.
+ */
+void ei_placer_forget(struct ei_widget_t* widget) {
+        // Delete the concerned widget in its children field parent
+        ei_widget_t *parent = widget->parent;
+        ei_widget_t *current_child = parent->children_head;
+
+        if (current_child == widget) {
+                // Case if the first child is the concerned widget, then remove it of the head
+                parent->children_head = current_child->next_sibling;
+        } else {
+                // Browse the children linked list to delete the concerned child
+                while (current_child->next_sibling != NULL) {
+                        if (current_child->next_sibling == widget) {
+                                ei_widget_t *to_suppr = current_child->next_sibling;
+                                current_child->next_sibling = current_child->next_sibling->next_sibling;
+                                free(to_suppr);
+                        }
+                        current_child = current_child->next_sibling;
+                }
+        }
+
+        // Remove parent of the concerned widget
+        widget->parent = NULL;
+
+        // Delete and free struct placer
+        widget->placer_params = NULL;
+        free(widget->placer_params);
 }
