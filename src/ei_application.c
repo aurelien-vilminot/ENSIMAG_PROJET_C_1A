@@ -34,7 +34,7 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 
         // Register class name
         strcpy(frame_class->name, "frame");
-        strcpy(top_level_class->name, "top_level");
+        strcpy(top_level_class->name, "toplevel");
         strcpy(button_class->name, "button");
 
         // Register classes
@@ -70,7 +70,7 @@ void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass) {
                 button_class->setdefaultsfunc = &set_default_button;
                 button_class->next = NULL;
                 button_class->geomnotifyfunc = NULL; button_class->handlefunc = NULL;
-        } else if (strcmp(class_name, "top_level") == 0) {
+        } else if (strcmp(class_name, "toplevel") == 0) {
                 top_level_class->allocfunc = &top_level_alloc_func;
                 top_level_class->releasefunc = &top_level_release;
                 top_level_class->drawfunc= &ei_draw_top_level;
