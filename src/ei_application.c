@@ -5,7 +5,6 @@
 #include "ei_event.h"
 #include "event_manager.h"
 
-
 /**
  * \brief	Creates an application.
  *		<ul>
@@ -46,11 +45,17 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         // Creates the root window. It is released by calling hw_quit later
         root_windows = hw_create_window(main_window_size, fullscreen);
 
+        // Def offscreen
+        offscreen = hw_surface_create(root_windows, hw_surface_get_size(root_windows), hw_surface_has_alpha(root_windows));
+        ei_color_t blue	= { 0, 0, 0xff, 0xff};
+        ei_fill(offscreen, &blue, NULL);
+
         // Init default font
         ei_default_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
 
         // Initialize root frame (root widget)
         root_frame = ei_widget_create("frame", NULL, NULL, NULL);
+
         // Geometry management
         ei_place(root_frame, NULL, NULL, NULL, &main_window_size.width, &main_window_size.height, NULL, NULL, NULL, NULL);
 }
@@ -114,9 +119,7 @@ void ei_app_free(void){
 
 /**
  * \brief	Runs the application: enters the main event loop. Exits when
- *		\ref ei_app_quit_
- *
- *	request is called.
+ *		\ref ei_app_quit_request is called.
  */
 void ei_app_run(void){
 
@@ -131,38 +134,29 @@ void ei_app_run(void){
                 // Draw root
                 root_frame->wclass->drawfunc(root_frame, root_windows, NULL, NULL);
 
-                // Width course of each widgets
-                if (root_frame->children_head) {
+                ei_widget_t *widget_to_print = root_frame;
 
-                        // Get the first child and the first child of its child (this could be NULL)
-                        ei_widget_t *current_widget = root_frame->children_head;
-                        ei_widget_t *first_next_child = current_widget->children_head;
-
-                        do {
-                                while (current_widget != NULL) {
-                                        if (first_next_child == NULL) {
-                                                // Put the first child, if it doesn't store
-                                                first_next_child = current_widget->children_head;
-                                        }
-
-                                        // Call draw function
-                                        // TODO : changer paramètre surface, pick surface, clipper
-                                        current_widget->wclass->drawfunc(current_widget, root_windows, NULL, NULL);
-
-                                        current_widget = current_widget->next_sibling;
+                // Depth course of each widgets
+                do {
+                        if (widget_to_print->children_head) {
+                                widget_to_print = widget_to_print->children_head;
+                                widget_to_print->wclass->drawfunc(widget_to_print, root_windows, offscreen, NULL);
+                        } else {
+                                while (widget_to_print != root_frame && widget_to_print->next_sibling == NULL) {
+                                        widget_to_print = widget_to_print->parent;
                                 }
 
-                                // Change deep level
-                                current_widget = first_next_child;
-                                first_next_child = NULL;
-                        } while (current_widget != NULL);
-                }
+                                if (widget_to_print->next_sibling) {
+                                        widget_to_print = widget_to_print->next_sibling;
+                                        widget_to_print->wclass->drawfunc(widget_to_print, root_windows, offscreen, NULL);
+                                }
+                        }
+                } while (widget_to_print != root_frame);
 
                 // Update screen and event
                 hw_surface_update_rects(root_windows, NULL);
                 hw_event_wait_next(next_event);
         }
-
         free(next_event);
 }
 

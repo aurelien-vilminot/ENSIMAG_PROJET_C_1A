@@ -9,19 +9,14 @@
  * @param       parent      The child's parent which the children field needs to be updated
  */
 static void insert_child(ei_widget_t *widget, ei_widget_t *parent) {
+
         if (parent->children_head) {
-                ei_widget_t *current_child = parent->children_head;
-                while (current_child->next_sibling) {
-                        current_child = current_child->next_sibling;
-                }
-
-                current_child->next_sibling = widget;
-                parent->children_tail = widget;
-
+                parent->children_tail->next_sibling = widget;
         } else {
                 parent->children_head = widget;
-                parent->children_tail = widget;
         }
+
+        parent->children_tail = widget;
 }
 
 /**
@@ -79,34 +74,37 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
  * @param	widget		The widget that is to be destroyed.
  */
 void			ei_widget_destroy		(ei_widget_t*		widget) {
+
+        //TODO:Test this function
+        ei_widget_t * widget_to_destroy = widget;
+
         // Depth course of each widgets
-        if (widget->children_head != NULL) {
+        do {
+                if (widget_to_destroy->children_head) {
 
-                // Get the first child and the first child of its child (this could be NULL)
-                ei_widget_t *current_widget = widget->children_head;
-                ei_widget_t *first_next_child = current_widget->children_head;
+                        widget_to_destroy = widget_to_destroy->children_head;
+                        // Call destructor if it provided by the user
+                        if (widget_to_destroy->destructor) {
+                                widget_to_destroy->destructor(widget_to_destroy);
+                        }
+                        widget_to_destroy->wclass->releasefunc(widget_to_destroy);
 
-                do {
-                        while (current_widget->next_sibling != NULL) {
-                                if (first_next_child == NULL) {
-                                        // Put the first child, if it doesn't store
-                                        first_next_child = current_widget->children_head;
-                                }
-
-                                // Call destructor if it provided by the user
-                                if (current_widget->destructor) {
-                                        current_widget->destructor(current_widget);
-                                }
-                                current_widget->wclass->releasefunc(current_widget);
-
-                                current_widget = current_widget->next_sibling;
+                } else {
+                        while (widget_to_destroy != widget && widget_to_destroy->next_sibling == NULL) {
+                                widget_to_destroy = widget_to_destroy->parent;
                         }
 
-                        // Change deep level
-                        current_widget = first_next_child;
-                        first_next_child = NULL;
-                } while (current_widget != NULL);
-        }
+                        if (widget_to_destroy->next_sibling) {
+                                widget_to_destroy = widget_to_destroy->next_sibling;
+                                // Call destructor if it provided by the user
+                                if (widget_to_destroy->destructor) {
+                                        widget_to_destroy->destructor(widget_to_destroy);
+                                }
+                                widget_to_destroy->wclass->releasefunc(widget_to_destroy);
+                        }
+                }
+        } while (widget_to_destroy != widget);
+
 }
 
 
