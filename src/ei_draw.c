@@ -784,13 +784,9 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
 
         // Text treatment only if there is a text to display
         if (*button->text) {
-                // Create font
-                ei_font_t button_font = hw_text_font_create(ei_default_font_filename, ei_style_normal,
-                                                            ei_font_default_size);
-
                 // Configure text place
                 ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
-                hw_text_compute_size(*button->text, button_font, &(text_size->width), &(text_size->height));
+                hw_text_compute_size(*button->text, button->text_font, &(text_size->width), &(text_size->height));
 
                 // Get top-left corner of the text
                 ei_point_t *text_coord = text_place(button->text_anchor, text_size,
@@ -910,13 +906,9 @@ void ei_draw_frame (ei_widget_t*        widget,
 
         // Text treatment only if there is a text to display
         if (*frame->text) {
-                // Create font
-                ei_font_t frame_font = hw_text_font_create(ei_default_font_filename, ei_style_normal,
-                                                            ei_font_default_size);
-
                 // Configure text place
                 ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
-                hw_text_compute_size(*frame->text, frame_font, &(text_size->width), &(text_size->height));
+                hw_text_compute_size(*frame->text, frame->text_font, &(text_size->width), &(text_size->height));
 
                 // Get top-left corner of the text
                 ei_point_t *text_coord = text_place(frame->text_anchor, text_size,
@@ -938,11 +930,33 @@ void ei_draw_top_level (ei_widget_t*            widget,
 
         ei_top_level_t *top_level = (ei_top_level_t *) widget;
 
+        uint32_t border_top_bar_size = 2;
+        ei_color_t border_color = {0x88, 0x88, 0x88, 0xff};
+
+        if (*top_level->title) {
+                // Configure text place
+                ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
+                hw_text_compute_size(*top_level->title, ei_default_font, &(text_size->width), &(text_size->height));
+
+                // Text place in top bar
+                ei_anchor_t text_anchor = ei_anc_center;
+
+                // Top bar size including border for the height
+                ei_size_t top_bar_size = {top_level->widget.screen_location.size.width,
+                                          text_size->height + 2 * border_top_bar_size};
+
+                // Get top-left corner of the text
+                ei_point_t *text_coord = text_place(&text_anchor, text_size,
+                                                    &top_level->widget.screen_location.top_left,
+                                                    &top_bar_size);
+
+                // Display text
+                ei_draw_text(surface, text_coord, *top_level->title, ei_default_font, *top_level->color, clipper);
+
+                if (top_level->closable) {
 
 
-        if (top_level->closable) {
-
+                }
         }
-
 }
 
