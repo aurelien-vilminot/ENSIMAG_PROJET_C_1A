@@ -3,6 +3,7 @@
 #include "ei_widget.h"
 #include "widget_manager.h"
 #include "ei_event.h"
+#include "event_manager.h"
 
 
 /**
@@ -69,21 +70,21 @@ void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass) {
                 button_class->drawfunc = &ei_draw_button;
                 button_class->setdefaultsfunc = &set_default_button;
                 button_class->next = NULL;
-                button_class->geomnotifyfunc = NULL; button_class->handlefunc = NULL;
+                button_class->geomnotifyfunc = NULL; button_class->handlefunc = &handle_button_function;
         } else if (strcmp(class_name, "toplevel") == 0) {
                 top_level_class->allocfunc = &top_level_alloc_func;
                 top_level_class->releasefunc = &top_level_release;
                 top_level_class->drawfunc= &ei_draw_top_level;
                 top_level_class->setdefaultsfunc = &set_default_top_level;
                 top_level_class->next = button_class;
-                top_level_class->geomnotifyfunc = NULL; top_level_class->handlefunc = NULL;
+                top_level_class->geomnotifyfunc = NULL; top_level_class->handlefunc = &handle_top_level_function;
         } else if (strcmp(class_name, "frame") == 0) {
                 frame_class->allocfunc = &frame_alloc_func;
                 frame_class->releasefunc = &frame_release;
                 frame_class->drawfunc = &ei_draw_frame;
                 frame_class->setdefaultsfunc = &set_default_frame;
                 frame_class->next = top_level_class;
-                frame_class->geomnotifyfunc = NULL; frame_class->handlefunc = NULL;
+                frame_class->geomnotifyfunc = NULL; frame_class->handlefunc = &handle_frame_function;
         }
 }
 
@@ -92,39 +93,46 @@ void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass) {
  *		(ie. calls \ref hw_quit).
  */
 void ei_app_free(void){
+
         // Delete linked list classes
         ei_widgetclass_t *linked_list_classes = frame_class;
+
         while (linked_list_classes->next != NULL) {
                 ei_widgetclass_t *to_suppr = linked_list_classes;
-                linked_list_classes->next = linked_list_classes->next;
-                to_suppr = NULL;
-                free(to_suppr);
                 linked_list_classes = linked_list_classes->next;
+                free(to_suppr);
         }
-        linked_list_classes = NULL;
+
         free(linked_list_classes);
 
         // Delete all existing widgets
         ei_widget_destroy(root_frame);
+
         // Release the hardware
         hw_quit();
 }
 
 /**
  * \brief	Runs the application: enters the main event loop. Exits when
- *		\ref ei_app_quit_request is called.
+ *		\ref ei_app_quit_
+ *
+ *	request is called.
  */
 void ei_app_run(void){
-        // Wait for a key press.
-        // TODO : utiliser ei_app_quit_request pour la condition du while
-        ei_event_t event;
-        event.type = ei_ev_none;
-        while (event.type != ei_ev_keydown) {
+
+        // Must allocate the memory for use next_event in hw_event_wait_next
+        next_event = malloc(sizeof(ei_event_t));
+
+        // Fill next_event with the next_event
+        hw_event_wait_next(next_event);
+
+        while (next_event->type != ei_ev_last) {
+
                 // Draw root
                 root_frame->wclass->drawfunc(root_frame, root_windows, NULL, NULL);
 
-                // Depth course of each widgets
-                if (root_frame->children_head != NULL) {
+                // Width course of each widgets
+                if (root_frame->children_head) {
 
                         // Get the first child and the first child of its child (this could be NULL)
                         ei_widget_t *current_widget = root_frame->children_head;
@@ -152,8 +160,10 @@ void ei_app_run(void){
 
                 // Update screen and event
                 hw_surface_update_rects(root_windows, NULL);
-                hw_event_wait_next(&event);
+                hw_event_wait_next(next_event);
         }
+
+        free(next_event);
 }
 
 /**
@@ -181,12 +191,13 @@ ei_surface_t ei_app_root_surface(void){
  *		when pressing the "Escape" key).
  */
 void ei_app_quit_request(void) {
+        next_event->type = ei_ev_last;
 }
 
 /**
  * @brief       Return a linked list which represent all widget classes
  * @return      A pointeur on the linked list
  */
-extern ei_widgetclass_t* get_linked_list_classes() {
+extern ei_widgetclass_t* get_linked_list_classes(void) {
         return frame_class;
 }
