@@ -1,29 +1,5 @@
 #include <ei_event.h>
-
-/**
- * @brief	Describes an event.
- */
-typedef struct ei_event_t {
-        ei_eventtype_t	type;				///< The type of the event.
-        union {
-                ei_key_event_t		key;		///< Event parameters for keyboard-related events (see \ref ei_key_event_t).
-                ei_mouse_event_t	mouse;		///< Event parameters for mouse-related	events (see \ref ei_mouse_event_t).
-                ei_app_event_t		application;	///< Event parameters for application-related events (see \ref ei_app_event_t).
-        } param;
-} ei_event_t;
-
-/**
- * @brief	Tests is a modifier key was pressed at the time of an event.
- *
- * @param	modifier_mask	The modifier_mask field of a \ref ei_key_event_t or a \ref ei_mouse_event_t.
- * @param	modifier	The modifier key.
- *
- * @return			EI_TRUE if this modifier key was pressed, EI_FALSE otherwise.
- */
-static
-inline ei_bool_t	ei_has_modifier	(ei_modifier_mask_t	modifier_mask,
-                                                ei_modifier_key_t	modifier)
-{ return (ei_bool_t)(modifier_mask & (1 << modifier)); }
+#include <event_manager.h>
 
 /**
  * Sets the widget which is currently being manipulated by the user.
@@ -33,7 +9,9 @@ inline ei_bool_t	ei_has_modifier	(ei_modifier_mask_t	modifier_mask,
  */
 void ei_event_set_active_widget(ei_widget_t* widget){
         if (widget){
-
+                *g_active_widget = *widget;
+        } else {
+                g_active_widget = NULL;
         }
 }
 
@@ -42,8 +20,30 @@ void ei_event_set_active_widget(ei_widget_t* widget){
  *
  * @return			The widget currenlty being manipulated, or NULL.
  */
-ei_widget_t* ei_event_get_active_widget(void);
+ei_widget_t* ei_event_get_active_widget(void){
+        return g_active_widget;
+}
 
+/**
+ * Handle functions
+ */
+
+
+ei_bool_t handle_button_function(struct ei_widget_t* widget,
+                                 struct ei_event_t* event){
+
+        return EI_FALSE;
+}
+
+ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
+                                 struct ei_event_t* event){
+        return EI_FALSE;
+}
+
+ei_bool_t handle_frame_function(struct ei_widget_t* widget,
+                                 struct ei_event_t* event){
+        return EI_FALSE;
+}
 
 
 /**
@@ -55,7 +55,11 @@ ei_widget_t* ei_event_get_active_widget(void);
  * @return			EI_TRUE if the function handled the event,
  *				EI_FALSE otherwise, in this case the event is dismissed.
  */
-typedef ei_bool_t		(*ei_default_handle_func_t)(struct ei_event_t* event);
+typedef ei_bool_t		(*ei_default_handle_func_t)(struct ei_event_t* event){
+
+}
+
+
 
 /**
  * Sets the function that must be called when an event has been received but no processed
@@ -63,7 +67,10 @@ typedef ei_bool_t		(*ei_default_handle_func_t)(struct ei_event_t* event);
  *
  * @param	func		The event handling function.
  */
-void ei_event_set_default_handle_func(ei_default_handle_func_t func);
+void ei_event_set_default_handle_func(ei_default_handle_func_t func) {
+
+}
+
 
 /**
  * Returns the function that must be called when an event has been received but no processed
@@ -71,4 +78,6 @@ void ei_event_set_default_handle_func(ei_default_handle_func_t func);
  *
  * @return			The address of the event handling function.
  */
-ei_default_handle_func_t ei_event_get_default_handle_func(void);
+ei_default_handle_func_t ei_event_get_default_handle_func(void){
+
+}
