@@ -62,7 +62,7 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 
         // Event management
         root_frame->pick_id = 0;
-        root_frame->pick_color = inverse_map_rgba(root_windows, 0x00000000);
+        root_frame->pick_color = inverse_map_rgba(root_windows, &root_frame->pick_id);
 }
 
 /**

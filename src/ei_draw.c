@@ -739,7 +739,7 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         ei_draw_polygon(surface, pts_middle, base_color, clipper);
 
         // Draw in offscreen
-        ei_draw_polygon(pick_surface, pts_middle, *button->widget.pick_color, clipper);
+        //ei_draw_polygon(pick_surface, pts_middle, *button->widget.pick_color, clipper);
 
         // Free memory
         free_list(pts_middle);
@@ -765,10 +765,10 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                 hw_text_compute_size(*button->text, button->text_font, &(text_size->width), &(text_size->height));
 
                 // Change values of text_size if this one is greater than the parent
-                if (button->widget.content_rect->size.width < text_size->width) {
+                if (button->widget.content_rect->size.width <= text_size->width) {
                         text_size->width = button->widget.content_rect->size.width;
                 }
-                if (button->widget.content_rect->size.height < text_size->height) {
+                if (button->widget.content_rect->size.height <= text_size->height) {
                         text_size->height = button->widget.content_rect->size.height;
                 }
 
@@ -876,7 +876,7 @@ void ei_draw_frame (ei_widget_t*        widget,
         ei_draw_polygon(surface, pts_frame, *frame->color, clipper);
 
         // Display in offscreen
-        ei_draw_polygon(pick_surface, pts_frame, *frame->widget.pick_color, clipper);
+        //ei_draw_polygon(pick_surface, pts_frame, *frame->widget.pick_color, clipper);
 
         // Free memory
         free_list(pts_frame);
@@ -898,18 +898,18 @@ void ei_draw_frame (ei_widget_t*        widget,
                 ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
                 hw_text_compute_size(*frame->text, frame->text_font, &(text_size->width), &(text_size->height));
 
+                // Change values of text_size if this one is greater than the parent
+                if (frame->widget.content_rect->size.width <= text_size->width) {
+                        text_size->width = frame->widget.content_rect->size.width;
+                }
+                if (frame->widget.content_rect->size.height <= text_size->height) {
+                        text_size->height = frame->widget.content_rect->size.height;
+                }
+
                 // Get top-left corner of the text
                 ei_point_t *text_coord = text_place(frame->text_anchor, text_size,
                                                     &frame->widget.screen_location.top_left,
                                                     &frame->widget.screen_location.size);
-
-                // Change values of text_size if this one is greater than the parent
-                if (frame->widget.content_rect->size.width < text_size->width) {
-                        text_size->width = frame->widget.content_rect->size.width;
-                }
-                if (frame->widget.content_rect->size.height < text_size->height) {
-                        text_size->height = frame->widget.content_rect->size.height;
-                }
 
                 // Display text
                 ei_draw_text(surface, text_coord, *frame->text, frame->text_font, *frame->text_color, frame->widget.content_rect);
@@ -937,14 +937,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
         ei_size_t top_bar_size = {top_level->widget.screen_location.size.width,
                                   text_size->height + *top_level->border_width};
 
-        // Get top-left corner of the text
-        ei_point_t *text_coord = text_place(&text_anchor, text_size,
-                                            &top_level->widget.screen_location.top_left,
-                                            &top_bar_size);
-
         // Get size and place parameters
-        int width_top_level = top_level->widget.screen_location.size.width;
-        int height_top_level = top_level->widget.screen_location.size.height;
         int place_x = top_level->widget.screen_location.top_left.x;
         int place_y = top_level->widget.screen_location.top_left.y;
 
@@ -955,7 +948,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
         ei_draw_polygon(surface, pts_border, border_color, clipper);
 
         // Display in offscreen
-        ei_draw_polygon(surface, pts_border, border_color, clipper);
+        //ei_draw_polygon(surface, pts_border, border_color, clipper);
 
         // Free memory
         free_list(pts_border);
@@ -964,8 +957,22 @@ void ei_draw_top_level (ei_widget_t*            widget,
         ei_linked_point_t *pts_content_rect = rounded_frame(*top_level->widget.content_rect, 0, FULL);
         ei_draw_polygon(surface, pts_content_rect, *top_level->color, clipper);
 
-        // Display title
-        ei_draw_text(surface, text_coord, *top_level->title, ei_default_font, *top_level->color, &top_level->widget.screen_location);
+        // Change values of text_size if this one is greater than the parent
+        ei_bool_t change_text_size = EI_FALSE;
+        if (top_level->widget.content_rect->size.width <= text_size->width) {
+                text_size->width = top_level->widget.content_rect->size.width;
+                change_text_size = EI_TRUE;
+        }
+        if (top_level->widget.content_rect->size.height <= text_size->height) {
+                text_size->height = top_level->widget.content_rect->size.height;
+                change_text_size = EI_TRUE;
+        }
+
+        // Text clipper
+        ei_rect_t text_clipper = top_level->widget.screen_location;
+
+        // PLace where to display text
+        ei_point_t place_text = top_level->widget.screen_location.top_left;
 
         if (top_level->closable) {
                 int close_button_x = place_x + (text_size->height / 4);
@@ -988,7 +995,20 @@ void ei_draw_top_level (ei_widget_t*            widget,
                 close_button->screen_location.size = close_button_size;
 
                 close_button->wclass->drawfunc(close_button, surface, pick_surface, clipper);
+
+                if (change_text_size) {
+                        place_text.x += close_button->screen_location.size.width + (close_button->screen_location.top_left.x - place_x);
+                        text_clipper.size.width -= place_text.x - place_x + *top_level->border_width;
+                }
         }
+
+        // Get top-left corner of the text
+        ei_point_t *text_coord = text_place(&text_anchor, text_size,
+                                            &place_text,
+                                            &top_bar_size);
+
+        // Display title
+        ei_draw_text(surface, text_coord, *top_level->title, ei_default_font, *top_level->color, &text_clipper);
 
         // Free memory
         free_list(pts_content_rect);

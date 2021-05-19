@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 	float		button_rel_y		= 1.0;
 	float		button_rel_width	= 0.5;
 	ei_color_t	button_color		= {0x88, 0x88, 0x88, 0xff};
-	char*		button_title		= "cliiiiiiiiiiiiiiiiiiiiiiiiierhbreshrthjdck";
+	char*		button_title		= "click";
 	ei_color_t	button_text_color	= {0x00, 0x00, 0x00, 0xff};
 	ei_relief_t	button_relief		= ei_relief_raised;
 	int		button_border_width	= 2;

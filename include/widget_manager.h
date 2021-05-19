@@ -133,6 +133,6 @@ ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_
  *
  * @return ei_color_t corresponding to the 32 bits give as argument
  */
-ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert);
+ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t *color_to_convert);
 
 #endif //PROJETC_IG_WIDGET_MANAGER_H

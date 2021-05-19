@@ -9,15 +9,20 @@
  * @param       widget      The widget child
  * @param       parent      The child's parent which the children field needs to be updated
  */
-static void insert_child(ei_widget_t *widget, ei_widget_t *parent) {
+static uint32_t insert_child(ei_widget_t *widget, ei_widget_t *parent) {
+
+        uint32_t last_id = parent->pick_id;
 
         if (parent->children_head) {
+                last_id = parent->children_tail->pick_id;
                 parent->children_tail->next_sibling = widget;
         } else {
                 parent->children_head = widget;
         }
 
         parent->children_tail = widget;
+
+        return last_id;
 }
 
 /**
@@ -27,7 +32,7 @@ static void insert_child(ei_widget_t *widget, ei_widget_t *parent) {
  *
  * @return ei_color_t corresponding to the 32 bits give as argument
  */
-ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert){
+ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t * color_to_convert){
         // Place of colors
         int red_place;
         int green_place;
@@ -77,13 +82,15 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
 
                 // Initialisation of ei_widget_t attributs.
                 // We must to survey the value of the following arguments.
-                // Do we have to change pick_id etc ?
-                // Please note that none geometrical element is initialised
                 widget_to_return->wclass = class;
                 widget_to_return->parent = parent;
 
                 // Update parent's child, only if parent exists
-                if (parent) insert_child(widget_to_return, parent);
+                if (parent) {
+                        uint32_t last_id = insert_child(widget_to_return, parent);
+                        widget_to_return->pick_id = last_id + 1;
+                        widget_to_return->pick_color = inverse_map_rgba(root_windows, &widget_to_return->pick_id);
+                }
                 widget_to_return->user_data = user_data;
                 widget_to_return->destructor = destructor;
 
