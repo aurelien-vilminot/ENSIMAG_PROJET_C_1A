@@ -32,7 +32,7 @@ static uint32_t insert_child(ei_widget_t *widget, ei_widget_t *parent) {
  *
  * @return ei_color_t corresponding to the 32 bits give as argument
  */
-ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t * color_to_convert){
+ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t *color_to_convert){
         // Place of colors
         int red_place;
         int green_place;

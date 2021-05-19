@@ -739,7 +739,7 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         ei_draw_polygon(surface, pts_middle, base_color, clipper);
 
         // Draw in offscreen
-        //ei_draw_polygon(pick_surface, pts_middle, *button->widget.pick_color, clipper);
+        ei_draw_polygon(pick_surface, pts_middle, *button->widget.pick_color, clipper);
 
         // Free memory
         free_list(pts_middle);
@@ -876,7 +876,7 @@ void ei_draw_frame (ei_widget_t*        widget,
         ei_draw_polygon(surface, pts_frame, *frame->color, clipper);
 
         // Display in offscreen
-        //ei_draw_polygon(pick_surface, pts_frame, *frame->widget.pick_color, clipper);
+        ei_draw_polygon(pick_surface, pts_frame, *frame->widget.pick_color, clipper);
 
         // Free memory
         free_list(pts_frame);
@@ -948,7 +948,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
         ei_draw_polygon(surface, pts_border, border_color, clipper);
 
         // Display in offscreen
-        //ei_draw_polygon(surface, pts_border, border_color, clipper);
+        ei_draw_polygon(surface, pts_border, border_color, clipper);
 
         // Free memory
         free_list(pts_border);
