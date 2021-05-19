@@ -59,6 +59,7 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         // Geometry management
         root_frame->screen_location.size.width = main_window_size.width;
         root_frame->screen_location.size.height = main_window_size.height;
+        root_frame->content_rect = &root_frame->screen_location;
 
         // Event management
         root_frame->pick_id = 0;
@@ -144,16 +145,18 @@ void ei_app_run(void){
                 // Depth course of each widgets
                 do {
                         if (widget_to_print->children_head) {
+                                ei_widget_t * parent = widget_to_print;
                                 widget_to_print = widget_to_print->children_head;
-                                widget_to_print->wclass->drawfunc(widget_to_print, root_windows, offscreen, NULL);
+                                widget_to_print->wclass->drawfunc(widget_to_print, root_windows, offscreen, parent->content_rect);
                         } else {
                                 while (widget_to_print != root_frame && widget_to_print->next_sibling == NULL) {
                                         widget_to_print = widget_to_print->parent;
                                 }
 
                                 if (widget_to_print->next_sibling) {
+                                        ei_widget_t * parent = widget_to_print;
                                         widget_to_print = widget_to_print->next_sibling;
-                                        widget_to_print->wclass->drawfunc(widget_to_print, root_windows, offscreen, NULL);
+                                        widget_to_print->wclass->drawfunc(widget_to_print, root_windows, offscreen, parent->content_rect);
                                 }
                         }
                 } while (widget_to_print != root_frame);

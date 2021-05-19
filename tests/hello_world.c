@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 	int		button_y		= -20;
 	float		button_rel_x		= 1.0;
 	float		button_rel_y		= 1.0;
-	float		button_rel_width	= 0.5;
+	float		button_rel_width	= 1.0;
 	ei_color_t	button_color		= {0x88, 0x88, 0x88, 0xff};
 	char*		button_title		= "click";
 	ei_color_t	button_text_color	= {0x00, 0x00, 0x00, 0xff};
