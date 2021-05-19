@@ -131,12 +131,17 @@ static uint32_t default_top_level_rect_resize = 10;
 ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_t *widget_place, ei_size_t *widget_size);
 
 /**
- * @brief Inverse function of map_rgba ei_draw.c's modul
+ * @brief All is in the title
  *
  * @param a uint32_t element which is convert into ei_color_t
  *
  * @return ei_color_t corresponding to the 32 bits give as argument
  */
-ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t *color_to_convert);
+ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert);
+
+///**
+// * @brief Inverse of previous function
+// */
+//ei_color_t *from_pick_color_to_pick_id(ei_surface_t surface, uint32_t *color_to_convert);
 
 #endif //PROJETC_IG_WIDGET_MANAGER_H

@@ -35,13 +35,13 @@ static uint32_t insert_child(ei_widget_t *widget, ei_widget_t *parent) {
 }
 
 /**
- * @brief Inverse function of map_rgba ei_draw.c's modul
+ * @brief All is in the title
  *
  * @param a uint32_t element which is convert into ei_color_t
  *
  * @return ei_color_t corresponding to the 32 bits give as argument
  */
-ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t *color_to_convert){
+ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert){
         // Place of colors
         int red_place;
         int green_place;
@@ -50,17 +50,42 @@ ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t *color_to_convert){
         hw_surface_get_channel_indices(surface, &red_place, &green_place, &blue_place, &alpha_place);
 
         // Pointer on the color_to_convert
-        uint8_t *p = (uint8_t *) color_to_convert;
+        uint8_t *p = (uint8_t *) &color_to_convert;
 
         // Associate each value of the color with the corresponding bits
         ei_color_t *color_to_return = malloc(sizeof(ei_color_t));
         color_to_return->red = p[red_place];
         color_to_return->blue = p[blue_place];
         color_to_return->green = p[green_place];
-        color_to_return->alpha = p[alpha_place];
+        color_to_return->alpha = p[6 - (blue_place + red_place + green_place)];
 
         return color_to_return;
 }
+//
+//
+///**
+// * @brief Inverse of previous function
+// */
+//ei_color_t *from_pick_color_to_pick_id(ei_surface_t surface, ei_color_t *color_to_convert) {
+//        // Place of colors
+//        int red_place;
+//        int green_place;
+//        int blue_place;
+//        int alpha_place;
+//        hw_surface_get_channel_indices(surface, &red_place, &green_place, &blue_place, &alpha_place);
+//
+//        // Pointer on the color_to_convert
+//        uint8_t *p = (uint8_t *) color_to_convert;
+//
+//        // Associate each value of the color with the corresponding bits
+//        ei_color_t *color_to_return = malloc(sizeof(ei_color_t));
+//        color_to_return->red = p[red_place];
+//        color_to_return->blue = p[blue_place];
+//        color_to_return->green = p[green_place];
+//        color_to_return->alpha = p[alpha_place];
+//
+//        return color_to_return;
+//}
 
 /**
  * @brief	Creates a new instance of a widget of some particular class, as a descendant of
@@ -98,7 +123,7 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
                 if (parent) {
                         uint32_t last_id = insert_child(widget_to_return, parent);
                         widget_to_return->pick_id = last_id + 1;
-                        widget_to_return->pick_color = inverse_map_rgba(root_windows, &widget_to_return->pick_id);
+                        widget_to_return->pick_color = inverse_map_rgba(offscreen, widget_to_return->pick_id);
                 }
                 widget_to_return->user_data = user_data;
                 widget_to_return->destructor = destructor;

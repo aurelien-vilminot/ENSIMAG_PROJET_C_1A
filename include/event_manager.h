@@ -3,10 +3,16 @@
 
 
 // Is used to know what is the widget currently used by the user
-static ei_widget_t *g_active_widget;
+ei_widget_t *g_active_widget;
 
 // Next event
-static ei_event_t *next_event;
+ei_event_t *next_event;
+
+// To know if this is the end of events
+static ei_bool_t not_the_end = EI_TRUE;
+
+
+ei_bool_t mouse_callback(ei_event_t event);
 
 /**
  * Handle functions

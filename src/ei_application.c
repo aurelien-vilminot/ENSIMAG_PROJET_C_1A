@@ -1,8 +1,8 @@
 #include <ei_utils.h>
+#include <ei_event.h>
 #include "ei_application.h"
 #include "ei_widget.h"
 #include "widget_manager.h"
-#include "ei_event.h"
 #include "event_manager.h"
 
 /**
@@ -47,8 +47,6 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 
         // Def offscreen
         offscreen = hw_surface_create(root_windows, hw_surface_get_size(root_windows), hw_surface_has_alpha(root_windows));
-        ei_color_t blue	= { 0, 0, 0xff, 0xff };
-        ei_fill(offscreen, &blue, NULL);
 
         // Init default font
         ei_default_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
@@ -63,7 +61,7 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 
         // Event management
         root_frame->pick_id = 0;
-        root_frame->pick_color = inverse_map_rgba(root_windows, &root_frame->pick_id);
+        root_frame->pick_color = inverse_map_rgba(offscreen, root_frame->pick_id);
 }
 
 /**
@@ -135,7 +133,7 @@ void ei_app_run(void){
         // Fill next_event with the next_event
         hw_event_wait_next(next_event);
 
-        while (next_event->type != ei_ev_keydown) {
+        while (not_the_end) {
 
                 // Draw root
                 root_frame->wclass->drawfunc(root_frame, root_windows, offscreen, NULL);
@@ -164,6 +162,22 @@ void ei_app_run(void){
                 // Update screen and event
                 hw_surface_update_rects(root_windows, NULL);
                 hw_event_wait_next(next_event);
+
+                // Not a panacea to break after change while condition
+                if (next_event->type == ei_ev_keydown){
+                        if (next_event->param.key.key_code == SDLK_ESCAPE){
+                                ei_app_quit_request();
+                                break;
+                        }
+                }
+
+                if (next_event->type == ei_ev_mouse_buttondown){
+                        mouse_callback(*next_event);
+                }
+
+                // Treate Mouse event
+
+
         }
         free(next_event);
 }
@@ -193,7 +207,7 @@ ei_surface_t ei_app_root_surface(void){
  *		when pressing the "Escape" key).
  */
 void ei_app_quit_request(void) {
-        next_event->type = ei_ev_last;
+        not_the_end = EI_FALSE;
 }
 
 /**

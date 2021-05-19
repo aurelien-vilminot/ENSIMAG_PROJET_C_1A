@@ -1,5 +1,4 @@
 #include "ei_draw.h"
-
 #include "single_linked_list.h"
 #include "ei_create_button.h"
 #include "widget_manager.h"
