@@ -11,12 +11,21 @@
  */
 static uint32_t insert_child(ei_widget_t *widget, ei_widget_t *parent) {
 
-        uint32_t last_id = parent->pick_id;
+        uint32_t last_id;
 
         if (parent->children_head) {
-                last_id = parent->children_tail->pick_id;
+                if (strcmp(ei_widgetclass_stringname(parent->wclass->name), "toplevel") == 0) {
+                        last_id = parent->children_tail->pick_id + 1;
+                } else {
+                        last_id = parent->children_tail->pick_id;
+                }
                 parent->children_tail->next_sibling = widget;
         } else {
+                if (strcmp(ei_widgetclass_stringname(parent->wclass->name), "toplevel") == 0) {
+                        last_id = parent->pick_id + 1;
+                } else {
+                        last_id = parent->pick_id;
+                }
                 parent->children_head = widget;
         }
 
@@ -162,57 +171,21 @@ ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_na
  */
 ei_widget_t* button_alloc_func() {
         ei_button_t * m_button = calloc(1, sizeof(ei_button_t));
-
-        // Allocate memory for all attributes
-        m_button->color = calloc(1, sizeof(ei_color_t));
-        m_button->border_width = calloc(1, sizeof(int));
-        m_button->corner_radius = calloc(1, sizeof(int));
-        m_button->relief = calloc(1, sizeof(ei_relief_t));
-        m_button->text = calloc(1, sizeof(char*));
-        m_button->text_font = calloc(1, sizeof(ei_font_t));
-        m_button->text_color = calloc(1, sizeof(ei_color_t));
-        m_button->text_anchor = calloc(1, sizeof(ei_anchor_t));
-        m_button->img = calloc(1, sizeof(ei_surface_t));
-        m_button->img_rect = calloc(1, sizeof(ei_rect_t*));
-        m_button->img_anchor = calloc(1, sizeof(ei_anchor_t));
-        m_button->callback = calloc(1, sizeof(ei_callback_t));
-        m_button->user_param = calloc(1, sizeof(void*));
-
         return (ei_widget_t *) m_button;
 }
 
 ei_widget_t* top_level_alloc_func() {
         ei_top_level_t * m_toplevel = calloc(1, sizeof(ei_top_level_t));
 
-        // Allocate memory for all attributes
+        // Initialisation of close button widget
+        m_toplevel->close_button = (ei_button_t *) button_alloc_func();
+        m_toplevel->close_button->widget.parent = (ei_widget_t *) m_toplevel;
 
-        m_toplevel->color = calloc(1, sizeof(ei_color_t));
-        m_toplevel->border_width = calloc(1, sizeof(int));
-        m_toplevel->title = calloc(1, sizeof(char*));
-        m_toplevel->closable = calloc(1, sizeof(ei_bool_t));
-        m_toplevel->resizable = calloc(1, sizeof(ei_axis_set_t));
-        m_toplevel->min_size = calloc(1, sizeof(ei_size_t*));
-
-        return (struct ei_widget_t *) m_toplevel;
-
+        return (ei_widget_t *) m_toplevel;
 }
 
 ei_widget_t* frame_alloc_func() {
         ei_frame_t * m_frame = calloc(1, sizeof(ei_frame_t));
-
-        //Allocate memory for all attributes
-
-        m_frame->color = calloc(1, sizeof(ei_color_t));
-        m_frame->border_width = calloc(1, sizeof(int));
-        m_frame->relief = calloc(1, sizeof(ei_relief_t));
-        m_frame->text = calloc(1, sizeof(char*));
-        m_frame->text_font = calloc(1, sizeof(ei_font_t));
-        m_frame->text_color = calloc(1, sizeof(ei_color_t));
-        m_frame->text_anchor = calloc(1, sizeof(ei_anchor_t));
-        m_frame->img = calloc(1, sizeof(ei_surface_t));
-        m_frame->img_rect = calloc(1, sizeof(ei_rect_t));
-        m_frame->img_anchor = calloc(1, sizeof(ei_anchor_t));
-
         return (ei_widget_t *) m_frame;
 }
 
@@ -229,7 +202,7 @@ void button_release(struct ei_widget_t*	widget) {
 //        if (button_widget->border_width) free(&button_widget->border_width);
 //        if (button_widget->corner_radius) free(&button_widget->corner_radius);
 //        if (button_widget->relief) free(&button_widget->relief);
-//        if (button_widget->text) free(&button_widget->text);
+//        if (button_widget->text) free(button_widget->text);
 //        if (button_widget->text_font) free(&button_widget->text_font);
 //        if (button_widget->text_color) free(&button_widget->text_color);
 //        if (button_widget->text_anchor) free(&button_widget->text_anchor);
@@ -329,16 +302,21 @@ void			ei_frame_configure		(ei_widget_t*		widget,
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
 
         frame_widget->widget.requested_size = requested_size != NULL ? *requested_size : frame_widget->widget.requested_size;
-        frame_widget->color = color != NULL ? color : frame_widget->color;
-        frame_widget->border_width = border_width != NULL ? border_width : frame_widget-> border_width;
-        frame_widget->relief = relief != NULL ? relief : frame_widget-> relief;
-        frame_widget->text = text != NULL ? text : frame_widget-> text;
+        frame_widget->color = color != NULL ? *color : frame_widget->color;
+        frame_widget->border_width = border_width != NULL ? *border_width : frame_widget-> border_width;
+        frame_widget->relief = relief != NULL ? *relief : frame_widget-> relief;
+
+        if (text != NULL) {
+                frame_widget->text = calloc(strlen(*text), sizeof(char*));
+                frame_widget->text = *text;
+        }
+
         frame_widget->text_font = text_font != NULL ? text_font : frame_widget-> text_font;
-        frame_widget->text_color = text_color != NULL ? text_color : frame_widget-> text_color;
-        frame_widget->text_anchor = text_anchor != NULL ? text_anchor : frame_widget-> text_anchor;
+        frame_widget->text_color = text_color != NULL ? *text_color : frame_widget-> text_color;
+        frame_widget->text_anchor = text_anchor != NULL ? *text_anchor : frame_widget-> text_anchor;
         frame_widget->img = img != NULL ? img : frame_widget-> img;
-        frame_widget->img_rect = img_rect != NULL ? img_rect : frame_widget-> img_rect;
-        frame_widget->img_anchor = img_anchor != NULL ? img_anchor : frame_widget-> img_anchor;
+        frame_widget->img_rect = img_rect != NULL ? *img_rect : frame_widget-> img_rect;
+        frame_widget->img_anchor = img_anchor != NULL ? *img_anchor : frame_widget-> img_anchor;
 }
 
 
@@ -377,18 +355,18 @@ void			ei_button_configure		(ei_widget_t*		widget,
         ei_button_t * button_widget = (ei_button_t*) widget;
 
         button_widget->widget.requested_size = requested_size != NULL ? *requested_size : button_widget->widget.requested_size;
-        button_widget->color = color != NULL ? color : button_widget->color;
-        button_widget->border_width = border_width != NULL ? border_width : button_widget-> border_width;
-        button_widget->corner_radius = corner_radius != NULL ? corner_radius : button_widget->corner_radius;
-        button_widget->relief = relief != NULL ? relief : button_widget->relief;
-        button_widget->text = text != NULL ? text : button_widget->text;
+        button_widget->color = color != NULL ? *color : button_widget->color;
+        button_widget->border_width = border_width != NULL ? *border_width : button_widget-> border_width;
+        button_widget->corner_radius = corner_radius != NULL ? *corner_radius : button_widget->corner_radius;
+        button_widget->relief = relief != NULL ? *relief : button_widget->relief;
+        button_widget->text = text != NULL ? *text : button_widget->text;
         button_widget->text_font = text_font != NULL ? text_font : button_widget->text_font;
-        button_widget->text_color = text_color != NULL ? text_color : button_widget->text_color;
-        button_widget->text_anchor = text_anchor != NULL ? text_anchor : button_widget->text_anchor;
+        button_widget->text_color = text_color != NULL ? *text_color : button_widget->text_color;
+        button_widget->text_anchor = text_anchor != NULL ? *text_anchor : button_widget->text_anchor;
         button_widget->img = img != NULL ? img : button_widget->img;
-        button_widget->img_rect = img_rect != NULL ? img_rect : button_widget->img_rect;
-        button_widget->img_anchor = img_anchor != NULL ? img_anchor : button_widget->img_anchor;
-        button_widget->callback = callback != NULL ? callback : button_widget->callback;
+        button_widget->img_rect = img_rect != NULL ? *img_rect : button_widget->img_rect;
+        button_widget->img_anchor = img_anchor != NULL ? *img_anchor : button_widget->img_anchor;
+        button_widget->callback = callback != NULL ? *callback : button_widget->callback;
         button_widget->user_param = user_param != NULL ? user_param : button_widget->user_param;
 }
 
@@ -418,32 +396,31 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
                                                           ei_size_t*		requested_size,
                                                           ei_color_t*		color,
                                                           int*			border_width,
-                                                          char**			title,
+                                                          char**		title,
                                                           ei_bool_t*		closable,
-                                                          ei_axis_set_t*		resizable,
+                                                          ei_axis_set_t*	resizable,
                                                           ei_size_t**		min_size) {
         // Cast into top_level widget to configure it
         ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
 
         top_level_widget->widget.requested_size = requested_size != NULL ? *requested_size : top_level_widget->widget.requested_size;
-        top_level_widget->color = color != NULL ? color : top_level_widget->color;
-        top_level_widget->closable = closable != NULL ? closable :top_level_widget->closable;
-        top_level_widget->resizable = resizable != NULL ? resizable :top_level_widget->resizable;
-        top_level_widget->min_size = min_size != NULL ? min_size :top_level_widget->min_size;
+        top_level_widget->color = color != NULL ? *color : top_level_widget->color;
+        top_level_widget->closable = closable != NULL ? *closable :top_level_widget->closable;
+        top_level_widget->resizable = resizable != NULL ? *resizable :top_level_widget->resizable;
+        top_level_widget->min_size = min_size != NULL ? *min_size :top_level_widget->min_size;
 
         if (border_width || title) {
-                if (top_level_widget->widget.placer_params && (top_level_widget->border_width != border_width || top_level_widget->title != title)) {
+                if (top_level_widget->widget.placer_params && (top_level_widget->border_width != *border_width || top_level_widget->title != *title)) {
                         // Case when top level has already called ei_place
-                        top_level_widget->border_width = border_width != NULL ? border_width : top_level_widget->border_width;
-                        top_level_widget->title = title != NULL ? title : top_level_widget->title;
+                        top_level_widget->border_width = *border_width;
+                        top_level_widget->title = *title;
                         ei_placer_run(widget);
                 } else {
                         // Configure attributes for the first time
-                        top_level_widget->border_width = border_width != NULL ? border_width : top_level_widget->border_width;
-                        top_level_widget->title = title != NULL ? title : top_level_widget->title;
+                        top_level_widget->border_width = *border_width;
+                        top_level_widget->title = *title;
                 }
         }
-
 }
 
 void set_default_button (ei_widget_t *widget) {
@@ -452,12 +429,12 @@ void set_default_button (ei_widget_t *widget) {
 
         // Set default params initialized in header file
         button_widget->widget.requested_size = default_button_size;
-        button_widget->color = &default_button_color;
-        button_widget->border_width = (int *)&k_default_button_border_width;
-        button_widget->corner_radius = (int *)&k_default_button_corner_radius;
-        button_widget->text_color = (ei_color_t*)&(ei_font_default_color);
+        button_widget->color = (ei_color_t) default_button_color;
+        button_widget->border_width = (int)k_default_button_border_width;
+        button_widget->corner_radius = (int)k_default_button_corner_radius;
+        button_widget->text_color = (ei_color_t) ei_font_default_color;
         button_widget->text_font = ei_default_font;
-        button_widget->text_anchor = &default_text_button_anchor;
+        button_widget->text_anchor = default_text_button_anchor;
 }
 
 void set_default_frame (ei_widget_t *widget) {
@@ -466,11 +443,11 @@ void set_default_frame (ei_widget_t *widget) {
 
         // Set default params initialized in header file
         frame_widget->widget.requested_size = default_frame_size;
-        frame_widget->color = &default_frame_color;
-        frame_widget->border_width = &default_frame_border_width;
-        frame_widget->text_color = (ei_color_t*)&(ei_font_default_color);
+        frame_widget->color = default_frame_color;
+        frame_widget->border_width = default_frame_border_width;
+        frame_widget->text_color = (ei_color_t) ei_font_default_color;
         frame_widget->text_font = ei_default_font;
-        frame_widget->text_anchor = &default_text_frame_anchor;
+        frame_widget->text_anchor = default_text_frame_anchor;
 }
 
 void set_default_top_level (ei_widget_t *widget) {
@@ -479,21 +456,21 @@ void set_default_top_level (ei_widget_t *widget) {
 
         // Set default params initialized in header file
         top_level_widget->widget.requested_size = default_top_level_size;
-        top_level_widget->color = &default_top_level_color;
-        top_level_widget->border_width = &default_top_level_border_width;
-        top_level_widget->closable = &default_top_level_closable;
+        top_level_widget->color = default_top_level_color;
+        top_level_widget->border_width = default_top_level_border_width;
+        top_level_widget->closable = default_top_level_closable;
 }
 
 void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         widget->screen_location = rect;
         ei_button_t *button = (ei_button_t *) widget;
 
-        int32_t borders_to_remove = *button->border_width * 2;
+        int32_t borders_to_remove = button->border_width * 2;
 
         ei_size_t size_content_rect = {widget->screen_location.size.width - borders_to_remove,
                                        widget->screen_location.size.height -  borders_to_remove};
 
-        ei_point_t place_content_rect = {widget->screen_location.top_left.x + *button->border_width, widget->screen_location.top_left.y + *button->border_width};
+        ei_point_t place_content_rect = {widget->screen_location.top_left.x + button->border_width, widget->screen_location.top_left.y + button->border_width};
 
         // Allocate memory for content_rect
         ei_rect_t *content_rect = malloc(sizeof(ei_rect_t));
@@ -507,12 +484,12 @@ void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
 
         ei_frame_t *frame = (ei_frame_t *) widget;
 
-        int32_t borders_to_remove = *frame->border_width * 2;
+        int32_t borders_to_remove = frame->border_width * 2;
 
         ei_size_t size_content_rect = {widget->screen_location.size.width - borders_to_remove,
                                        widget->screen_location.size.height -  borders_to_remove};
 
-        ei_point_t place_content_rect = {widget->screen_location.top_left.x + *frame->border_width, widget->screen_location.top_left.y + *frame->border_width};
+        ei_point_t place_content_rect = {widget->screen_location.top_left.x + frame->border_width, widget->screen_location.top_left.y + frame->border_width};
 
         // Allocate memory for content_rect
         ei_rect_t *content_rect = malloc(sizeof(ei_rect_t));
@@ -528,7 +505,7 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
 
         // Configure text place
         ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
-        hw_text_compute_size(*top_level_widget->title, ei_default_font, &(text_size->width), &(text_size->height));
+        hw_text_compute_size(top_level_widget->title, ei_default_font, &(text_size->width), &(text_size->height));
 
         // Get size and place parameters
         int width_top_level = top_level_widget->widget.screen_location.size.width;
@@ -537,15 +514,34 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         int place_y = top_level_widget->widget.screen_location.top_left.y;
 
         // Set size and place for the rectangle used to model the content part of the top level (all without border)
-        ei_size_t size_content_rect = {width_top_level - 2*(*top_level_widget->border_width),
-                                       height_top_level - (*top_level_widget->border_width + text_size->height)};
-        ei_point_t place_content_rect = {place_x + (*top_level_widget->border_width), place_y + (text_size->height)};
+        ei_size_t size_content_rect = {width_top_level - 2*(top_level_widget->border_width),
+                                       height_top_level - (top_level_widget->border_width + text_size->height)};
+        ei_point_t place_content_rect = {place_x + (top_level_widget->border_width), place_y + (text_size->height)};
 
         // Allocate memory for content_rect
         ei_rect_t *content_rect = malloc(sizeof(ei_rect_t));
         content_rect->size = size_content_rect;
         content_rect->top_left = place_content_rect;
         top_level_widget->widget.content_rect = content_rect;
+
+        // Close button configuration
+        int close_button_x = place_x + (text_size->height / 4);
+        int close_button_y = place_y + (text_size->height / 2);
+
+        int close_button_width_height = text_size->height / 2;
+        ei_size_t close_button_size = {close_button_width_height, close_button_width_height};
+
+        int close_button_corner_radius = (text_size->height / 2) / 2;
+        ei_color_t close_button_color = {0xF9, 0x38, 0x22, 0xff};
+        ei_relief_t close_button_relief = ei_relief_none;
+
+        ei_button_configure((ei_widget_t*) top_level_widget->close_button, &close_button_size, &close_button_color, 0, &close_button_corner_radius,
+                            &close_button_relief, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
+        top_level_widget->close_button->widget.screen_location.top_left.x = close_button_x;
+        top_level_widget->close_button->widget.screen_location.top_left.y = close_button_y - (close_button_width_height/ 2);
+        top_level_widget->close_button->widget.screen_location.size = close_button_size;
+        top_level_widget->close_button->widget.pick_id = top_level_widget->widget.pick_id + 1;
 
         // Free memory
         free(text_size);

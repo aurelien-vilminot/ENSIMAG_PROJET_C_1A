@@ -663,15 +663,15 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         int place_y = button->widget.screen_location.top_left.y;
 
         // Set size and place for the rectangle used to model the center part of the button (all without border)
-        ei_size_t size_middle_button = {width_button - 2*(*button->border_width),
-                                        height_button - 2*(*button->border_width)};
-        ei_point_t place_middle_button = {place_x + (*button->border_width), place_y + (*button->border_width)};
+        ei_size_t size_middle_button = {width_button - 2*(button->border_width),
+                                        height_button - 2*(button->border_width)};
+        ei_point_t place_middle_button = {place_x + (button->border_width), place_y + (button->border_width)};
         ei_rect_t middle_rect = ei_rect(place_middle_button, size_middle_button);
 
         // Color of center part
-        ei_color_t base_color = *button->color;
+        ei_color_t base_color = button->color;
 
-        if (*button->border_width != 0) {
+        if (button->border_width != 0) {
                 // In this case, it needs to create a border with relief
 
                 // Rectangle used for border
@@ -680,48 +680,48 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                 ei_color_t color_top;
                 ei_color_t color_bottom;
 
-                switch (*button->relief) {
+                switch (button->relief) {
                         case ei_relief_raised:
                                 // Lighten bottom color
-                                color_bottom = *button->color;
+                                color_bottom = button->color;
                                 color_bottom.red = color_bottom.red <= 225 ? color_bottom.red += 30 : 255;
                                 color_bottom.green = color_bottom.green <= 225 ? color_bottom.green += 30 : 255;
                                 color_bottom.blue = color_bottom.blue <= 225 ? color_bottom.blue += 30 : 255;
 
                                 // Darken top color
-                                color_top = *button->color;
+                                color_top = button->color;
                                 color_top.red = color_top.red >= 30 ? color_top.red -= 30 : 0;
                                 color_top.green = color_top.green >= 30 ? color_top.green -= 30 : 0;
                                 color_top.blue = color_top.blue >= 30 ? color_top.blue -= 30 : 0;
                                 break;
                         case ei_relief_sunken:
                                 // Lighten top color
-                                color_top = *button->color;
+                                color_top = button->color;
                                 color_top.red = color_top.red <= 225 ? color_top.red += 30 : 255;
                                 color_top.green = color_top.green <= 225 ? color_top.green += 30 : 255;
                                 color_top.blue = color_top.blue <= 225 ? color_top.blue += 30 : 255;
 
                                 // Darken bottom color
-                                color_bottom = *button->color;
+                                color_bottom = button->color;
                                 color_bottom.red = color_bottom.red >= 30 ? color_bottom.red -= 30 : 0;
                                 color_bottom.green = color_bottom.green >= 30 ? color_bottom.green -= 30 : 0;
                                 color_bottom.blue = color_top.blue >= 30 ? color_bottom.blue -= 30 : 0;
                                 break;
                         case ei_relief_none:
                                 // There is no relief, both colors are the same
-                                color_top = *button->color;
-                                color_bottom = *button->color;
+                                color_top = button->color;
+                                color_bottom = button->color;
                                 break;
                         default:
                                 // There is no relief, both colors are the same
-                                color_top = *button->color;
-                                color_bottom = *button->color;
+                                color_top = button->color;
+                                color_bottom = button->color;
                                 break;
                 }
 
                 // Get all points for border button modelization
-                ei_linked_point_t *pts_top = rounded_frame(border_rect, *button->corner_radius, TOP);
-                ei_linked_point_t *pts_bottom = rounded_frame(border_rect, *button->corner_radius, BOTTOM);
+                ei_linked_point_t *pts_top = rounded_frame(border_rect, button->corner_radius, TOP);
+                ei_linked_point_t *pts_bottom = rounded_frame(border_rect, button->corner_radius, BOTTOM);
 
                 // Display border button
                 ei_draw_polygon(surface, pts_top, color_top, clipper);
@@ -733,36 +733,36 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         }
 
         // Get all points for center part of button
-        ei_linked_point_t *pts_middle = rounded_frame(middle_rect, *button->corner_radius, FULL);
+        ei_linked_point_t *pts_middle = rounded_frame(middle_rect, button->corner_radius, FULL);
 
         // Draw the center part of the button (without border)
         ei_draw_polygon(surface, pts_middle, base_color, clipper);
 
         // Draw in offscreen
-        ei_draw_polygon(pick_surface, pts_middle, *button->widget.pick_color, clipper);
+        //ei_draw_polygon(pick_surface, pts_middle, *button->widget.pick_color, clipper);
 
         // Free memory
         free_list(pts_middle);
 
-        if (*button->img) {
-                // TODO : gestion du clipping
-                ei_point_t *img_coord = text_place(button->img_anchor, &(*button->img_rect)->size,
-                                                   &button->widget.screen_location.top_left,
-                                                   &button->widget.screen_location.size);
-
-                ei_rect_t img_dest_rect = ei_rect(*img_coord, (*button->img_rect)->size);
-
-                ei_copy_surface(surface, &img_dest_rect, *button->img, *button->img_rect, EI_TRUE);
-
-                // Free memory
-                free(img_coord);
-        }
+//        if (*button->img) {
+//                // TODO : gestion du clipping
+//                ei_point_t *img_coord = text_place(button->img_anchor, &(*button->img_rect)->size,
+//                                                   &button->widget.screen_location.top_left,
+//                                                   &button->widget.screen_location.size);
+//
+//                ei_rect_t img_dest_rect = ei_rect(*img_coord, (*button->img_rect)->size);
+//
+//                ei_copy_surface(surface, &img_dest_rect, button->img, button->img_rect, EI_TRUE);
+//
+//                // Free memory
+//                free(img_coord);
+//        }
 
         // Text treatment only if there is a text to display
-        if (*button->text) {
+        if (button->text) {
                 // Configure text place
                 ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
-                hw_text_compute_size(*button->text, button->text_font, &(text_size->width), &(text_size->height));
+                hw_text_compute_size(button->text, button->text_font, &(text_size->width), &(text_size->height));
 
                 // Change values of text_size if this one is greater than the parent
                 if (button->widget.content_rect->size.width <= text_size->width) {
@@ -773,12 +773,12 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                 }
 
                 // Get top-left corner of the text
-                ei_point_t *text_coord = text_place(button->text_anchor, text_size,
+                ei_point_t *text_coord = text_place(&button->text_anchor, text_size,
                                                     &button->widget.screen_location.top_left,
                                                     &button->widget.screen_location.size);
 
                 // Display text
-                ei_draw_text(surface, text_coord, *button->text, button->text_font, *button->text_color, button->widget.content_rect);
+                ei_draw_text(surface, text_coord, button->text, button->text_font, button->text_color, button->widget.content_rect);
 
                 // Free memory
                 free(text_size);
@@ -806,12 +806,12 @@ void ei_draw_frame (ei_widget_t*        widget,
         int place_y = frame->widget.screen_location.top_left.y;
 
         // Set size and place for the rectangle used to model the center part of the frame (all without border)
-        ei_size_t size_middle_frame= {width_button - 2*(*frame->border_width),
-                                        height_button - 2*(*frame->border_width)};
-        ei_point_t place_middle_frame = {place_x + (*frame->border_width), place_y + (*frame->border_width)};
+        ei_size_t size_middle_frame= {width_button - 2*(frame->border_width),
+                                        height_button - 2*(frame->border_width)};
+        ei_point_t place_middle_frame = {place_x + (frame->border_width), place_y + (frame->border_width)};
         ei_rect_t middle_rect = ei_rect(place_middle_frame, size_middle_frame);
 
-        if (*frame->border_width != 0) {
+        if (frame->border_width != 0) {
                 // In this case, it needs to create a border with relief
 
                 // Rectangle used for border
@@ -820,42 +820,42 @@ void ei_draw_frame (ei_widget_t*        widget,
                 ei_color_t color_top;
                 ei_color_t color_bottom;
 
-                switch (*frame->relief) {
+                switch (frame->relief) {
                         case ei_relief_raised:
                                 // Lighten bottom color
-                                color_bottom = *frame->color;
+                                color_bottom = frame->color;
                                 color_bottom.red = color_bottom.red <= 225 ? color_bottom.red += 30 : 255;
                                 color_bottom.green = color_bottom.green <= 225 ? color_bottom.green += 30 : 255;
                                 color_bottom.blue = color_bottom.blue <= 225 ? color_bottom.blue += 30 : 255;
 
                                 // Darken top color
-                                color_top = *frame->color;
+                                color_top = frame->color;
                                 color_top.red = color_top.red >= 30 ? color_top.red -= 30 : 0;
                                 color_top.green = color_top.green >= 30 ? color_top.green -= 30 : 0;
                                 color_top.blue = color_top.blue >= 30 ? color_top.blue -= 30 : 0;
                                 break;
                         case ei_relief_sunken:
                                 // Lighten top color
-                                color_top = *frame->color;
+                                color_top = frame->color;
                                 color_top.red = color_top.red <= 225 ? color_top.red += 30 : 255;
                                 color_top.green = color_top.green <= 225 ? color_top.green += 30 : 255;
                                 color_top.blue = color_top.blue <= 225 ? color_top.blue += 30 : 255;
 
                                 // Darken bottom color
-                                color_bottom = *frame->color;
+                                color_bottom = frame->color;
                                 color_bottom.red = color_bottom.red >= 30 ? color_bottom.red -= 30 : 0;
                                 color_bottom.green = color_bottom.green >= 30 ? color_bottom.green -= 30 : 0;
                                 color_bottom.blue = color_top.blue >= 30 ? color_bottom.blue -= 30 : 0;
                                 break;
                         case ei_relief_none:
                                 // There is no relief, both colors are the same
-                                color_top = *frame->color;
-                                color_bottom = *frame->color;
+                                color_top = frame->color;
+                                color_bottom = frame->color;
                                 break;
                         default:
                                 // There is no relief, both colors are the same
-                                color_top = *frame->color;
-                                color_bottom = *frame->color;
+                                color_top = frame->color;
+                                color_bottom = frame->color;
                                 break;
                 }
 
@@ -873,7 +873,7 @@ void ei_draw_frame (ei_widget_t*        widget,
         }
 
         ei_linked_point_t *pts_frame = rounded_frame(middle_rect, 0, FULL);
-        ei_draw_polygon(surface, pts_frame, *frame->color, clipper);
+        ei_draw_polygon(surface, pts_frame, frame->color, clipper);
 
         // Display in offscreen
         ei_draw_polygon(pick_surface, pts_frame, *frame->widget.pick_color, clipper);
@@ -881,22 +881,22 @@ void ei_draw_frame (ei_widget_t*        widget,
         // Free memory
         free_list(pts_frame);
 
-        if (*frame->img) {
-                // TODO : gestion du clipping
-                ei_point_t *img_coord = text_place(frame->img_anchor, &(*frame->img_rect)->size,
-                                                   &frame->widget.screen_location.top_left,
-                                                   &frame->widget.screen_location.size);
-
-                ei_rect_t img_dest_rect = ei_rect(*img_coord, (*frame->img_rect)->size);
-
-                ei_copy_surface(surface, &img_dest_rect, *frame->img, *frame->img_rect, EI_TRUE);
-        }
+//        if (frame->img) {
+//                // TODO : gestion du clipping
+//                ei_point_t *img_coord = text_place(frame->img_anchor, &(*frame->img_rect)->size,
+//                                                   &frame->widget.screen_location.top_left,
+//                                                   &frame->widget.screen_location.size);
+//
+//                ei_rect_t img_dest_rect = ei_rect(*img_coord, (*frame->img_rect)->size);
+//
+//                ei_copy_surface(surface, &img_dest_rect, frame->img, frame->img_rect, EI_TRUE);
+//        }
 
         // Text treatment only if there is a text to display
-        if (*frame->text) {
+        if (frame->text) {
                 // Configure text place
                 ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
-                hw_text_compute_size(*frame->text, frame->text_font, &(text_size->width), &(text_size->height));
+                hw_text_compute_size(frame->text, frame->text_font, &(text_size->width), &(text_size->height));
 
                 // Change values of text_size if this one is greater than the parent
                 if (frame->widget.content_rect->size.width <= text_size->width) {
@@ -907,15 +907,16 @@ void ei_draw_frame (ei_widget_t*        widget,
                 }
 
                 // Get top-left corner of the text
-                ei_point_t *text_coord = text_place(frame->text_anchor, text_size,
+                ei_point_t *text_coord = text_place(&frame->text_anchor, text_size,
                                                     &frame->widget.screen_location.top_left,
                                                     &frame->widget.screen_location.size);
 
                 // Display text
-                ei_draw_text(surface, text_coord, *frame->text, frame->text_font, *frame->text_color, frame->widget.content_rect);
+                ei_draw_text(surface, text_coord, frame->text, frame->text_font, frame->text_color, frame->widget.content_rect);
 
                 // Free memory
                 free(text_size);
+                free(text_coord);
         }
 }
 
@@ -928,14 +929,14 @@ void ei_draw_top_level (ei_widget_t*            widget,
 
         // Configure text place
         ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
-        hw_text_compute_size(*top_level->title, ei_default_font, &(text_size->width), &(text_size->height));
+        hw_text_compute_size(top_level->title, ei_default_font, &(text_size->width), &(text_size->height));
 
         // Text place in top bar
         ei_anchor_t text_anchor = ei_anc_center;
 
         // Top bar size including border for the height
         ei_size_t top_bar_size = {top_level->widget.screen_location.size.width,
-                                  text_size->height + *top_level->border_width};
+                                  text_size->height + top_level->border_width};
 
         // Get size and place parameters
         int place_x = top_level->widget.screen_location.top_left.x;
@@ -955,7 +956,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
 
         // Draw content rect part of top level
         ei_linked_point_t *pts_content_rect = rounded_frame(*top_level->widget.content_rect, 0, FULL);
-        ei_draw_polygon(surface, pts_content_rect, *top_level->color, clipper);
+        ei_draw_polygon(surface, pts_content_rect, top_level->color, clipper);
 
         // Change values of text_size if this one is greater than the parent
         ei_bool_t change_text_size = EI_FALSE;
@@ -975,30 +976,12 @@ void ei_draw_top_level (ei_widget_t*            widget,
         ei_point_t place_text = top_level->widget.screen_location.top_left;
 
         if (top_level->closable) {
-                int close_button_x = place_x + (text_size->height / 4);
-                int close_button_y = place_y + (text_size->height / 2);
-
-                int close_button_width_height = text_size->height / 2;
-                ei_size_t close_button_size = {close_button_width_height, close_button_width_height};
-
-                int close_button_corner_radius = (text_size->height / 2) / 2;
-                ei_color_t close_button_color = {0xF9, 0x38, 0x22, 0xff};
-                ei_relief_t close_button_relief = ei_relief_none;
-
-                ei_widget_t *close_button = ei_widget_create("button", NULL, NULL, NULL);
-                ei_button_configure(close_button, &close_button_size, &close_button_color, 0, &close_button_corner_radius,
-                                    &close_button_relief, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-
-                close_button->screen_location.top_left.x = close_button_x;
-                close_button->screen_location.top_left.y = close_button_y - (close_button_width_height/ 2);
-
-                close_button->screen_location.size = close_button_size;
-
-                close_button->wclass->drawfunc(close_button, surface, pick_surface, clipper);
+                // Display button
+                ei_draw_button((ei_widget_t*) top_level->close_button, surface, pick_surface, clipper);
 
                 if (change_text_size) {
-                        place_text.x += close_button->screen_location.size.width + (close_button->screen_location.top_left.x - place_x);
-                        text_clipper.size.width -= place_text.x - place_x + *top_level->border_width;
+                        place_text.x += top_level->close_button->widget.screen_location.size.width + (top_level->close_button->widget.screen_location.top_left.x - place_x);
+                        text_clipper.size.width -= place_text.x - place_x + top_level->border_width;
                 }
         }
 
@@ -1008,7 +991,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
                                             &top_bar_size);
 
         // Display title
-        ei_draw_text(surface, text_coord, *top_level->title, ei_default_font, *top_level->color, &text_clipper);
+        ei_draw_text(surface, text_coord, top_level->title, ei_default_font, top_level->color, &text_clipper);
 
         // Free memory
         free_list(pts_content_rect);

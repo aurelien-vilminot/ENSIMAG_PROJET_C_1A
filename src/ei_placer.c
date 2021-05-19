@@ -76,7 +76,7 @@ void		ei_place	(struct ei_widget_t*	widget,
                         struct_placer->w = width;
                         struct_placer->w_data = *width;
                 } else {
-                        if (widget->requested_size.width) {
+                        if (widget->requested_size.width && !rel_width) {
                                 struct_placer->w_data= widget->requested_size.width;
                                 struct_placer->w = &widget->requested_size.width;
                         } else {
@@ -89,7 +89,7 @@ void		ei_place	(struct ei_widget_t*	widget,
                         struct_placer->h = height;
                         struct_placer->h_data = *height;
                 } else {
-                        if (widget->requested_size.height) {
+                        if (widget->requested_size.height && !rel_height) {
                                 struct_placer->h_data = widget->requested_size.height;
                                 struct_placer->h = &widget->requested_size.height;
                         } else {
@@ -202,21 +202,21 @@ void ei_placer_run(struct ei_widget_t* widget) {
 
         // Calcul place of widget
         ei_point_t rel_coord;
-        rel_coord.x = widget->placer_params->x_data + (int) (widget->placer_params->rx_data * widget->parent->screen_location.size.width);
-        rel_coord.y = widget->placer_params->y_data + (int) (widget->placer_params->ry_data * widget->parent->screen_location.size.height);
+        rel_coord.x = widget->placer_params->x_data + (int) (widget->placer_params->rx_data * (widget->parent->screen_location.size.width + widget->parent->screen_location.top_left.x));
+        rel_coord.y = widget->placer_params->y_data + (int) (widget->placer_params->ry_data * (widget->parent->screen_location.size.height + widget->parent->screen_location.top_left.y));
 
         // Adapt top-left coord at the anchor given in parameter
         switch (widget_anchor) {
                 case ei_anc_center:
-                        rect.top_left.x = rel_coord.x - (widget->placer_params->w_data / 2);
-                        rect.top_left.y = rel_coord.y - (widget->placer_params->h_data / 2);
+                        rect.top_left.x = rel_coord.x - (rect.size.width / 2);
+                        rect.top_left.y = rel_coord.y - (rect.size.height / 2);
                         break;
                 case ei_anc_north:
-                        rect.top_left.x = rel_coord.x - (widget->placer_params->w_data / 2);
+                        rect.top_left.x = rel_coord.x - (rect.size.width / 2);
                         rect.top_left.y = rel_coord.y;
                         break;
                 case ei_anc_northeast:
-                        rect.top_left.x = rel_coord.x - (widget->placer_params->w_data);
+                        rect.top_left.x = rel_coord.x - (rect.size.width);
                         rect.top_left.y = rel_coord.y;
                         break;
                 case ei_anc_northwest:
@@ -224,24 +224,24 @@ void ei_placer_run(struct ei_widget_t* widget) {
                         rect.top_left.y = rel_coord.y;
                         break;
                 case ei_anc_south:
-                        rect.top_left.x = rel_coord.x - (widget->placer_params->w_data / 2);
-                        rect.top_left.y = rel_coord.y - widget->placer_params->h_data;
+                        rect.top_left.x = rel_coord.x - (rect.size.width / 2);
+                        rect.top_left.y = rel_coord.y - rect.size.height;
                         break;
                 case ei_anc_southeast:
-                        rect.top_left.x = rel_coord.x + (int) (widget->placer_params->rx_data * widget->parent->screen_location.size.width) - widget->placer_params->w_data;
-                        rect.top_left.y = rel_coord.y + (int) (widget->placer_params->ry_data * widget->parent->screen_location.size.height) - widget->placer_params->h_data;
+                        rect.top_left.x = rel_coord.x - rect.size.width;
+                        rect.top_left.y = rel_coord.y - rect.size.height;
                         break;
                 case ei_anc_southwest:
                         rect.top_left.x = rel_coord.x;
-                        rect.top_left.y = rel_coord.y - widget->placer_params->h_data;
+                        rect.top_left.y = rel_coord.y - rect.size.height;
                         break;
                 case ei_anc_east:
-                        rect.top_left.x = rel_coord.x - widget->placer_params->w_data;
-                        rect.top_left.y = rel_coord.y - (widget->placer_params->h_data / 2);
+                        rect.top_left.x = rel_coord.x - rect.size.width;
+                        rect.top_left.y = rel_coord.y - (rect.size.height / 2);
                         break;
                 case ei_anc_west:
                         rect.top_left.x = rel_coord.x;
-                        rect.top_left.y = rel_coord.y - (widget->placer_params->h_data / 2);
+                        rect.top_left.y = rel_coord.y - (rect.size.height / 2);
                         break;
                 case ei_anc_none:
                         rect.top_left.x = rel_coord.x;
