@@ -313,7 +313,6 @@ void			ei_frame_configure		(ei_widget_t*		widget,
 
         frame_widget->img_rect = img_rect != NULL ? *img_rect : frame_widget-> img_rect;
 
-
         frame_widget->text_font = text_font != NULL ? text_font : frame_widget-> text_font;
         frame_widget->text_color = text_color != NULL ? *text_color : frame_widget-> text_color;
         frame_widget->text_anchor = text_anchor != NULL ? *text_anchor : frame_widget-> text_anchor;

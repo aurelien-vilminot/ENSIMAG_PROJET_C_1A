@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
 	ei_app_create(root_window_size, fullscreen);
 	ei_frame_configure(ei_app_root_widget(), NULL, &root_bgcol, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 	
-	ei_event_set_default_handle_func(global_handler);
+	//ei_event_set_default_handle_func(global_handler);
 
 	/* if an argument is provided on the command line, it is the path to an image file
 		to be used for the game. Otherwise, the default image (Klimt painting)

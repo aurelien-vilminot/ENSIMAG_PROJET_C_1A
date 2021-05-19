@@ -79,24 +79,24 @@ int main(int argc, char** argv)
 				&window_title, &window_closable, &window_resizable, NULL);
 	ei_place(window, NULL, &(window_position.x), &(window_position.y), NULL, NULL, NULL, NULL, NULL, NULL);
 
-        ei_widget_t*	second_window;
-        int		second_window_x		        = 20;
-        int		second_window_y		        = 20;
-        float		second_window_rel_x	        = 0.0;
-        float		second_window_rel_y	        = 0.0;
-        float		second_window_rel_width	        = 0.5;
-        float		second_window_rel_height        = 0.5;
-        char*		second_window_title		= "(re)Hello Worldeeee";
-        ei_color_t	second_window_color		= {0xA0,0xAF,0xA0, 0xff};
-        int		second_window_border_width	= 5;
+        ei_widget_t*	frame;
+        float		frame_rel_x	        = 0.0;
+        float		frame_rel_y	        = 0.0;
+        float		frame_rel_width	        = 1.0;
+        float		frame_rel_height        = 1.0;
+        char*		frame_title		= "(re)Hello Worldeeee";
+        ei_anchor_t     frame_text_anchor       = ei_anc_west;
+        ei_relief_t     frame_relief            = ei_relief_raised;
+        ei_color_t	frame_color		= {0xA0,0xAF,0xA0, 0xff};
+        int		frame_border_width	= 5;
 
-	second_window = ei_widget_create("toplevel", window, NULL, NULL);
-	ei_toplevel_configure(second_window, &window_size, &second_window_color, &second_window_border_width,
-				&second_window_title, &window_closable, &window_resizable, NULL);
-	ei_place(second_window, NULL, &second_window_x, &second_window_y, NULL, NULL, &second_window_rel_x, &second_window_rel_y, &second_window_rel_width, &second_window_rel_height);
+	frame = ei_widget_create("frame", window, NULL, NULL);
+	ei_frame_configure(frame, NULL, &frame_color, &frame_border_width, &frame_relief, &frame_title,
+	        ei_default_font, &root_bgcol, &frame_text_anchor, NULL, NULL, NULL);
+	ei_place(frame, NULL, NULL, NULL, NULL, NULL, &frame_rel_x, &frame_rel_y, &frame_rel_width, &frame_rel_height);
 
         /* Create, configure and place a button as a descendant of the toplevel window. */
-	button = ei_widget_create("button", window, NULL, NULL);
+	button = ei_widget_create("button", frame, NULL, NULL);
 	ei_button_configure	(button, NULL, &button_color,
 				 &button_border_width, NULL, &button_relief, &button_title, NULL, &button_text_color, NULL,
 				NULL, NULL, NULL, &button_callback, NULL);

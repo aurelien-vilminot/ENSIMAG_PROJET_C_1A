@@ -122,10 +122,10 @@ static uint32_t default_top_level_rect_resize = 10;
 
 /**
  * @brief       Give coordinates of top-left point where a text must be display depending on the anchor
- * @param text_anchor
- * @param text_size
- * @param widget_place
- * @param widget_size
+ * @param       text_anchor
+ * @param       text_size
+ * @param       widget_place
+ * @param       widget_size
  * @return
  */
 ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_t *widget_place, ei_size_t *widget_size);

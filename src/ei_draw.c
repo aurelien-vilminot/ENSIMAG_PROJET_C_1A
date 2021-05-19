@@ -750,12 +750,19 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         free_list(pts_middle);
 
         if (button->img) {
-                // TODO : gestion du clipping
                 ei_point_t *img_coord = text_place(&button->img_anchor, &button->img_rect->size,
-                                                   &button->widget.screen_location.top_left,
-                                                   &button->widget.screen_location.size);
+                                                   &button->widget.content_rect->top_left,
+                                                   &button->widget.content_rect->size);
 
-                ei_rect_t img_dest_rect = ei_rect(*img_coord, button->img_rect->size);
+                // Change size of rectangle which contained image (source only) if it is greater than the content_rect
+                if (button->widget.content_rect->size.width < button->img_rect->size.width) {
+                        button->img_rect->size.width = button->widget.content_rect->size.width;
+                }
+                if (button->widget.content_rect->size.height < button->img_rect->size.height) {
+                        button->img_rect->size.height = button->widget.content_rect->size.height;
+                }
+
+                ei_rect_t img_dest_rect = ei_rect(*img_coord, button->widget.content_rect->size);
 
                 ei_copy_surface(surface, &img_dest_rect, button->img, button->img_rect, EI_TRUE);
 
@@ -779,8 +786,8 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
 
                 // Get top-left corner of the text
                 ei_point_t *text_coord = text_place(&button->text_anchor, text_size,
-                                                    &button->widget.screen_location.top_left,
-                                                    &button->widget.screen_location.size);
+                                                    &button->widget.content_rect->top_left,
+                                                    &button->widget.content_rect->size);
 
                 // Display text
                 ei_draw_text(surface, text_coord, button->text, button->text_font, button->text_color, button->widget.content_rect);
@@ -887,12 +894,19 @@ void ei_draw_frame (ei_widget_t*        widget,
         free_list(pts_frame);
 
         if (frame->img) {
-                // TODO : gestion du clipping
                 ei_point_t *img_coord = text_place(&frame->img_anchor, &frame->img_rect->size,
-                                                   &frame->widget.screen_location.top_left,
-                                                   &frame->widget.screen_location.size);
+                                                   &frame->widget.content_rect->top_left,
+                                                   &frame->widget.content_rect->size);
 
-                ei_rect_t img_dest_rect = ei_rect(*img_coord, frame->img_rect->size);
+                // Change size of rectangle which contained image (source only) if it is greater than the content_rect
+                if (frame->widget.content_rect->size.width < frame->img_rect->size.width) {
+                        frame->img_rect->size.width = frame->widget.content_rect->size.width;
+                }
+                if (frame->widget.content_rect->size.height < frame->img_rect->size.height) {
+                        frame->img_rect->size.height = frame->widget.content_rect->size.height;
+                }
+
+                ei_rect_t img_dest_rect = ei_rect(*img_coord, frame->widget.content_rect->size);
 
                 ei_copy_surface(surface, &img_dest_rect, frame->img, frame->img_rect, EI_TRUE);
 
@@ -916,8 +930,8 @@ void ei_draw_frame (ei_widget_t*        widget,
 
                 // Get top-left corner of the text
                 ei_point_t *text_coord = text_place(&frame->text_anchor, text_size,
-                                                    &frame->widget.screen_location.top_left,
-                                                    &frame->widget.screen_location.size);
+                                                    &frame->widget.content_rect->top_left,
+                                                    &frame->widget.content_rect->size);
 
                 // Display text
                 ei_draw_text(surface, text_coord, frame->text, frame->text_font, frame->text_color, frame->widget.content_rect);
@@ -940,7 +954,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
         hw_text_compute_size(top_level->title, ei_default_font, &(text_size->width), &(text_size->height));
 
         // Text place in top bar
-        ei_anchor_t text_anchor = ei_anc_center;
+        ei_anchor_t text_anchor = ei_anc_west;
 
         // Top bar size including border for the height
         ei_size_t top_bar_size = {top_level->widget.screen_location.size.width,
@@ -966,14 +980,11 @@ void ei_draw_top_level (ei_widget_t*            widget,
         ei_draw_polygon(surface, pts_content_rect, top_level->color, clipper);
 
         // Change values of text_size if this one is greater than the parent
-        ei_bool_t change_text_size = EI_FALSE;
         if (top_level->widget.content_rect->size.width <= text_size->width) {
                 text_size->width = top_level->widget.content_rect->size.width;
-                change_text_size = EI_TRUE;
         }
         if (top_level->widget.content_rect->size.height <= text_size->height) {
                 text_size->height = top_level->widget.content_rect->size.height;
-                change_text_size = EI_TRUE;
         }
 
         // Text clipper
@@ -986,16 +997,15 @@ void ei_draw_top_level (ei_widget_t*            widget,
                 // Display button
                 ei_draw_button((ei_widget_t*) top_level->close_button, surface, NULL, clipper);
 
-                if (change_text_size) {
-                        place_text.x += top_level->close_button->widget.screen_location.size.width + (top_level->close_button->widget.screen_location.top_left.x - place_x);
-                        text_clipper.size.width -= place_text.x - place_x + top_level->border_width;
-                }
+                // Change x-axis place including space used by close button
+                place_text.x += top_level->close_button->widget.screen_location.size.width + (top_level->close_button->widget.screen_location.top_left.x - place_x) + top_level->border_width;
+
+                // Change text clipper width because of the augmentation of x-axis
+                text_clipper.size.width -= place_text.x - place_x + top_level->border_width;
         }
 
         // Get top-left corner of the text
-        ei_point_t *text_coord = text_place(&text_anchor, text_size,
-                                            &place_text,
-                                            &top_bar_size);
+        ei_point_t *text_coord = text_place(&text_anchor, text_size, &place_text, &top_bar_size);
 
         // Display title
         ei_draw_text(surface, text_coord, top_level->title, ei_default_font, top_level->color, &text_clipper);
@@ -1016,7 +1026,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
                 free_list(pts_rect_resize);
         }
 
-        // TODO : gestion min size et resizable
+        // TODO : gestion min size
 }
 
 void clipping_off_screen (ei_surface_t surface,
