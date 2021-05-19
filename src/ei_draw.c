@@ -744,19 +744,19 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         // Free memory
         free_list(pts_middle);
 
-//        if (*button->img) {
-//                // TODO : gestion du clipping
-//                ei_point_t *img_coord = text_place(button->img_anchor, &(*button->img_rect)->size,
-//                                                   &button->widget.screen_location.top_left,
-//                                                   &button->widget.screen_location.size);
-//
-//                ei_rect_t img_dest_rect = ei_rect(*img_coord, (*button->img_rect)->size);
-//
-//                ei_copy_surface(surface, &img_dest_rect, button->img, button->img_rect, EI_TRUE);
-//
-//                // Free memory
-//                free(img_coord);
-//        }
+        if (button->img) {
+                // TODO : gestion du clipping
+                ei_point_t *img_coord = text_place(&button->img_anchor, &button->img_rect->size,
+                                                   &button->widget.screen_location.top_left,
+                                                   &button->widget.screen_location.size);
+
+                ei_rect_t img_dest_rect = ei_rect(*img_coord, button->img_rect->size);
+
+                ei_copy_surface(surface, &img_dest_rect, button->img, button->img_rect, EI_TRUE);
+
+                // Free memory
+                free(img_coord);
+        }
 
         // Text treatment only if there is a text to display
         if (button->text) {
@@ -881,16 +881,19 @@ void ei_draw_frame (ei_widget_t*        widget,
         // Free memory
         free_list(pts_frame);
 
-//        if (frame->img) {
-//                // TODO : gestion du clipping
-//                ei_point_t *img_coord = text_place(frame->img_anchor, &(*frame->img_rect)->size,
-//                                                   &frame->widget.screen_location.top_left,
-//                                                   &frame->widget.screen_location.size);
-//
-//                ei_rect_t img_dest_rect = ei_rect(*img_coord, (*frame->img_rect)->size);
-//
-//                ei_copy_surface(surface, &img_dest_rect, frame->img, frame->img_rect, EI_TRUE);
-//        }
+        if (frame->img) {
+                // TODO : gestion du clipping
+                ei_point_t *img_coord = text_place(&frame->img_anchor, &frame->img_rect->size,
+                                                   &frame->widget.screen_location.top_left,
+                                                   &frame->widget.screen_location.size);
+
+                ei_rect_t img_dest_rect = ei_rect(*img_coord, frame->img_rect->size);
+
+                ei_copy_surface(surface, &img_dest_rect, frame->img, frame->img_rect, EI_TRUE);
+
+                // Free memory
+                free(img_coord);
+        }
 
         // Text treatment only if there is a text to display
         if (frame->text) {
@@ -938,9 +941,8 @@ void ei_draw_top_level (ei_widget_t*            widget,
         ei_size_t top_bar_size = {top_level->widget.screen_location.size.width,
                                   text_size->height + top_level->border_width};
 
-        // Get size and place parameters
+        // Get x place param
         int place_x = top_level->widget.screen_location.top_left.x;
-        int place_y = top_level->widget.screen_location.top_left.y;
 
         // Get all points for border toplevel modelization
         ei_linked_point_t *pts_border = rounded_frame(top_level->widget.screen_location, 0, FULL);
@@ -997,6 +999,17 @@ void ei_draw_top_level (ei_widget_t*            widget,
         free_list(pts_content_rect);
         free(text_coord);
         free(text_size);
+
+        if (top_level->resizable != ei_axis_none) {
+                // Get all points for rectangle used to resize
+                ei_linked_point_t *pts_rect_resize = rounded_frame(*top_level->resize_rect, 0, FULL);
+
+                // Display rectangle used to resize
+                ei_draw_polygon(surface, pts_rect_resize, border_color, clipper);
+
+                // Free memory
+                free_list(pts_rect_resize);
+        }
 
         // TODO : gestion min size et resizable
 }

@@ -133,7 +133,8 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
                                 widget_to_destroy->destructor(widget_to_destroy);
                         }
                         widget_to_destroy->wclass->releasefunc(widget_to_destroy);
-
+                        free(widget_to_destroy->pick_color);
+                        free(widget_to_destroy);
                 } else {
                         while (widget_to_destroy != widget && widget_to_destroy->next_sibling == NULL) {
                                 widget_to_destroy = widget_to_destroy->parent;
@@ -146,6 +147,8 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
                                         widget_to_destroy->destructor(widget_to_destroy);
                                 }
                                 widget_to_destroy->wclass->releasefunc(widget_to_destroy);
+                                free(widget_to_destroy->pick_color);
+                                free(widget_to_destroy);
                         }
                 }
         } while (widget_to_destroy != widget);
@@ -175,7 +178,8 @@ ei_widget_t* button_alloc_func() {
 }
 
 ei_widget_t* top_level_alloc_func() {
-        ei_top_level_t * m_toplevel = calloc(1, sizeof(ei_top_level_t));
+        ei_top_level_t *m_toplevel = calloc(1, sizeof(ei_top_level_t));
+        m_toplevel->resize_rect = calloc(1, sizeof(ei_top_level_t));
 
         // Initialisation of close button widget
         m_toplevel->close_button = (ei_button_t *) button_alloc_func();
@@ -194,57 +198,28 @@ ei_widget_t* frame_alloc_func() {
  * @return
  */
 void button_release(struct ei_widget_t*	widget) {
-        // TODO:Don't forget to free the color_picking
         // Cast into button widget to delete its ressources
         ei_button_t * button_widget = (ei_button_t*) widget;
 
-//        if (button_widget->color) free(&button_widget->color);
-//        if (button_widget->border_width) free(&button_widget->border_width);
-//        if (button_widget->corner_radius) free(&button_widget->corner_radius);
-//        if (button_widget->relief) free(&button_widget->relief);
-//        if (button_widget->text) free(button_widget->text);
-//        if (button_widget->text_font) free(&button_widget->text_font);
-//        if (button_widget->text_color) free(&button_widget->text_color);
-//        if (button_widget->text_anchor) free(&button_widget->text_anchor);
-//        if (button_widget->img) free(&button_widget->img);
-//        if (button_widget->img_rect) free(&button_widget->img_rect);
-//        if (button_widget->img_anchor) free(&button_widget->img_anchor);
-//        if (button_widget->callback) free(&button_widget->callback);
-//        if (button_widget->user_param) free(&button_widget->user_param);
-        free(button_widget);
+        if (button_widget->text) free(button_widget->text);
+        if (button_widget->img_rect) free(button_widget->img_rect);
 }
 
 void top_level_release(struct ei_widget_t* widget) {
-        // TODO:Don't forget to free the color_picking
         // Cast into top_level widget to delete its ressources
-        struct ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
+        ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
 
-//        if (top_level_widget->color) free(&top_level_widget->color);
-//        if (top_level_widget-> border_width) free(&top_level_widget->border_width);
-//        if (top_level_widget->title) free(&top_level_widget->title);
-//        if (top_level_widget-> closable) free(&top_level_widget->closable);
-//        if (top_level_widget->resizable) free(&top_level_widget->resizable);
-//        if (top_level_widget->min_size) free(&top_level_widget->min_size);
-        free(top_level_widget);
+        if (top_level_widget->title) free(top_level_widget->title);
+        if (top_level_widget->min_size) free(top_level_widget->min_size);
+        button_release((ei_widget_t *) top_level_widget->close_button);
 }
 
 void frame_release(struct ei_widget_t* widget) {
-        // TODO:Don't forget to free the color_picking
         // Cast into frame widget to delete its ressources
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
 
-//        if (frame_widget->color) free(&frame_widget->color);
-//        if (frame_widget->border_width) free(&frame_widget->border_width);
-//        if (frame_widget->relief) free(&frame_widget->relief);
-//        if (frame_widget->text) free(&frame_widget->text);
-//        if (frame_widget->text_font) free(&frame_widget->text_font);
-//        if (frame_widget->text_color) free(&frame_widget->text_color);
-//        if (frame_widget->text_anchor) free(&frame_widget->text_anchor);
-//        if (frame_widget->img) free(&frame_widget->img);
-//        if (frame_widget->img_rect) free(&frame_widget->img_rect);
-//        if (frame_widget->img_anchor) free(&frame_widget->img_anchor);
-
-        free(frame_widget);
+        if (frame_widget->text) free(frame_widget->text);
+        if (frame_widget->img_rect) free(frame_widget->img_rect);
 }
 
 /**
@@ -306,16 +281,26 @@ void			ei_frame_configure		(ei_widget_t*		widget,
         frame_widget->border_width = border_width != NULL ? *border_width : frame_widget-> border_width;
         frame_widget->relief = relief != NULL ? *relief : frame_widget-> relief;
 
-        if (text != NULL) {
-                frame_widget->text = calloc(strlen(*text), sizeof(char*));
-                frame_widget->text = *text;
+        if (text) {
+                free(frame_widget->text);
+                frame_widget->text = calloc(strlen(*text) + 1, sizeof(char));
+                strcpy(frame_widget->text, *text);
         }
+
+
+        if (img_rect) {
+                free(frame_widget->img_rect);
+                frame_widget->text = malloc(sizeof(ei_rect_t));
+                frame_widget->img_rect = *img_rect;
+        }
+
+        frame_widget->img_rect = img_rect != NULL ? *img_rect : frame_widget-> img_rect;
+
 
         frame_widget->text_font = text_font != NULL ? text_font : frame_widget-> text_font;
         frame_widget->text_color = text_color != NULL ? *text_color : frame_widget-> text_color;
         frame_widget->text_anchor = text_anchor != NULL ? *text_anchor : frame_widget-> text_anchor;
         frame_widget->img = img != NULL ? img : frame_widget-> img;
-        frame_widget->img_rect = img_rect != NULL ? *img_rect : frame_widget-> img_rect;
         frame_widget->img_anchor = img_anchor != NULL ? *img_anchor : frame_widget-> img_anchor;
 }
 
@@ -359,12 +344,23 @@ void			ei_button_configure		(ei_widget_t*		widget,
         button_widget->border_width = border_width != NULL ? *border_width : button_widget-> border_width;
         button_widget->corner_radius = corner_radius != NULL ? *corner_radius : button_widget->corner_radius;
         button_widget->relief = relief != NULL ? *relief : button_widget->relief;
-        button_widget->text = text != NULL ? *text : button_widget->text;
+
+        if (text) {
+                free(button_widget->text);
+                button_widget->text = calloc(strlen(*text) + 1, sizeof(char));
+                strcpy(button_widget->text, *text);
+        }
+
+        if (img_rect) {
+                free(button_widget->img_rect);
+                button_widget->text = malloc(sizeof(ei_rect_t));
+                button_widget->img_rect = *img_rect;
+        }
+
         button_widget->text_font = text_font != NULL ? text_font : button_widget->text_font;
         button_widget->text_color = text_color != NULL ? *text_color : button_widget->text_color;
         button_widget->text_anchor = text_anchor != NULL ? *text_anchor : button_widget->text_anchor;
         button_widget->img = img != NULL ? img : button_widget->img;
-        button_widget->img_rect = img_rect != NULL ? *img_rect : button_widget->img_rect;
         button_widget->img_anchor = img_anchor != NULL ? *img_anchor : button_widget->img_anchor;
         button_widget->callback = callback != NULL ? *callback : button_widget->callback;
         button_widget->user_param = user_param != NULL ? user_param : button_widget->user_param;
@@ -407,18 +403,29 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
         top_level_widget->color = color != NULL ? *color : top_level_widget->color;
         top_level_widget->closable = closable != NULL ? *closable :top_level_widget->closable;
         top_level_widget->resizable = resizable != NULL ? *resizable :top_level_widget->resizable;
-        top_level_widget->min_size = min_size != NULL ? *min_size :top_level_widget->min_size;
+
+        if (min_size) {
+                free(top_level_widget->min_size);
+                top_level_widget->min_size = malloc(sizeof(ei_size_t));
+                top_level_widget->min_size = *min_size;
+        }
 
         if (border_width || title) {
                 if (top_level_widget->widget.placer_params && (top_level_widget->border_width != *border_width || top_level_widget->title != *title)) {
                         // Case when top level has already called ei_place
                         top_level_widget->border_width = *border_width;
-                        top_level_widget->title = *title;
+                        free(top_level_widget->title);
+                        top_level_widget->title = calloc(strlen(*title) + 1, sizeof(char));
+                        strcpy(top_level_widget->title, *title);
+
+                        // Call the placer
                         ei_placer_run(widget);
                 } else {
                         // Configure attributes for the first time
                         top_level_widget->border_width = *border_width;
-                        top_level_widget->title = *title;
+                        free(top_level_widget->title);
+                        top_level_widget->title = calloc(strlen(*title) + 1, sizeof(char));
+                        strcpy(top_level_widget->title, *title);
                 }
         }
 }
@@ -545,6 +552,12 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
 
         // Free memory
         free(text_size);
+
+        // Resizable rect
+        top_level_widget->resize_rect->top_left.x = (place_x + width_top_level) - default_top_level_rect_resize;
+        top_level_widget->resize_rect->top_left.y = (place_y + height_top_level) - default_top_level_rect_resize;
+        top_level_widget->resize_rect->size.width = default_top_level_rect_resize;
+        top_level_widget->resize_rect->size.height = default_top_level_rect_resize;
 }
 
 // TODO : commentaires

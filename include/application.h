@@ -8,10 +8,10 @@ static ei_widgetclass_t *button_class;
 
 // Root elements
 ei_surface_t *root_windows;
-static ei_widget_t *root_frame;
+ei_widget_t *root_frame;
 
 // Offscreen
-static ei_surface_t offscreen = NULL;
+ei_surface_t offscreen;
 
 /**
  * @brief       Return a linked list which represent all widget classes

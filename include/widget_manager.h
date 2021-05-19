@@ -34,6 +34,7 @@ typedef struct ei_top_level_t {
         ei_axis_set_t		resizable;
         ei_size_t*		min_size;
         ei_button_t*            close_button;
+        ei_rect_t*              resize_rect;
 } ei_top_level_t;
 
 typedef struct ei_frame_t {
@@ -117,6 +118,7 @@ static ei_size_t default_top_level_size = {400, 50};
 static ei_color_t default_top_level_color = {0xD0, 0xD3, 0xD4, 0xff};
 static int default_top_level_border_width = 0;
 static ei_bool_t default_top_level_closable = EI_TRUE;
+static uint32_t default_top_level_rect_resize = 10;
 
 /**
  * @brief       Give coordinates of top-left point where a text must be display depending on the anchor
