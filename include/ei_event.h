@@ -137,13 +137,8 @@ ei_widget_t* ei_event_get_active_widget(void);
  */
 typedef ei_bool_t		(*ei_default_handle_func_t)(struct ei_event_t* event);
 
-/**
- * Sets the function that must be called when an event has been received but no processed
- *	by any widget.
- *
- * @param	func		The event handling function.
- */
-void ei_event_set_default_handle_func(ei_default_handle_func_t func);
+
+
 
 /**
  * Returns the function that must be called when an event has been received but no processed

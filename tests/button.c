@@ -55,6 +55,12 @@ int main(int argc, char** argv)
 	ei_relief_t	button_relief		= ei_relief_raised;
 	int		button_border_width	= 6;
 	ei_callback_t	button_callback 	= button_press;
+	ei_widget_t*    button2;
+	ei_size_t       button2_size            = {150, 100};
+	int             button2_x               = 225;
+	int             button2_y               = 250;
+
+
 
 	/* Create the application and change the color of the background. */
 	ei_app_create(screen_size, EI_FALSE);
@@ -64,9 +70,15 @@ int main(int argc, char** argv)
 	/* Create, configure and place the button on screen. */
 	button = ei_widget_create("button", ei_app_root_widget(), NULL, NULL);
 	ei_button_configure	(button, &button_size, &button_color,
-				 &button_border_width, &button_corner_radius, &button_relief, &button_title, NULL, &button_text_color, NULL,
+				 &button_border_width, &button_corner_radius, &button_relief, NULL, NULL, &button_text_color, NULL,
 				 NULL, NULL, NULL, &button_callback, NULL);
 	ei_place(button, NULL, &button_x, &button_y, NULL, NULL, NULL, NULL, NULL, NULL );
+
+	/* Create a button inside the button. */
+	button2 = ei_widget_create("button", button, NULL, NULL);
+	ei_button_configure(button2, &button2_size, &button_color, &button_border_width, &button_corner_radius, &button_relief, &button_title, NULL,
+	                        &button_text_color, NULL, NULL, NULL, NULL, &button_callback, NULL);
+	ei_place(button2, NULL, &button2_x, &button2_y, NULL, NULL, NULL, NULL, NULL, NULL);
 
 	/* Hook the keypress callback to the event. */
 	ei_frame_configure(ei_app_root_widget(), NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
