@@ -142,8 +142,9 @@ void ei_app_run(void){
 
                 // Depth course of each widgets
                 do {
+                        ei_widget_t * parent;
                         if (widget_to_print->children_head) {
-                                ei_widget_t * parent = widget_to_print;
+                                parent = widget_to_print;
                                 widget_to_print = widget_to_print->children_head;
                                 widget_to_print->wclass->drawfunc(widget_to_print, root_windows, offscreen, parent->content_rect);
                         } else {
@@ -152,7 +153,6 @@ void ei_app_run(void){
                                 }
 
                                 if (widget_to_print->next_sibling) {
-                                        ei_widget_t * parent = widget_to_print;
                                         widget_to_print = widget_to_print->next_sibling;
                                         widget_to_print->wclass->drawfunc(widget_to_print, root_windows, offscreen, parent->content_rect);
                                 }

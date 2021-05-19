@@ -485,6 +485,9 @@ void ei_draw_text (ei_surface_t surface, const ei_point_t* where, const char* te
                 destination_rect.size.height = clipper->size.height;
         }
 
+        // Lock before use this surface into ei_copy_surface
+        hw_surface_lock(text_surface);
+
         // Copy of the text
         ei_copy_surface(surface, &destination_rect, text_surface, &rect_text, EI_TRUE);
 
@@ -492,6 +495,7 @@ void ei_draw_text (ei_surface_t surface, const ei_point_t* where, const char* te
         free(destination_size);
 
         // Doesn't forget to unlock/free the surfaces
+        hw_surface_unlock(text_surface);
         hw_surface_free(text_surface);
         hw_surface_unlock(surface);
 }
@@ -680,7 +684,7 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                 ei_color_t color_bottom;
 
                 switch (button->relief) {
-                        case ei_relief_raised:
+                        case ei_relief_sunken:
                                 // Lighten bottom color
                                 color_bottom = button->color;
                                 color_bottom.red = color_bottom.red <= 225 ? color_bottom.red += 30 : 255;
@@ -693,7 +697,7 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                                 color_top.green = color_top.green >= 30 ? color_top.green -= 30 : 0;
                                 color_top.blue = color_top.blue >= 30 ? color_top.blue -= 30 : 0;
                                 break;
-                        case ei_relief_sunken:
+                        case ei_relief_raised:
                                 // Lighten top color
                                 color_top = button->color;
                                 color_top.red = color_top.red <= 225 ? color_top.red += 30 : 255;
@@ -738,7 +742,9 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         ei_draw_polygon(surface, pts_middle, base_color, clipper);
 
         // Draw in offscreen
-        //ei_draw_polygon(pick_surface, pts_middle, *button->widget.pick_color, clipper);
+        if (pick_surface) {
+                ei_draw_polygon(pick_surface, pts_middle, *button->widget.pick_color, clipper);
+        }
 
         // Free memory
         free_list(pts_middle);
@@ -820,7 +826,7 @@ void ei_draw_frame (ei_widget_t*        widget,
                 ei_color_t color_bottom;
 
                 switch (frame->relief) {
-                        case ei_relief_raised:
+                        case ei_relief_sunken:
                                 // Lighten bottom color
                                 color_bottom = frame->color;
                                 color_bottom.red = color_bottom.red <= 225 ? color_bottom.red += 30 : 255;
@@ -833,7 +839,7 @@ void ei_draw_frame (ei_widget_t*        widget,
                                 color_top.green = color_top.green >= 30 ? color_top.green -= 30 : 0;
                                 color_top.blue = color_top.blue >= 30 ? color_top.blue -= 30 : 0;
                                 break;
-                        case ei_relief_sunken:
+                        case ei_relief_raised:
                                 // Lighten top color
                                 color_top = frame->color;
                                 color_top.red = color_top.red <= 225 ? color_top.red += 30 : 255;
@@ -978,7 +984,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
 
         if (top_level->closable) {
                 // Display button
-                ei_draw_button((ei_widget_t*) top_level->close_button, surface, pick_surface, clipper);
+                ei_draw_button((ei_widget_t*) top_level->close_button, surface, NULL, clipper);
 
                 if (change_text_size) {
                         place_text.x += top_level->close_button->widget.screen_location.size.width + (top_level->close_button->widget.screen_location.top_left.x - place_x);

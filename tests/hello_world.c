@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 	int		button_y		= -20;
 	float		button_rel_x		= 1.0;
 	float		button_rel_y		= 1.0;
-	float		button_rel_width	= 1.0;
+	float		button_rel_width	= 0.5;
 	ei_color_t	button_color		= {0x88, 0x88, 0x88, 0xff};
 	char*		button_title		= "click";
 	ei_color_t	button_text_color	= {0x00, 0x00, 0x00, 0xff};
@@ -78,6 +78,22 @@ int main(int argc, char** argv)
 	ei_toplevel_configure(window, &window_size, &window_color, &window_border_width,
 				&window_title, &window_closable, &window_resizable, NULL);
 	ei_place(window, NULL, &(window_position.x), &(window_position.y), NULL, NULL, NULL, NULL, NULL, NULL);
+
+        ei_widget_t*	second_window;
+        int		second_window_x		        = 20;
+        int		second_window_y		        = 20;
+        float		second_window_rel_x	        = 0.0;
+        float		second_window_rel_y	        = 0.0;
+        float		second_window_rel_width	        = 0.5;
+        float		second_window_rel_height        = 0.5;
+        char*		second_window_title		= "(re)Hello Worldeeee";
+        ei_color_t	second_window_color		= {0xA0,0xAF,0xA0, 0xff};
+        int		second_window_border_width	= 5;
+
+	second_window = ei_widget_create("toplevel", window, NULL, NULL);
+	ei_toplevel_configure(second_window, &window_size, &second_window_color, &second_window_border_width,
+				&second_window_title, &window_closable, &window_resizable, NULL);
+	ei_place(second_window, NULL, &second_window_x, &second_window_y, NULL, NULL, &second_window_rel_x, &second_window_rel_y, &second_window_rel_width, &second_window_rel_height);
 
         /* Create, configure and place a button as a descendant of the toplevel window. */
 	button = ei_widget_create("button", window, NULL, NULL);

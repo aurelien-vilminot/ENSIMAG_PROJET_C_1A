@@ -57,8 +57,8 @@ int main(int argc, char** argv)
 	ei_callback_t	button_callback 	= button_press;
 	ei_widget_t*    button2;
 	ei_size_t       button2_size            = {150, 100};
-	int             button2_x               = 225;
-	int             button2_y               = 250;
+	int             button2_x               = 30;
+	int             button2_y               = 20;
 
 
 
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 
 	/* Create a button inside the button. */
 	button2 = ei_widget_create("button", button, NULL, NULL);
-	ei_button_configure(button2, &button2_size, &button_color, &button_border_width, &button_corner_radius, &button_relief, &button_title, NULL,
+	ei_button_configure(button2, &button2_size, &button_color, &button_border_width, &button_corner_radius, &button_relief, NULL, NULL,
 	                        &button_text_color, NULL, NULL, NULL, NULL, &button_callback, NULL);
 	ei_place(button2, NULL, &button2_x, &button2_y, NULL, NULL, NULL, NULL, NULL, NULL);
 

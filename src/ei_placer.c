@@ -197,13 +197,13 @@ void ei_placer_run(struct ei_widget_t* widget) {
 
         // Calcul size of widget
         ei_rect_t rect;
-        rect.size.width = widget->placer_params->w_data + (int) (widget->placer_params->rw_data * widget->parent->screen_location.size.width);
-        rect.size.height = widget->placer_params->h_data + (int) (widget->placer_params->rh_data * widget->parent->screen_location.size.height);
+        rect.size.width = widget->placer_params->w_data + (int) (widget->placer_params->rw_data * widget->parent->content_rect->size.width);
+        rect.size.height = widget->placer_params->h_data + (int) (widget->placer_params->rh_data * widget->parent->content_rect->size.height);
 
         // Calcul place of widget
         ei_point_t rel_coord;
-        rel_coord.x = widget->placer_params->x_data + (int) (widget->placer_params->rx_data * (widget->parent->screen_location.size.width + widget->parent->screen_location.top_left.x));
-        rel_coord.y = widget->placer_params->y_data + (int) (widget->placer_params->ry_data * (widget->parent->screen_location.size.height + widget->parent->screen_location.top_left.y));
+        rel_coord.x = widget->placer_params->x_data + (int) ((widget->placer_params->rx_data * widget->parent->content_rect->size.width) + widget->parent->content_rect->top_left.x);
+        rel_coord.y = widget->placer_params->y_data + (int) ((widget->placer_params->ry_data * widget->parent->content_rect->size.height) + widget->parent->content_rect->top_left.y);
 
         // Adapt top-left coord at the anchor given in parameter
         switch (widget_anchor) {

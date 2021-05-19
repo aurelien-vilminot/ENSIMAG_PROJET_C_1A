@@ -14,21 +14,12 @@ static uint32_t insert_child(ei_widget_t *widget, ei_widget_t *parent) {
         uint32_t last_id;
 
         if (parent->children_head) {
-                if (strcmp(ei_widgetclass_stringname(parent->wclass->name), "toplevel") == 0) {
-                        last_id = parent->children_tail->pick_id + 1;
-                } else {
-                        last_id = parent->children_tail->pick_id;
-                }
+                last_id = parent->children_tail->pick_id;
                 parent->children_tail->next_sibling = widget;
         } else {
-                if (strcmp(ei_widgetclass_stringname(parent->wclass->name), "toplevel") == 0) {
-                        last_id = parent->pick_id + 1;
-                } else {
-                        last_id = parent->pick_id;
-                }
+                last_id = parent->pick_id;
                 parent->children_head = widget;
         }
-
         parent->children_tail = widget;
 
         return last_id;
@@ -159,7 +150,7 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
                         }
                         widget_to_destroy->wclass->releasefunc(widget_to_destroy);
                         free(widget_to_destroy->pick_color);
-                        free(widget_to_destroy);
+//                        free(widget_to_destroy);
                 } else {
                         while (widget_to_destroy != widget && widget_to_destroy->next_sibling == NULL) {
                                 widget_to_destroy = widget_to_destroy->parent;
@@ -173,7 +164,7 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
                                 }
                                 widget_to_destroy->wclass->releasefunc(widget_to_destroy);
                                 free(widget_to_destroy->pick_color);
-                                free(widget_to_destroy);
+//                                free(widget_to_destroy);
                         }
                 }
         } while (widget_to_destroy != widget);
@@ -236,6 +227,7 @@ void top_level_release(struct ei_widget_t* widget) {
 
         if (top_level_widget->title) free(top_level_widget->title);
         if (top_level_widget->min_size) free(top_level_widget->min_size);
+        if (top_level_widget->resize_rect) free(top_level_widget->resize_rect);
         button_release((ei_widget_t *) top_level_widget->close_button);
 }
 
@@ -573,7 +565,6 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         top_level_widget->close_button->widget.screen_location.top_left.x = close_button_x;
         top_level_widget->close_button->widget.screen_location.top_left.y = close_button_y - (close_button_width_height/ 2);
         top_level_widget->close_button->widget.screen_location.size = close_button_size;
-        top_level_widget->close_button->widget.pick_id = top_level_widget->widget.pick_id + 1;
 
         // Free memory
         free(text_size);
