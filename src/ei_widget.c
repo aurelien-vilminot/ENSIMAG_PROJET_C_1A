@@ -21,6 +21,34 @@ static void insert_child(ei_widget_t *widget, ei_widget_t *parent) {
 }
 
 /**
+ * @brief Inverse function of map_rgba ei_draw.c's modul
+ *
+ * @param a uint32_t element which is convert into ei_color_t
+ *
+ * @return ei_color_t corresponding to the 32 bits give as argument
+ */
+ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert){
+        // Place of colors
+        int red_place;
+        int green_place;
+        int blue_place;
+        int alpha_place;
+        hw_surface_get_channel_indices(surface, &red_place, &green_place, &blue_place, &alpha_place);
+
+        // Pointer on the color_to_convert
+        uint8_t *p = (uint8_t *) color_to_convert;
+
+        // Associate each value of the color with the corresponding bits
+        ei_color_t *color_to_return = malloc(sizeof(ei_color_t));
+        color_to_return->red = p[red_place];
+        color_to_return->blue = p[blue_place];
+        color_to_return->green = p[green_place];
+        color_to_return->alpha = p[alpha_place];
+
+        return color_to_return;
+}
+
+/**
  * @brief	Creates a new instance of a widget of some particular class, as a descendant of
  *		an existing widget.
  *
@@ -186,6 +214,7 @@ ei_widget_t* frame_alloc_func() {
  * @return
  */
 void button_release(struct ei_widget_t*	widget) {
+        // TODO:Don't forget to free the color_picking
         // Cast into button widget to delete its ressources
         ei_button_t * button_widget = (ei_button_t*) widget;
 
@@ -206,7 +235,7 @@ void button_release(struct ei_widget_t*	widget) {
 }
 
 void top_level_release(struct ei_widget_t* widget) {
-
+        // TODO:Don't forget to free the color_picking
         // Cast into top_level widget to delete its ressources
         struct ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
 
@@ -220,6 +249,7 @@ void top_level_release(struct ei_widget_t* widget) {
 }
 
 void frame_release(struct ei_widget_t* widget) {
+        // TODO:Don't forget to free the color_picking
         // Cast into frame widget to delete its ressources
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
 

@@ -38,7 +38,7 @@ uint32_t		ei_map_rgba		(ei_surface_t surface, ei_color_t color) {
         hw_surface_get_channel_indices(surface, &red_place, &green_place, &blue_place, &alpha_place);
 
         uint32_t *color_int = malloc(sizeof(uint32_t));
-        uint8_t * p = (uint8_t *) color_int;
+        uint8_t *p = (uint8_t *) color_int;
 
         p[blue_place] = color.blue;
         p[red_place] = color.red;

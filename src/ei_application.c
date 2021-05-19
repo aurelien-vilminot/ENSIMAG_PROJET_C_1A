@@ -47,7 +47,7 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 
         // Def offscreen
         offscreen = hw_surface_create(root_windows, hw_surface_get_size(root_windows), hw_surface_has_alpha(root_windows));
-        ei_color_t blue	= { 0, 0, 0xff, 0xff};
+        ei_color_t blue	= { 0, 0, 0xff, 0xff };
         ei_fill(offscreen, &blue, NULL);
 
         // Init default font
@@ -59,6 +59,10 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         // Geometry management
         root_frame->screen_location.size.width = main_window_size.width;
         root_frame->screen_location.size.height = main_window_size.height;
+
+        // Event management
+        root_frame->pick_id = 0;
+        root_frame->pick_color = inverse_map_rgba(root_windows, 0x00000000);
 }
 
 /**
@@ -133,7 +137,7 @@ void ei_app_run(void){
         while (next_event->type != ei_ev_keydown) {
 
                 // Draw root
-                root_frame->wclass->drawfunc(root_frame, root_windows, NULL, NULL);
+                root_frame->wclass->drawfunc(root_frame, root_windows, offscreen, NULL);
 
                 ei_widget_t *widget_to_print = root_frame;
 
