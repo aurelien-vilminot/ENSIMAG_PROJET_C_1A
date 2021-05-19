@@ -421,7 +421,6 @@ void set_default_button (ei_widget_t *widget) {
         button_widget->text_color = (ei_color_t*)&(ei_font_default_color);
         button_widget->text_font = ei_default_font;
         button_widget->text_anchor = &default_text_button_anchor;
-        button_widget->widget.content_rect = &button_widget->widget.screen_location;
 }
 
 void set_default_frame (ei_widget_t *widget) {
@@ -435,7 +434,6 @@ void set_default_frame (ei_widget_t *widget) {
         frame_widget->text_color = (ei_color_t*)&(ei_font_default_color);
         frame_widget->text_font = ei_default_font;
         frame_widget->text_anchor = &default_text_frame_anchor;
-        frame_widget->widget.content_rect = &frame_widget->widget.screen_location;
 }
 
 void set_default_top_level (ei_widget_t *widget) {
@@ -451,10 +449,39 @@ void set_default_top_level (ei_widget_t *widget) {
 
 void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         widget->screen_location = rect;
+        ei_button_t *button = (ei_button_t *) widget;
+
+        int32_t borders_to_remove = *button->border_width * 2;
+
+        ei_size_t size_content_rect = {widget->screen_location.size.width - borders_to_remove,
+                                       widget->screen_location.size.height -  borders_to_remove};
+
+        ei_point_t place_content_rect = {widget->screen_location.top_left.x + *button->border_width, widget->screen_location.top_left.y + *button->border_width};
+
+        // Allocate memory for content_rect
+        ei_rect_t *content_rect = malloc(sizeof(ei_rect_t));
+        content_rect->size = size_content_rect;
+        content_rect->top_left = place_content_rect;
+        button->widget.content_rect = content_rect;
 }
 
 void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         widget->screen_location = rect;
+
+        ei_frame_t *frame = (ei_frame_t *) widget;
+
+        int32_t borders_to_remove = *frame->border_width * 2;
+
+        ei_size_t size_content_rect = {widget->screen_location.size.width - borders_to_remove,
+                                       widget->screen_location.size.height -  borders_to_remove};
+
+        ei_point_t place_content_rect = {widget->screen_location.top_left.x + *frame->border_width, widget->screen_location.top_left.y + *frame->border_width};
+
+        // Allocate memory for content_rect
+        ei_rect_t *content_rect = malloc(sizeof(ei_rect_t));
+        content_rect->size = size_content_rect;
+        content_rect->top_left = place_content_rect;
+        frame->widget.content_rect = content_rect;
 }
 
 void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {

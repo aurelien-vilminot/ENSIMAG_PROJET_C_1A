@@ -728,6 +728,8 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                 ei_draw_polygon(surface, pts_bottom, color_bottom, clipper);
 
                 // Free memory
+                free_list(pts_top);
+                free_list(pts_bottom);
         }
 
         // Get all points for center part of button
@@ -735,6 +737,12 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
 
         // Draw the center part of the button (without border)
         ei_draw_polygon(surface, pts_middle, base_color, clipper);
+
+        // Draw in offscreen
+        ei_draw_polygon(pick_surface, pts_middle, *button->widget.pick_color, clipper);
+
+        // Free memory
+        free_list(pts_middle);
 
         if (*button->img) {
                 // TODO : gestion du clipping
@@ -867,6 +875,9 @@ void ei_draw_frame (ei_widget_t*        widget,
         ei_linked_point_t *pts_frame = rounded_frame(middle_rect, 0, FULL);
         ei_draw_polygon(surface, pts_frame, *frame->color, clipper);
 
+        // Display in offscreen
+        ei_draw_polygon(pick_surface, pts_frame, *frame->widget.pick_color, clipper);
+
         // Free memory
         free_list(pts_frame);
 
@@ -891,6 +902,14 @@ void ei_draw_frame (ei_widget_t*        widget,
                 ei_point_t *text_coord = text_place(frame->text_anchor, text_size,
                                                     &frame->widget.screen_location.top_left,
                                                     &frame->widget.screen_location.size);
+
+                // Change values of text_size if this one is greater than the parent
+                if (frame->widget.content_rect->size.width < text_size->width) {
+                        text_size->width = frame->widget.content_rect->size.width;
+                }
+                if (frame->widget.content_rect->size.height < text_size->height) {
+                        text_size->height = frame->widget.content_rect->size.height;
+                }
 
                 // Display text
                 ei_draw_text(surface, text_coord, *frame->text, frame->text_font, *frame->text_color, frame->widget.content_rect);
@@ -935,6 +954,9 @@ void ei_draw_top_level (ei_widget_t*            widget,
         // Display border toplevel
         ei_draw_polygon(surface, pts_border, border_color, clipper);
 
+        // Display in offscreen
+        ei_draw_polygon(surface, pts_border, border_color, clipper);
+
         // Free memory
         free_list(pts_border);
 
@@ -969,7 +991,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
         }
 
         // Free memory
-//        free_list(pts_frame);
+        free_list(pts_content_rect);
         free(text_coord);
         free(text_size);
 

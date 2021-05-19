@@ -130,7 +130,7 @@ void ei_app_run(void){
         // Fill next_event with the next_event
         hw_event_wait_next(next_event);
 
-        while (next_event->type != ei_ev_last) {
+        while (next_event->type != ei_ev_keydown) {
 
                 // Draw root
                 root_frame->wclass->drawfunc(root_frame, root_windows, NULL, NULL);
