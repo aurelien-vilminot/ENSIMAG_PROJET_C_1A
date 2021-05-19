@@ -16,55 +16,6 @@ static int is_in_clipper(int point_x, int point_y, uint32_t x_max, uint32_t y_ma
         return (point_x <= x_max) && (point_y <= y_max) && (point_x >= clipper->top_left.x) && (point_y >= clipper->top_left.y);
 }
 
-// TODO : commentaires
-static ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_t *widget_place, ei_size_t *widget_size) {
-        ei_point_t * text_coord = malloc(sizeof(ei_point_t));
-
-        switch (*text_anchor) {
-                case ei_anc_center:
-                        text_coord->x = widget_place->x + (widget_size->width - text_size->width) / 2;
-                        text_coord->y = widget_place->y + (widget_size->height - text_size->height) / 2;
-                        break;
-                case ei_anc_north:
-                        text_coord->x = widget_place->x + (widget_size->width - text_size->width) / 2;
-                        text_coord->y = widget_place->y;
-                        break;
-                case ei_anc_northeast:
-                        text_coord->x = widget_place->x + (widget_size->width - text_size->width);
-                        text_coord->y = widget_place->y;
-                        break;
-                case ei_anc_northwest:
-                        text_coord->x = widget_place->x;
-                        text_coord->y = widget_place->y;
-                        break;
-                case ei_anc_south:
-                        text_coord->x = widget_place->x + (widget_size->width - text_size->width) / 2;
-                        text_coord->y = widget_place->y + (widget_size->height - text_size->height);
-                        break;
-                case ei_anc_southeast:
-                        text_coord->x = widget_place->x + (widget_size->width - text_size->width);
-                        text_coord->y = widget_place->y + (widget_size->height - text_size->height);
-                        break;
-                case ei_anc_southwest:
-                        text_coord->x = widget_place->x;
-                        text_coord->y = widget_place->y + (widget_size->height - text_size->height);
-                        break;
-                case ei_anc_east:
-                        text_coord->x = widget_place->x + (widget_size->width - text_size->width);
-                        text_coord->y = widget_place->y + (widget_size->height - text_size->height) / 2;
-                        break;
-                case ei_anc_west:
-                        text_coord->x = widget_place->x;
-                        text_coord->y = widget_place->y + (widget_size->height - text_size->height) / 2;
-                        break;
-                case ei_anc_none:
-                        text_coord->x = widget_place->x + (widget_size->width - text_size->width) / 2;
-                        text_coord->y = widget_place->y + (widget_size->height - text_size->height) / 2;
-                        break;
-        }
-        return text_coord;
-}
-
 /**
  * \brief	Converts the red, green, blue and alpha components of a color into a 32 bits integer
  * 		than can be written directly in the memory returned by \ref hw_surface_get_buffer.
@@ -522,10 +473,24 @@ void ei_draw_text (ei_surface_t surface, const ei_point_t* where, const char* te
         if (font == NULL) font = ei_default_font;
         ei_surface_t text_surface = hw_text_create_surface(text, font, color);
 
-        ////// I have to clip before passing text_surface as argument
+        // Get the rectangle which contained text
+        ei_rect_t rect_text = hw_surface_get_rect(text_surface);
+
+        // Change sizes of rectangles which contained text (source and destination) if they are greater than the clipper
+        if (clipper->size.width < rect_text.size.width) {
+                rect_text.size.width = clipper->size.width;
+                destination_rect.size.width = clipper->size.width;
+        }
+        if (clipper->size.height < rect_text.size.height) {
+                rect_text.size.height = clipper->size.height;
+                destination_rect.size.height = clipper->size.height;
+        }
+
         // Copy of the text
-        ////// IL FAUT ABSOLUMENT QUE ALPHA SOIT EGALE A TRUE ICI
-        ei_copy_surface(surface, &destination_rect, text_surface, NULL, EI_TRUE);
+        ei_copy_surface(surface, &destination_rect, text_surface, &rect_text, EI_TRUE);
+
+        // Free memory
+        free(destination_size);
 
         // Doesn't forget to unlock/free the surfaces
         hw_surface_free(text_surface);
@@ -780,6 +745,9 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                 ei_rect_t img_dest_rect = ei_rect(*img_coord, (*button->img_rect)->size);
 
                 ei_copy_surface(surface, &img_dest_rect, *button->img, *button->img_rect, EI_TRUE);
+
+                // Free memory
+                free(img_coord);
         }
 
         // Text treatment only if there is a text to display
@@ -788,16 +756,25 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                 ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
                 hw_text_compute_size(*button->text, button->text_font, &(text_size->width), &(text_size->height));
 
+                // Change values of text_size if this one is greater than the parent
+                if (button->widget.content_rect->size.width < text_size->width) {
+                        text_size->width = button->widget.content_rect->size.width;
+                }
+                if (button->widget.content_rect->size.height < text_size->height) {
+                        text_size->height = button->widget.content_rect->size.height;
+                }
+
                 // Get top-left corner of the text
                 ei_point_t *text_coord = text_place(button->text_anchor, text_size,
                                                     &button->widget.screen_location.top_left,
                                                     &button->widget.screen_location.size);
 
                 // Display text
-                ei_draw_text(surface, text_coord, *button->text, button->text_font, *button->text_color, clipper);
+                ei_draw_text(surface, text_coord, *button->text, button->text_font, *button->text_color, button->widget.content_rect);
 
                 // Free memory
                 free(text_size);
+                free(text_coord);
         }
 }
 
@@ -916,7 +893,7 @@ void ei_draw_frame (ei_widget_t*        widget,
                                                     &frame->widget.screen_location.size);
 
                 // Display text
-                ei_draw_text(surface, text_coord, *frame->text, frame->text_font, *frame->text_color, clipper);
+                ei_draw_text(surface, text_coord, *frame->text, frame->text_font, *frame->text_color, frame->widget.content_rect);
 
                 // Free memory
                 free(text_size);
@@ -927,37 +904,76 @@ void ei_draw_top_level (ei_widget_t*            widget,
                         ei_surface_t		surface,
                         ei_surface_t		pick_surface,
                         ei_rect_t*		clipper) {
-
         ei_top_level_t *top_level = (ei_top_level_t *) widget;
+        ei_color_t border_color = {0x00, 0x00, 0x00, 0xff};
 
-        uint32_t border_top_bar_size = 2;
-        ei_color_t border_color = {0x88, 0x88, 0x88, 0xff};
+        // Configure text place
+        ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
+        hw_text_compute_size(*top_level->title, ei_default_font, &(text_size->width), &(text_size->height));
 
-        if (*top_level->title) {
-                // Configure text place
-                ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
-                hw_text_compute_size(*top_level->title, ei_default_font, &(text_size->width), &(text_size->height));
+        // Text place in top bar
+        ei_anchor_t text_anchor = ei_anc_center;
 
-                // Text place in top bar
-                ei_anchor_t text_anchor = ei_anc_center;
+        // Top bar size including border for the height
+        ei_size_t top_bar_size = {top_level->widget.screen_location.size.width,
+                                  text_size->height + *top_level->border_width};
 
-                // Top bar size including border for the height
-                ei_size_t top_bar_size = {top_level->widget.screen_location.size.width,
-                                          text_size->height + 2 * border_top_bar_size};
+        // Get top-left corner of the text
+        ei_point_t *text_coord = text_place(&text_anchor, text_size,
+                                            &top_level->widget.screen_location.top_left,
+                                            &top_bar_size);
 
-                // Get top-left corner of the text
-                ei_point_t *text_coord = text_place(&text_anchor, text_size,
-                                                    &top_level->widget.screen_location.top_left,
-                                                    &top_bar_size);
+        // Get size and place parameters
+        int width_top_level = top_level->widget.screen_location.size.width;
+        int height_top_level = top_level->widget.screen_location.size.height;
+        int place_x = top_level->widget.screen_location.top_left.x;
+        int place_y = top_level->widget.screen_location.top_left.y;
 
-                // Display text
-                ei_draw_text(surface, text_coord, *top_level->title, ei_default_font, *top_level->color, clipper);
+        // Get all points for border toplevel modelization
+        ei_linked_point_t *pts_border = rounded_frame(top_level->widget.screen_location, 0, FULL);
 
-                if (top_level->closable) {
+        // Display border toplevel
+        ei_draw_polygon(surface, pts_border, border_color, clipper);
 
+        // Free memory
+        free_list(pts_border);
 
-                }
+        // Draw content rect part of top level
+        ei_linked_point_t *pts_content_rect = rounded_frame(*top_level->widget.content_rect, 0, FULL);
+        ei_draw_polygon(surface, pts_content_rect, *top_level->color, clipper);
+
+        // Display title
+        ei_draw_text(surface, text_coord, *top_level->title, ei_default_font, *top_level->color, &top_level->widget.screen_location);
+
+        if (top_level->closable) {
+                int close_button_x = place_x + (text_size->height / 4);
+                int close_button_y = place_y + (text_size->height / 2);
+
+                int close_button_width_height = text_size->height / 2;
+                ei_size_t close_button_size = {close_button_width_height, close_button_width_height};
+
+                int close_button_corner_radius = (text_size->height / 2) / 2;
+                ei_color_t close_button_color = {0xF9, 0x38, 0x22, 0xff};
+                ei_relief_t close_button_relief = ei_relief_none;
+
+                ei_widget_t *close_button = ei_widget_create("button", NULL, NULL, NULL);
+                ei_button_configure(close_button, &close_button_size, &close_button_color, 0, &close_button_corner_radius,
+                                    &close_button_relief, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
+                close_button->screen_location.top_left.x = close_button_x;
+                close_button->screen_location.top_left.y = close_button_y - (close_button_width_height/ 2);
+
+                close_button->screen_location.size = close_button_size;
+
+                close_button->wclass->drawfunc(close_button, surface, pick_surface, clipper);
         }
+
+        // Free memory
+//        free_list(pts_frame);
+        free(text_coord);
+        free(text_size);
+
+        // TODO : gestion min size et resizable
 }
 
 void clipping_off_screen (ei_surface_t surface,

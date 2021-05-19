@@ -72,7 +72,6 @@ void frame_release(ei_widget_t* widget);
 /**
  * Draw functions
  */
-
 void ei_draw_button (ei_widget_t* widget,
                  ei_surface_t		surface,
                  ei_surface_t		pick_surface,
@@ -91,6 +90,20 @@ void ei_draw_top_level (ei_widget_t* widget,
 void set_default_button (ei_widget_t *widget);
 void set_default_frame (ei_widget_t *widget);
 void set_default_top_level (ei_widget_t *widget);
+
+void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
+void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
+void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
+
+/**
+ * @brief       Give coordinates of top-left point where a text must be display depending on the anchor
+ * @param text_anchor
+ * @param text_size
+ * @param widget_place
+ * @param widget_size
+ * @return
+ */
+ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_t *widget_place, ei_size_t *widget_size);
 
 /**
  * Default values of widget parameters

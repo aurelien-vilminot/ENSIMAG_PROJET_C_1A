@@ -79,9 +79,9 @@ int main(int argc, char** argv)
 				&window_title, &window_closable, &window_resizable, NULL);
 	ei_place(window, NULL, &(window_position.x), &(window_position.y), NULL, NULL, NULL, NULL, NULL, NULL);
 
-	/* Create, configure and place a button as a descendant of the toplevel window. */
+        /* Create, configure and place a button as a descendant of the toplevel window. */
 	button = ei_widget_create("button", window, NULL, NULL);
-	ei_button_configure	(button, NULL, &button_color, 
+	ei_button_configure	(button, NULL, &button_color,
 				 &button_border_width, NULL, &button_relief, &button_title, NULL, &button_text_color, NULL,
 				NULL, NULL, NULL, &button_callback, NULL);
 	ei_place(button, &button_anchor, &button_x, &button_y, NULL, NULL, &button_rel_x, &button_rel_y, &button_rel_width, NULL);
