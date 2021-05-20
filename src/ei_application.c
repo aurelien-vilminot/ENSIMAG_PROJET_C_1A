@@ -171,11 +171,10 @@ void ei_app_run(void){
                         }
                 }
 
-                if (next_event->type == ei_ev_mouse_buttondown){
-                        mouse_callback(*next_event);
+                // This is a situate event
+                if (next_event->type <= 7 && next_event->type >= 5){
+                        situate_event_callback(&next_event);
                 }
-
-                // Treate Mouse event
 
 
         }
