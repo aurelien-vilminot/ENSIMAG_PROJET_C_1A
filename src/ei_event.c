@@ -1,3 +1,4 @@
+#include <ei_event.h>
 #include "event_manager.h"
 
 /**
@@ -46,7 +47,6 @@ ei_bool_t situate_event_callback(ei_event_t *event){
         clicked_pixel += (offscreen_size.width * event->param.mouse.where.y) + event->param.mouse.where.x;
         uint32_t widget_id = *clicked_pixel;
 
-        printf("%u\n", *clicked_pixel);
         // Test if the clicked pixel is in the root_frame
         ei_widget_t *widget_to_treat = root_frame;
         if (widget_to_treat->pick_id == widget_id){
@@ -125,7 +125,6 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                 ei_event_set_active_widget(widget);
                         }
                 } else if (event->type == ei_ev_mouse_buttonup) {
-                        printf("j'arrive ici");
                         ei_event_set_active_widget(NULL);
                 } else if (event->type == ei_ev_mouse_move && ei_event_get_active_widget() == widget){
                         // We consider that a widget has always a min_size
@@ -200,18 +199,22 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
 
 ei_bool_t handle_button_function(struct ei_widget_t* widget,
                                  struct ei_event_t* event){
-//
-//        ei_top_level_t *button_widget = (ei_button_t *) widget;
-//        if (event->type == ei_ev_mouse_buttondown){
-//                if (button_widget->closable)
-//
-//
-//        }
-//
-//
-//
-//
-//
+
+        ei_button_t *button_widget = (ei_button_t *) widget;
+        if(event->type == ei_ev_mouse_buttondown && event->param.mouse.button == ei_mouse_button_left) {
+                        button_widget->relief = ei_relief_sunken;
+                        ei_event_set_active_widget(widget);
+                        return EI_TRUE;
+
+        }
+
+        else if(event->type == ei_ev_mouse_buttonup && event->param.mouse.button == ei_mouse_button_left) {
+                        button_widget->relief = ei_relief_raised;
+                        ei_event_set_active_widget(NULL);
+                        return EI_TRUE;
+        }
+
+
 
 
         return EI_FALSE;
