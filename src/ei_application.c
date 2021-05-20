@@ -178,6 +178,10 @@ void ei_app_run(void){
                         situate_event_callback(next_event);
                 }
 
+                if (next_event->type == 3){
+                        keyword_event_callback(next_event);
+                }
+
 
         }
         free(next_event);
