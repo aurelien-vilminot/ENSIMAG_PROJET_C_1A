@@ -118,7 +118,7 @@ static ei_size_t default_top_level_size = {400, 50};
 static ei_color_t default_top_level_color = {0xD0, 0xD3, 0xD4, 0xff};
 static int default_top_level_border_width = 0;
 static ei_bool_t default_top_level_closable = EI_TRUE;
-static ei_size_t default_top_level_min_size = {20, 20};
+static ei_size_t default_top_level_min_size = {150, 150};
 static uint32_t default_top_level_rect_resize = 10;
 
 /**

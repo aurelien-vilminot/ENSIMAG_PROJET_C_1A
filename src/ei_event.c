@@ -33,7 +33,10 @@ static ei_bool_t is_in_rectangle(ei_rect_t rectangle, ei_point_t point){
  * @return a boolean, true if the event is treated
  */
 ei_bool_t situate_event_callback(ei_event_t *event){
-//        printf("reach beginning of situate_event_callback\n");
+
+        if (ei_event_get_active_widget()){
+                ei_event_get_active_widget()->wclass->handlefunc(ei_event_get_active_widget(), event);
+        }
         // Parameters of the offscreen
         hw_surface_lock(offscreen);
         uint32_t *clicked_pixel = (uint32_t *) hw_surface_get_buffer(offscreen);
@@ -76,6 +79,33 @@ ei_bool_t situate_event_callback(ei_event_t *event){
 }
 
 /**
+ * Intermediate functions
+ */
+
+void children_resizing(struct ei_widget_t* widget){
+        ei_widget_t * widget_to_destroy = widget;
+
+        // Depth course of each widgets
+        do {
+                if (widget_to_destroy->children_head) {
+
+                        widget_to_destroy = widget_to_destroy->children_head;
+                        ei_placer_run(widget_to_destroy);
+                } else {
+                        while (widget_to_destroy != widget && widget_to_destroy->next_sibling == NULL) {
+                                widget_to_destroy = widget_to_destroy->parent;
+                        }
+
+                        if (widget_to_destroy->next_sibling) {
+                                widget_to_destroy = widget_to_destroy->next_sibling;
+                                ei_placer_run(widget_to_destroy);
+                        }
+                }
+        } while (widget_to_destroy != widget);
+}
+
+
+/**
  * Handle functions
  */
 
@@ -98,29 +128,21 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                         printf("j'arrive ici");
                         ei_event_set_active_widget(NULL);
                 } else if (event->type == ei_ev_mouse_move && ei_event_get_active_widget() == widget){
-                        switch (toplevel_widget->resizable){
-                                int new_width;
-                                int new_height;
-                                case ei_axis_none:
-                                        break;
-                                case ei_axis_x:
-                                        new_width = event->param.mouse.where.x -
-                                                        toplevel_widget->widget.screen_location.top_left.x;
-                                        ei_place(widget, NULL, NULL, NULL, &new_width, NULL, NULL, NULL, NULL, NULL);
-                                        break;
-                                case ei_axis_y:
-                                        new_height = event->param.mouse.where.y -
-                                                        toplevel_widget->widget.screen_location.top_left.y;
-                                        ei_place(widget, NULL, NULL, NULL, NULL, &new_height, NULL, NULL, NULL, NULL);
-                                        break;
-                                case ei_axis_both:
-                                        new_width = event->param.mouse.where.x -
-                                                    toplevel_widget->widget.screen_location.top_left.x;
-                                        new_height = event->param.mouse.where.y -
-                                                     toplevel_widget->widget.screen_location.top_left.y;
-                                        ei_place(widget, NULL, NULL, NULL, &new_width, &new_height, NULL, NULL, NULL, NULL);
-                                        break;
-                        }
+                        // We consider that a widget has always a min_size
+                        int new_width = event->param.mouse.where.x -
+                                toplevel_widget->widget.screen_location.top_left.x;
+                        if ((toplevel_widget->resizable == ei_axis_x || toplevel_widget->resizable == ei_axis_both) &&
+                                new_width >= toplevel_widget->min_size->width)
+                        ei_place(widget, NULL, NULL, NULL, &new_width, NULL, NULL, NULL, NULL, NULL);
+
+                        int new_height = event->param.mouse.where.y -
+                                toplevel_widget->widget.screen_location.top_left.y;
+                        if ((toplevel_widget->resizable == ei_axis_y || toplevel_widget->resizable == ei_axis_both) &&
+                            new_height >= toplevel_widget->min_size->height)
+                        ei_place(widget, NULL, NULL, NULL, NULL, &new_height, NULL, NULL, NULL, NULL);
+
+                        children_resizing(widget);
+
                         return EI_TRUE;
                 }
         } else if (event->param.mouse.button == ei_mouse_button_middle){

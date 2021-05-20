@@ -15,6 +15,7 @@ ei_event_t *next_event;
 // To know if this is the end of events
 static ei_bool_t not_the_end = EI_TRUE;
 
+void children_resizing(struct ei_widget_t* widget);
 
 static ei_bool_t is_in_rectangle(ei_rect_t rectangle, ei_point_t point);
 
