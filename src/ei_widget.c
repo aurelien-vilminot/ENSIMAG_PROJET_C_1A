@@ -135,8 +135,6 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
  * @param	widget		The widget that is to be destroyed.
  */
 void			ei_widget_destroy		(ei_widget_t*		widget) {
-
-        //TODO:Test this function
         ei_widget_t * widget_to_destroy = widget;
 
         // Depth course of each widgets
@@ -150,7 +148,7 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
                         }
                         widget_to_destroy->wclass->releasefunc(widget_to_destroy);
                         free(widget_to_destroy->pick_color);
-//                        free(widget_to_destroy);
+                        free(widget_to_destroy);
                 } else {
                         while (widget_to_destroy != widget && widget_to_destroy->next_sibling == NULL) {
                                 widget_to_destroy = widget_to_destroy->parent;
@@ -164,36 +162,18 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
                                 }
                                 widget_to_destroy->wclass->releasefunc(widget_to_destroy);
                                 free(widget_to_destroy->pick_color);
-//                                free(widget_to_destroy);
+                                free(widget_to_destroy);
                         }
                 }
         } while (widget_to_destroy != widget);
 
-        if (widget_to_destroy->parent){
-                if (widget_to_destroy == widget_to_destroy->parent->children_head){
-                        widget_to_destroy->parent->children_head = widget_to_destroy->parent->children_head->next_sibling;
-                        if (widget_to_destroy == widget_to_destroy->parent->children_tail){
-                                widget_to_destroy->parent->children_tail = NULL;
-                        }
-                } else {
-                        ei_widget_t *widget_concerned = widget_to_destroy->parent->children_head;
-                        while(widget_concerned->next_sibling != widget_to_destroy){
-                                widget_concerned = widget_concerned->next_sibling;
-                        }
-                        widget_concerned->next_sibling = widget_to_destroy->next_sibling;
-                        if (widget_to_destroy == widget_to_destroy->parent->children_tail){
-                                widget_to_destroy->parent->children_tail = widget_concerned;
-                        }
-                }
-
-        }
+        ei_placer_forget(widget_to_destroy);
 
         if (widget_to_destroy->destructor) {
                 widget_to_destroy->destructor(widget_to_destroy);
         }
         widget_to_destroy->wclass->releasefunc(widget_to_destroy);
         free(widget_to_destroy->pick_color);
-
 }
 
 

@@ -103,6 +103,10 @@ void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass) {
  */
 void ei_app_free(void){
 
+
+        // Delete all existing widgets
+        ei_widget_destroy(root_frame);
+
         // Delete linked list classes
         ei_widgetclass_t *linked_list_classes = frame_class;
 
@@ -113,9 +117,6 @@ void ei_app_free(void){
         }
 
         free(linked_list_classes);
-
-        // Delete all existing widgets
-        ei_widget_destroy(root_frame);
 
         // Release the hardware
         hw_quit();

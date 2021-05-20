@@ -265,22 +265,23 @@ void ei_placer_run(struct ei_widget_t* widget) {
  */
 void ei_placer_forget(struct ei_widget_t* widget) {
         // Delete the concerned widget in its children field parent
-        ei_widget_t *parent = widget->parent;
-        ei_widget_t *current_child = parent->children_head;
-
-        if (current_child == widget) {
-                // Case if the first child is the concerned widget, then remove it of the head
-                parent->children_head = current_child->next_sibling;
-        } else {
-                // Browse the children linked list to delete the concerned child
-                while (current_child->next_sibling != NULL) {
-                        if (current_child->next_sibling == widget) {
-                                ei_widget_t *to_suppr = current_child->next_sibling;
-                                current_child->next_sibling = current_child->next_sibling->next_sibling;
-                                free(to_suppr);
+        if (widget->parent){
+                if (widget == widget->parent->children_head){
+                        widget->parent->children_head = widget->parent->children_head->next_sibling;
+                        if (widget == widget->parent->children_tail){
+                                widget->parent->children_tail = NULL;
                         }
-                        current_child = current_child->next_sibling;
+                } else {
+                        ei_widget_t *widget_concerned = widget->parent->children_head;
+                        while(widget_concerned->next_sibling != widget){
+                                widget_concerned = widget_concerned->next_sibling;
+                        }
+                        widget_concerned->next_sibling = widget->next_sibling;
+                        if (widget == widget->parent->children_tail){
+                                widget->parent->children_tail = widget_concerned;
+                        }
                 }
+
         }
 
         // Remove parent of the concerned widget
