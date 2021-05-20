@@ -60,6 +60,7 @@ typedef struct ei_top_level_t {
         ei_size_t*		min_size;
         ei_button_t*            close_button;
         ei_rect_t*              resize_rect;
+        ei_rect_t*              top_bar;
 } ei_top_level_t;
 
 typedef struct ei_frame_t {

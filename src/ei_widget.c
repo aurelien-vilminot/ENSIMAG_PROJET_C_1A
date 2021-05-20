@@ -187,7 +187,8 @@ ei_widget_t* button_alloc_func() {
  */
 ei_widget_t* top_level_alloc_func() {
         ei_top_level_t *m_toplevel = calloc(1, sizeof(ei_top_level_t));
-        m_toplevel->resize_rect = calloc(1, sizeof(ei_top_level_t));
+        m_toplevel->resize_rect = calloc(1, sizeof(ei_rect_t));
+        m_toplevel->top_bar = calloc(1, sizeof(ei_rect_t));
 
         // Initialisation of close button widget
         m_toplevel->close_button = (ei_button_t *) button_alloc_func();
@@ -224,6 +225,7 @@ void top_level_release(struct ei_widget_t* widget) {
         if (top_level_widget->title) free(top_level_widget->title);
         //if (top_level_widget->min_size) free(top_level_widget->min_size);
         if (top_level_widget->resize_rect) free(top_level_widget->resize_rect);
+        if (top_level_widget->top_bar) free(top_level_widget->top_bar);
         button_release((ei_widget_t *) top_level_widget->close_button);
 }
 
@@ -587,6 +589,10 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         content_rect->top_left = place_content_rect;
         top_level_widget->widget.content_rect = content_rect;
 
+        // Store top-bar
+        top_level_widget->top_bar->top_left = top_level_widget->widget.screen_location.top_left;
+        top_level_widget->top_bar->size = ei_size(top_level_widget->widget.screen_location.size.width, top_level_widget->widget.screen_location.size.height - top_level_widget->widget.content_rect->size.height);
+
         // Close button configuration
         int close_button_x = place_x + (text_size->height / 4);
         int close_button_y = place_y + (text_size->height / 2);
@@ -598,8 +604,7 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         ei_color_t close_button_color = {0xF9, 0x38, 0x22, 0xff};
         ei_relief_t close_button_relief = ei_relief_raised;
 
-        ei_button_configure((ei_widget_t*) top_level_widget->close_button, &close_button_size, &close_button_color, 0, &close_button_corner_radius,
-                            &close_button_relief, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        ei_button_configure((ei_widget_t*) top_level_widget->close_button, &close_button_size, &close_button_color, 0, &close_button_corner_radius, &close_button_relief, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
         top_level_widget->close_button->widget.screen_location.top_left.x = close_button_x;
         top_level_widget->close_button->widget.screen_location.top_left.y = close_button_y - (close_button_width_height/ 2);
