@@ -25,34 +25,41 @@ ei_widget_t* ei_event_get_active_widget(void){
         return g_active_widget;
 }
 
+static ei_bool_t is_in_button(ei_button_t *button, ei_point_t point){
+        int x_min = button->widget.screen_location.top_left.x;
+        int y_min = button->widget.screen_location.top_left.y;
+        int x_max = x_min + button->widget.screen_location.size.width;
+        int y_max = y_min + button->widget.screen_location.size.height;
+        return point.x <= x_max && point.x >= x_min && point.y <= y_max && point.y >= y_min;
+}
 
 /**
- * Callbacks
+ * @brief compute the widget concerned and call its callback
+ * @param a situate event
+ * @return a boolean, true if the event is treated
  */
-
-/**
- * For now I set the active widget for the one which is under the click
- */
-ei_bool_t mouse_callback(ei_event_t event){
+ei_bool_t situate_event_callback(ei_event_t *event){
+        printf("reach beginning of situate_event_callback");
         // Parameters of the offscreen
         hw_surface_lock(offscreen);
-        uint32_t *pointed_pixel = (uint32_t *) hw_surface_get_buffer(offscreen);
+        uint32_t *clicked_pixel = (uint32_t *) hw_surface_get_buffer(offscreen);
         ei_size_t offscreen_size = hw_surface_get_size(offscreen);
 
-        // What is the pointed pixel
-        // May be I have to -1 the sum
-        pointed_pixel += (offscreen_size.width * event.param.mouse.where.y) + event.param.mouse.where.x;
-        uint32_t widget_id = *pointed_pixel;
+        // Compute memory location of clicked_pixel and put the its value in widget_id
+        clicked_pixel += (offscreen_size.width * event->param.mouse.where.y) + event->param.mouse.where.x;
+        uint32_t widget_id = *clicked_pixel;
 
+        // Test if the clicked pixel is in the root_frame
         ei_widget_t *widget_to_treat = root_frame;
-
+        if (widget_to_treat->pick_id == widget_id){
+                return widget_to_treat->wclass->handlefunc(widget_to_treat, event);
+        }
         // Depth course of each widgets
         do {
                 if (widget_to_treat->children_head) {
                         widget_to_treat = widget_to_treat->children_head;
                         if (widget_to_treat->pick_id == widget_id){
-                                widget_to_treat->wclass->handlefunc(widget_to_treat, &event);
-                                return EI_TRUE;
+                                return widget_to_treat->wclass->handlefunc(widget_to_treat, event);
                         }
                 } else {
                         while (widget_to_treat != root_frame && widget_to_treat->next_sibling == NULL) {
@@ -62,21 +69,16 @@ ei_bool_t mouse_callback(ei_event_t event){
                         if (widget_to_treat->next_sibling) {
                                 widget_to_treat = widget_to_treat->next_sibling;
                                 if (widget_to_treat->pick_id == widget_id){
-                                        widget_to_treat->wclass->handlefunc(widget_to_treat, &event);
-                                        return EI_TRUE;
+                                        return widget_to_treat->wclass->handlefunc(widget_to_treat, event);
                                 }
                         }
                 }
         } while (widget_to_treat != root_frame);
 
-        if (widget_to_treat->pick_id == widget_id){
-                widget_to_treat->wclass->handlefunc(widget_to_treat, &event);
-                return EI_TRUE;
-        }
-
+        printf("reach end of situate_event_callback");
+        // If no widget handle_function is treated, so has to call the default function
         return EI_FALSE;
 }
-
 
 /**
  * Handle functions
@@ -84,49 +86,59 @@ ei_bool_t mouse_callback(ei_event_t event){
 
 ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                     struct ei_event_t* event){
+        // Cast the widget to treat itself
         ei_top_level_t *toplevel_widget = (ei_top_level_t *) widget;
-        printf("toplevel");
-        // Verify if mouse pointer is in resize rect
-        int xmax = toplevel_widget->resize_rect->top_left.x + toplevel_widget->resize_rect->size.width;
-        int ymax = toplevel_widget->resize_rect->top_left.y + toplevel_widget->resize_rect->size.height;
-        int xmin = toplevel_widget->resize_rect->top_left.x;
-        int ymin = toplevel_widget->resize_rect->top_left.y;
-        if (event->param.mouse.where.x >= xmin && event->param.mouse.where.x <= xmax && event->param.mouse.where.y <= ymax && event->param.mouse.where.y >= ymin){
-                if (event->type == ei_ev_mouse_move && ei_event_get_active_widget() == widget) {
-                                switch (toplevel_widget->resizable) {
-                                        case ei_axis_none:
-                                                break;
-                                        case ei_axis_x:
-                                                toplevel_widget->widget.screen_location.size.width =
-                                                        event->param.mouse.where.x -
-                                                        toplevel_widget->widget.screen_location.top_left.x;
-                                                break;
-                                        case ei_axis_y:
-                                                toplevel_widget->widget.screen_location.size.height =
-                                                        event->param.mouse.where.y -
-                                                        toplevel_widget->widget.screen_location.top_left.y;
-                                                break;
-                                        case ei_axis_both:
-                                                toplevel_widget->widget.screen_location.size.width =
-                                                        event->param.mouse.where.x -
-                                                        toplevel_widget->widget.screen_location.top_left.x;
-                                                toplevel_widget->widget.screen_location.size.height =
-                                                        event->param.mouse.where.y -
-                                                        toplevel_widget->widget.screen_location.top_left.y;
-                                                break;
-                                }
-                } else if (event->type == ei_ev_mouse_buttondown){
-                        if (event->param.mouse.button == ei_mouse_button_left){
-                                ei_event_set_active_widget(widget);
-                        }
-                } else if (event->type == ei_ev_mouse_buttonup && ei_event_get_active_widget() == widget) {
-                        if (event->param.mouse.button == ei_mouse_button_left) {
-                                ei_event_set_active_widget(NULL);
-                        }
-                }
-        }
+        printf("reach handle_top_level_function");
 
-        return EI_TRUE;
+
+
+
+
+
+//        // Verify if mouse pointer is in resize rect
+//        int xmax = toplevel_widget->resize_rect->top_left.x + toplevel_widget->resize_rect->size.width;
+//        int ymax = toplevel_widget->resize_rect->top_left.y + toplevel_widget->resize_rect->size.height;
+//        int xmin = toplevel_widget->resize_rect->top_left.x;
+//        int ymin = toplevel_widget->resize_rect->top_left.y;
+//        if (event->param.mouse.where.x >= xmin && event->param.mouse.where.x <= xmax && event->param.mouse.where.y <= ymax && event->param.mouse.where.y >= ymin){
+//                if (event->type == ei_ev_mouse_move && ei_event_get_active_widget() == widget) {
+//                                switch (toplevel_widget->resizable) {
+//                                        case ei_axis_none:
+//                                                break;
+//                                        case ei_axis_x:
+//                                                toplevel_widget->widget.screen_location.size.width =
+//                                                        event->param.mouse.where.x -
+//                                                        toplevel_widget->widget.screen_location.top_left.x;
+//                                                break;
+//                                        case ei_axis_y:
+//                                                toplevel_widget->widget.screen_location.size.height =
+//                                                        event->param.mouse.where.y -
+//                                                        toplevel_widget->widget.screen_location.top_left.y;
+//                                                break;
+//                                        case ei_axis_both:
+//                                                toplevel_widget->widget.screen_location.size.width =
+//                                                        event->param.mouse.where.x -
+//                                                        toplevel_widget->widget.screen_location.top_left.x;
+//                                                toplevel_widget->widget.screen_location.size.height =
+//                                                        event->param.mouse.where.y -
+//                                                        toplevel_widget->widget.screen_location.top_left.y;
+//                                                break;
+//                                }
+//                } else if (event->type == ei_ev_mouse_buttondown){
+//                        if (event->param.mouse.button == ei_mouse_button_left){
+//                                ei_event_set_active_widget(widget);
+//                        }
+//                } else if (event->type == ei_ev_mouse_buttonup && ei_event_get_active_widget() == widget) {
+//                        if (event->param.mouse.button == ei_mouse_button_left) {
+//                                ei_event_set_active_widget(NULL);
+//                        }
+//                }
+//        }
+//
+//        return EI_TRUE;
+
+        // THe widget hasn't been treated, so we return EI_FALSE to call the default handle fucntion
+        return EI_FALSE;
 
 }
 
