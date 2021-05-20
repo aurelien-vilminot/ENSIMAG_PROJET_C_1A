@@ -163,7 +163,13 @@ void children_resizing(struct ei_widget_t* widget){
 
 
 /**
- * Handle functions
+ *
+ * @param widget    The active widget (a top level in this case) concerned by the event
+ *
+ * @param event     The event containing all parameters
+ *
+ * @return          EI_TRUE if  he function handled the event,
+ *                  EI_FALSE otherwise, in this case the event is dismissed.
  */
 
 ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
@@ -245,31 +251,53 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
 
 }
 
+/**
+ *
+ * @param widget    The active widget (a button in this case) concerned by the event
+ *
+ * @param event     The event containing all parameters
+ *
+ * @return          EI_TRUE if  he function handled the event,
+ *                  EI_FALSE otherwise, in this case the event is dismissed.
+ */
+
 ei_bool_t handle_button_function(struct ei_widget_t* widget,
                                  struct ei_event_t* event){
 
         ei_button_t *button_widget = (ei_button_t *) widget;
-        if(event->type == ei_ev_mouse_buttondown && event->param.mouse.button == ei_mouse_button_left) {
+
+        if (event->param.mouse.button == ei_mouse_button_left) {
+
+                //if the left button of the mouse is down
+                if (event->type == ei_ev_mouse_buttondown) {
                         button_widget->relief = ei_relief_sunken;
                         ei_event_set_active_widget(widget);
                         return EI_TRUE;
+                }
 
-        }
-
-        else if(event->type == ei_ev_mouse_buttonup && event->param.mouse.button == ei_mouse_button_left) {
+                        //if the left button of the mouse is up
+                else if (event->type == ei_ev_mouse_buttonup) {
                         button_widget->relief = ei_relief_raised;
                         ei_event_set_active_widget(NULL);
                         return EI_TRUE;
+                }
         }
-
-
-
-
         return EI_FALSE;
 }
 
+/**
+ *
+ * @param widget    The active widget (a frame in this case) concerned by the event
+ *
+ * @param event     The event containing all parameters
+ *
+ * @return          EI_TRUE if  he function handled the event,
+ *                  EI_FALSE otherwise, in this case the event is dismissed.
+ */
+
 ei_bool_t handle_frame_function(struct ei_widget_t* widget,
                                  struct ei_event_t* event){
+
         return EI_FALSE;
 }
 

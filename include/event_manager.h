@@ -38,12 +38,44 @@ ei_bool_t keyword_event_callback(ei_event_t *event);
 /*
  * Handle functions
  */
-// TODO: Make descriptions
+
+
+
+/**
+ *
+ * @param widget    The active widget (a button in this case) concerned by the event
+ *
+ * @param event     The event containing all parameters
+ *
+ * @return          EI_TRUE if  he function handled the event,
+ *                  EI_FALSE otherwise, in this case the event is dismissed.
+ */
 ei_bool_t handle_button_function(struct ei_widget_t* widget,
                                  struct ei_event_t* event);
 
+/**
+ *
+ * @param widget    The active widget (a top level in this case) concerned by the event
+ *
+ * @param event     The event containing all parameters
+ *
+ * @return          EI_TRUE if  he function handled the event,
+ *                  EI_FALSE otherwise, in this case the event is dismissed.
+ */
+
 ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                     struct ei_event_t* event);
+
+/**
+ *
+ * @param widget    The active widget (a frame in this case) concerned by the event
+ *
+ * @param event     The event containing all parameters
+ *
+ * @return          EI_TRUE if  he function handled the event,
+ *                  EI_FALSE otherwise, in this case the event is dismissed.
+ */
+
 
 ei_bool_t handle_frame_function(struct ei_widget_t* widget,
                                 struct ei_event_t* event);
