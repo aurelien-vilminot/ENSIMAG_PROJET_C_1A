@@ -169,6 +169,31 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
                 }
         } while (widget_to_destroy != widget);
 
+        if (widget_to_destroy->parent){
+                if (widget_to_destroy == widget_to_destroy->parent->children_head){
+                        widget_to_destroy->parent->children_head = widget_to_destroy->parent->children_head->next_sibling;
+                        if (widget_to_destroy == widget_to_destroy->parent->children_tail){
+                                widget_to_destroy->parent->children_tail = NULL;
+                        }
+                } else {
+                        ei_widget_t *widget_concerned = widget_to_destroy->parent->children_head;
+                        while(widget_concerned->next_sibling != widget_to_destroy){
+                                widget_concerned = widget_concerned->next_sibling;
+                        }
+                        widget_concerned->next_sibling = widget_to_destroy->next_sibling;
+                        if (widget_to_destroy == widget_to_destroy->parent->children_tail){
+                                widget_to_destroy->parent->children_tail = widget_concerned;
+                        }
+                }
+
+        }
+
+        if (widget_to_destroy->destructor) {
+                widget_to_destroy->destructor(widget_to_destroy);
+        }
+        widget_to_destroy->wclass->releasefunc(widget_to_destroy);
+        free(widget_to_destroy->pick_color);
+
 }
 
 

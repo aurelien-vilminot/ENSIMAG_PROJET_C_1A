@@ -37,7 +37,7 @@ static ei_bool_t is_in_button(ei_button_t *button, ei_point_t point){
  * @return a boolean, true if the event is treated
  */
 ei_bool_t situate_event_callback(ei_event_t *event){
-        printf("reach beginning of situate_event_callback\n");
+//        printf("reach beginning of situate_event_callback\n");
         // Parameters of the offscreen
         hw_surface_lock(offscreen);
         uint32_t *clicked_pixel = (uint32_t *) hw_surface_get_buffer(offscreen);
@@ -54,7 +54,7 @@ ei_bool_t situate_event_callback(ei_event_t *event){
                 return widget_to_treat->wclass->handlefunc(widget_to_treat, event);
         }
 
-        printf("je vais atteindre la top_level\n");
+//        printf("je vais atteindre la top_level\n");
         // Depth course of each widgets
         do {
                 if (widget_to_treat->children_head) {
@@ -76,7 +76,7 @@ ei_bool_t situate_event_callback(ei_event_t *event){
                 }
         } while (widget_to_treat != root_frame);
 
-        printf("reach end of situate_event_callback\n");
+//        printf("reach end of situate_event_callback\n");
         // If no widget handle_function is treated, so has to call the default function
         return EI_FALSE;
 }
@@ -89,14 +89,16 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                     struct ei_event_t* event){
         // Cast the widget to treat itself
         ei_top_level_t *toplevel_widget = (ei_top_level_t *) widget;
-        printf("reach handle_top_level_function\n\n\n");
+//        printf("reach handle_top_level_function");
 
-        if (event->param.mouse.button == ei_mouse_button_left){
+        if (event->type == ei_ev_mouse_buttondown && event->param.mouse.button == ei_mouse_button_left){
+
                 if (is_in_button(toplevel_widget->close_button, event->param.mouse.where)){
-                        printf("reach the final part ma gueule");
+                        printf("Doit fermer normalement\n\n\n");
                         ei_widget_destroy(widget);
                         return EI_TRUE;
                 }
+
         }
 
 
