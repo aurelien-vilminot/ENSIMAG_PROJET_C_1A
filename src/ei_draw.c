@@ -339,7 +339,7 @@ void			ei_draw_polygon		(ei_surface_t			surface,
         int y_first_line = surface_size.height;
 
         int size_tab = surface_size.height;
-        struct side **tc = calloc(size_tab, sizeof(struct side));
+        side **tc = calloc(size_tab, sizeof(side));
         for (uint32_t i = 0 ; i < size_tab ; ++i) {
                 tc[i] = NULL;
         }
@@ -356,7 +356,7 @@ void			ei_draw_polygon		(ei_surface_t			surface,
                 }
 
                 // Allocate memory to store a new side structure and fill it
-                struct side *new_side = malloc(sizeof(struct side));
+                side *new_side = malloc(sizeof(side));
                 new_side->next = NULL;
                 uint32_t indice_tc;
 
@@ -386,7 +386,7 @@ void			ei_draw_polygon		(ei_surface_t			surface,
         }
 
         // Init TCA
-        struct side *tca = NULL;
+        side *tca = NULL;
 
         // Init color
         uint32_t color_int = ei_map_rgba(surface, color);

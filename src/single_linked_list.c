@@ -7,9 +7,9 @@
  * @param       ll          The linked list
  * @param       new_side    The new side
 */
-void insert(struct side **ll, struct side *new_side) {
+void insert(side **ll, side *new_side) {
         // Backup the head of linked list
-        struct side *first = *ll;
+        side *first = *ll;
 
         if (*ll != NULL) {
                 while ((*ll)->next != NULL) {
@@ -30,14 +30,14 @@ void insert(struct side **ll, struct side *new_side) {
  * @param       ll          The linked list
  * @param       ymax        An integer
  */
-void delete(struct side **ll, int ymax) {
+void delete(side **ll, int ymax) {
         // Backup the head of linked list
-        struct side *first = *ll;
+        side *first = *ll;
 
         if (*ll != NULL) {
                 // Deletion of every node on head of linked list if they must be deleted
                 while ((*ll)->ymax == ymax) {
-                        struct side *to_suppr = *ll;
+                        side *to_suppr = *ll;
                         *ll = (*ll)->next;
                         free(to_suppr);
                         if (*ll == NULL) return;
@@ -47,7 +47,7 @@ void delete(struct side **ll, int ymax) {
                 while ((*ll)->next != NULL) {
                         first = *ll;
                         if (((*ll)->next)->ymax == ymax) {
-                                struct side *to_suppr = (*ll)->next;
+                                side *to_suppr = (*ll)->next;
                                 (*ll)->next = ((*ll)->next)->next;
                                 free(to_suppr);
                         }
@@ -64,11 +64,11 @@ void delete(struct side **ll, int ymax) {
  * @param       ll1         The source linked list
  * @param       ll2         The destination linked list
  */
-void move(struct side **ll1, struct side **ll2) {
+void move(side **ll1, side **ll2) {
         if (*ll1 != NULL) {
                 if (*ll2 != NULL) {
                         // Get the tail of the destination linked list
-                        struct side *first_ll2 = *ll2;
+                        side *first_ll2 = *ll2;
                         while ((*ll2)->next != NULL) {
                                 *ll2 = (*ll2)->next;
                         }
@@ -95,7 +95,7 @@ void move(struct side **ll1, struct side **ll2) {
  * @return	A boolean: \ref EI_TRUE means that the array is empty,
  *		\ref EI_FALSE means it does not.
  */
-int is_empty (struct side **tc, int size_tab) {
+int is_empty (side **tc, int size_tab) {
         for (uint32_t i = 0 ; i < size_tab ; ++i) {
                 if (tc[i] != NULL) {
                         return EI_FALSE;
@@ -110,12 +110,12 @@ int is_empty (struct side **tc, int size_tab) {
  *
  * @param       tc      The linked list
  */
-void insertion_sort(struct side **tc) {
+void insertion_sort(side **tc) {
         // Node current will point to head
-        struct side *current = *tc;
+        side *current = *tc;
 
         // Temporary variables to swap
-        struct side *index = NULL, *prec_current = NULL, *prec_index = NULL, *temp = NULL;
+        side *index = NULL, *prec_current = NULL, *prec_index = NULL, *temp = NULL;
 
         if (*tc != NULL) {
                 while (current != NULL) {
@@ -161,7 +161,7 @@ void insertion_sort(struct side **tc) {
  * @return      An signed integer : the xymin attribute if the node placed in the position index of linked list exists,
  *              -1 if does not exist.
  */
-int32_t get_xymin(struct side *tc, uint32_t index) {
+int32_t get_xymin(side *tc, uint32_t index) {
         // Init the counter
         uint32_t counter = 0;
 
@@ -180,9 +180,9 @@ int32_t get_xymin(struct side *tc, uint32_t index) {
  *
  * @param       ll      The linked list
  */
-void set_xymin(struct side **ll) {
+void set_xymin(side **ll) {
         // Backup the head of linked list
-        struct side *first = *ll;
+        side *first = *ll;
 
         while (*ll != NULL) {
                 (*ll)->error += abs((*ll)->dx);

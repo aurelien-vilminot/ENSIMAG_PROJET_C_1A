@@ -581,7 +581,7 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
 
         int close_button_corner_radius = (text_size->height / 2) / 2;
         ei_color_t close_button_color = {0xF9, 0x38, 0x22, 0xff};
-        ei_relief_t close_button_relief = ei_relief_none;
+        ei_relief_t close_button_relief = ei_relief_raised;
 
         ei_button_configure((ei_widget_t*) top_level_widget->close_button, &close_button_size, &close_button_color, 0, &close_button_corner_radius,
                             &close_button_relief, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -589,6 +589,8 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         top_level_widget->close_button->widget.screen_location.top_left.x = close_button_x;
         top_level_widget->close_button->widget.screen_location.top_left.y = close_button_y - (close_button_width_height/ 2);
         top_level_widget->close_button->widget.screen_location.size = close_button_size;
+        top_level_widget->close_button->widget.content_rect = &top_level_widget->close_button->widget.screen_location;
+        top_level_widget->close_button->relief = close_button_relief;
 
         // Free memory
         free(text_size);

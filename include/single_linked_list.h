@@ -7,7 +7,7 @@
 /**
  * @brief       Side structure used to represent all caracteristic of a side in a polygon. It is a single linked list.
  **/
-struct side {
+typedef struct side{
         uint32_t ymax;
         uint32_t xymin;
         double_t inv_slope;
@@ -16,7 +16,7 @@ struct side {
         int32_t dx, dy;
 
         struct side* next;
-};
+} side;
 
 /*
  * Insertion of new_side on tail of single linked list ll
