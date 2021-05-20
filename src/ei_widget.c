@@ -461,6 +461,9 @@ void set_default_button (ei_widget_t *widget) {
         button_widget->text_color = (ei_color_t) ei_font_default_color;
         button_widget->text_font = ei_default_font;
         button_widget->text_anchor = default_text_button_anchor;
+
+        // Alloc memory for specific widget attributes
+        button_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
 }
 
 /**
@@ -479,6 +482,9 @@ void set_default_frame (ei_widget_t *widget) {
         frame_widget->text_color = (ei_color_t) ei_font_default_color;
         frame_widget->text_font = ei_default_font;
         frame_widget->text_anchor = default_text_frame_anchor;
+
+        // Alloc memory for specific widget attributes
+        frame_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
 }
 
 /**
@@ -497,6 +503,9 @@ void set_default_top_level (ei_widget_t *widget) {
         top_level_widget->closable = default_top_level_closable;
         top_level_widget->min_size = &default_top_level_min_size;
         top_level_widget->current_event = event_none;
+
+        // Alloc memory for specific widget attributes
+        top_level_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
 }
 
 /**
@@ -520,10 +529,8 @@ void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         ei_point_t place_content_rect = {widget->screen_location.top_left.x + button->border_width, widget->screen_location.top_left.y + button->border_width};
 
         // Allocate memory for content_rect
-        ei_rect_t *content_rect = malloc(sizeof(ei_rect_t));
-        content_rect->size = size_content_rect;
-        content_rect->top_left = place_content_rect;
-        button->widget.content_rect = content_rect;
+        button->widget.content_rect->size = size_content_rect;
+        button->widget.content_rect->top_left = place_content_rect;
 }
 
 /**
@@ -547,11 +554,9 @@ void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
 
         ei_point_t place_content_rect = {widget->screen_location.top_left.x + frame->border_width, widget->screen_location.top_left.y + frame->border_width};
 
-        // Allocate memory for content_rect
-        ei_rect_t *content_rect = malloc(sizeof(ei_rect_t));
-        content_rect->size = size_content_rect;
-        content_rect->top_left = place_content_rect;
-        frame->widget.content_rect = content_rect;
+        // Specify content_rect
+        frame->widget.content_rect->size = size_content_rect;
+        frame->widget.content_rect->top_left = place_content_rect;
 }
 
 /**
@@ -584,24 +589,22 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
                                        height_top_level - (top_level_widget->border_width + text_size->height)};
         ei_point_t place_content_rect = {place_x + (top_level_widget->border_width), place_y + (text_size->height)};
 
-        // Allocate memory for content_rect
-        ei_rect_t *content_rect = malloc(sizeof(ei_rect_t));
-        content_rect->size = size_content_rect;
-        content_rect->top_left = place_content_rect;
-        top_level_widget->widget.content_rect = content_rect;
+        // Specify content_rect
+        top_level_widget->widget.content_rect->size = size_content_rect;
+        top_level_widget->widget.content_rect->top_left = place_content_rect;
 
         // Store top-bar
         top_level_widget->top_bar->top_left = top_level_widget->widget.screen_location.top_left;
         top_level_widget->top_bar->size = ei_size(top_level_widget->widget.screen_location.size.width, top_level_widget->widget.screen_location.size.height - top_level_widget->widget.content_rect->size.height);
 
         // Close button configuration
-        int close_button_x = place_x + (text_size->height / 4);
-        int close_button_y = place_y + (text_size->height / 2);
+        int close_button_x = place_x + (top_level_widget->top_bar->size.height / 4);
+        int close_button_y = place_y + (top_level_widget->top_bar->size.height / 2);
 
-        int close_button_width_height = text_size->height / 2;
+        int close_button_width_height = top_level_widget->top_bar->size.height / 2;
         ei_size_t close_button_size = {close_button_width_height, close_button_width_height};
 
-        int close_button_corner_radius = (text_size->height / 2) / 2;
+        int close_button_corner_radius = (top_level_widget->top_bar->size.height/ 2) / 2;
         ei_color_t close_button_color = {0xF9, 0x38, 0x22, 0xff};
         ei_relief_t close_button_relief = ei_relief_raised;
 
@@ -623,8 +626,17 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         top_level_widget->resize_rect->size.height = default_top_level_rect_resize;
 }
 
-// TODO : commentaires
-ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_t *widget_place, ei_size_t *widget_size) {
+/**
+ * @brief       Give coordinates of top-left point where a text must be display depending on the anchor
+ *
+ * @param       text_anchor         The text anchor
+ * @param       text_size           The text size
+ * @param       widget_place        The place where the widget parent is
+ * @param       widget_size         The size of the widget parent
+ *
+ * @return      A point which represents coordinates of top-left text place
+ */
+ ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_t *widget_place, ei_size_t *widget_size) {
         ei_point_t * text_coord = malloc(sizeof(ei_point_t));
 
         switch (*text_anchor) {

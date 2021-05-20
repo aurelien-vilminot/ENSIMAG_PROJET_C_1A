@@ -236,11 +236,13 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
 
 /**
  * @brief       Give coordinates of top-left point where a text must be display depending on the anchor
- * @param       text_anchor
- * @param       text_size
- * @param       widget_place
- * @param       widget_size
- * @return
+ *
+ * @param       text_anchor         The text anchor
+ * @param       text_size           The text size
+ * @param       widget_place        The place where the widget parent is
+ * @param       widget_size         The size of the widget parent
+ *
+ * @return      A point which represents coordinates of top-left text place
  */
 ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_t *widget_place, ei_size_t *widget_size);
 

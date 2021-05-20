@@ -494,7 +494,7 @@ void ei_draw_text (ei_surface_t surface, const ei_point_t* where, const char* te
         // Free memory
         free(destination_size);
 
-        // Doesn't forget to unlock/free the surfaces
+        // Free memory for text surface and unlock the origin surface
         hw_surface_unlock(text_surface);
         hw_surface_free(text_surface);
         hw_surface_unlock(surface);
@@ -538,6 +538,7 @@ void			ei_fill			(ei_surface_t		surface,
         }
         hw_surface_unlock(surface);
 }
+
 
 /**
  * \brief	Copies pixels from a source surface to a destination surface.
@@ -956,10 +957,6 @@ void ei_draw_top_level (ei_widget_t*            widget,
         // Text place in top bar
         ei_anchor_t text_anchor = ei_anc_west;
 
-        // Top bar size including border for the height
-        ei_size_t top_bar_size = {top_level->widget.screen_location.size.width,
-                                  text_size->height + top_level->border_width};
-
         // Get x place param
         int place_x = top_level->widget.screen_location.top_left.x;
 
@@ -981,21 +978,21 @@ void ei_draw_top_level (ei_widget_t*            widget,
 
         // Change values of text_size if this one is greater than the parent
         if (top_level->widget.content_rect->size.width <= text_size->width) {
-                text_size->width = top_level->widget.content_rect->size.width;
+                text_size->width = top_level->top_bar->size.width;
         }
         if (top_level->widget.content_rect->size.height <= text_size->height) {
-                text_size->height = top_level->widget.content_rect->size.height;
+                text_size->height = top_level->top_bar->size.height;
         }
 
         // Text clipper
-        ei_rect_t text_clipper = top_level->widget.screen_location;
+        ei_rect_t text_clipper = *top_level->top_bar;
 
         // PLace where to display text
         ei_point_t place_text = top_level->widget.screen_location.top_left;
 
         if (top_level->closable) {
                 // Display button
-                ei_draw_button((ei_widget_t*) top_level->close_button, surface, NULL, clipper);
+                ei_draw_button((ei_widget_t*) top_level->close_button, surface, NULL, top_level->top_bar);
 
                 // Change x-axis place including space used by close button
                 place_text.x += top_level->close_button->widget.screen_location.size.width + (top_level->close_button->widget.screen_location.top_left.x - place_x) + top_level->border_width;
@@ -1005,7 +1002,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
         }
 
         // Get top-left corner of the text
-        ei_point_t *text_coord = text_place(&text_anchor, text_size, &place_text, &top_bar_size);
+        ei_point_t *text_coord = text_place(&text_anchor, text_size, &place_text, &top_level->top_bar->size);
 
         // Display title
         ei_draw_text(surface, text_coord, top_level->title, ei_default_font, top_level->color, &text_clipper);
@@ -1025,15 +1022,5 @@ void ei_draw_top_level (ei_widget_t*            widget,
                 // Free memory
                 free_list(pts_rect_resize);
         }
-
-        // TODO : gestion min size
-}
-
-void clipping_off_screen (ei_surface_t surface,
-                          ei_rect_t* clipper){
-
-        //hw_surface_create(ei_size_t size,
-        //TODO et l'insérer dans chaque fonction qui dessine
-
 }
 

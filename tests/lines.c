@@ -280,7 +280,7 @@ int main(int argc, char** argv)
 	ei_surface_t		main_window	= NULL;
 	ei_color_t		white		= { 0xff, 0xff, 0xff, 0xff };
 	ei_rect_t*		clipper_ptr	= NULL;
-	ei_rect_t		clipper		= ei_rect(ei_point(0, 0), ei_size(5000, 5000));
+	ei_rect_t		clipper		= ei_rect(ei_point(0, 0), ei_size(800, 600));
 	clipper_ptr		= &clipper;
 	ei_event_t		event;
 
