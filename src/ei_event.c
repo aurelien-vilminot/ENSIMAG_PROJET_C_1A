@@ -1,6 +1,4 @@
-#include "ei_event.h"
 #include "event_manager.h"
-#include "widget_manager.h"
 
 /**
  * Sets the widget which is currently being manipulated by the user.
@@ -39,7 +37,7 @@ static ei_bool_t is_in_button(ei_button_t *button, ei_point_t point){
  * @return a boolean, true if the event is treated
  */
 ei_bool_t situate_event_callback(ei_event_t *event){
-        printf("reach beginning of situate_event_callback");
+        printf("reach beginning of situate_event_callback\n");
         // Parameters of the offscreen
         hw_surface_lock(offscreen);
         uint32_t *clicked_pixel = (uint32_t *) hw_surface_get_buffer(offscreen);
@@ -49,11 +47,14 @@ ei_bool_t situate_event_callback(ei_event_t *event){
         clicked_pixel += (offscreen_size.width * event->param.mouse.where.y) + event->param.mouse.where.x;
         uint32_t widget_id = *clicked_pixel;
 
+        printf("%u\n", *clicked_pixel);
         // Test if the clicked pixel is in the root_frame
         ei_widget_t *widget_to_treat = root_frame;
         if (widget_to_treat->pick_id == widget_id){
                 return widget_to_treat->wclass->handlefunc(widget_to_treat, event);
         }
+
+        printf("je vais atteindre la top_level\n");
         // Depth course of each widgets
         do {
                 if (widget_to_treat->children_head) {
@@ -75,7 +76,7 @@ ei_bool_t situate_event_callback(ei_event_t *event){
                 }
         } while (widget_to_treat != root_frame);
 
-        printf("reach end of situate_event_callback");
+        printf("reach end of situate_event_callback\n");
         // If no widget handle_function is treated, so has to call the default function
         return EI_FALSE;
 }
@@ -88,11 +89,48 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                     struct ei_event_t* event){
         // Cast the widget to treat itself
         ei_top_level_t *toplevel_widget = (ei_top_level_t *) widget;
-        printf("reach handle_top_level_function");
+        printf("reach handle_top_level_function\n\n\n");
+
+        if (event->param.mouse.button == ei_mouse_button_left){
+                if (is_in_button(toplevel_widget->close_button, event->param.mouse.where)){
+                        printf("reach the final part ma gueule");
+                        ei_widget_destroy(widget);
+                        return EI_TRUE;
+                }
+        }
 
 
 
 
+
+//        typedef struct ei_top_level_t {
+//                ei_widget_t		widget;
+//                ei_color_t		color;
+//                int			border_width;
+//                char*			title;
+//                ei_bool_t		closable;
+//                ei_axis_set_t		resizable;
+//                ei_size_t*		min_size;
+//                ei_button_t*            close_button;
+//                ei_rect_t*              resize_rect;
+//        } ei_top_level_t;
+//
+//        typedef struct ei_button_t {
+//                ei_widget_t		widget;
+//                ei_color_t	        color;
+//                int			border_width;
+//                int			corner_radius;
+//                ei_relief_t		relief;
+//                char*			text;
+//                ei_font_t		text_font;
+//                ei_color_t		text_color;
+//                ei_anchor_t		text_anchor;
+//                ei_surface_t		img;
+//                ei_rect_t*		img_rect;
+//                ei_anchor_t		img_anchor;
+//                ei_callback_t		callback;
+//                void*			user_param;
+//        } ei_button_t;
 
 
 //        // Verify if mouse pointer is in resize rect

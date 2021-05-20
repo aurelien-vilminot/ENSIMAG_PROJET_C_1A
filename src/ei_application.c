@@ -173,7 +173,7 @@ void ei_app_run(void){
 
                 // This is a situate event
                 if (next_event->type <= 7 && next_event->type >= 5){
-                        situate_event_callback(&next_event);
+                        situate_event_callback(next_event);
                 }
 
 

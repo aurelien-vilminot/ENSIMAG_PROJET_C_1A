@@ -1,6 +1,10 @@
 #ifndef PROJETC_IG_EVENT_MANAGER_H
 #define PROJETC_IG_EVENT_MANAGER_H
 
+#include "ei_event.h"
+#include "event_manager.h"
+#include "widget_manager.h"
+#include "ei_widget.h"
 
 // Is used to know what is the widget currently used by the user
 ei_widget_t *g_active_widget;
