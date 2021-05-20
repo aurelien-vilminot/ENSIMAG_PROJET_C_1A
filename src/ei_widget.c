@@ -496,6 +496,7 @@ void set_default_top_level (ei_widget_t *widget) {
         top_level_widget->border_width = default_top_level_border_width;
         top_level_widget->closable = default_top_level_closable;
         top_level_widget->min_size = &default_top_level_min_size;
+        top_level_widget->current_event = event_none;
 }
 
 /**

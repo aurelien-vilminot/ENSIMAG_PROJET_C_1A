@@ -29,6 +29,12 @@ static ei_bool_t default_top_level_closable = EI_TRUE;
 static ei_size_t default_top_level_min_size = {150, 150};
 static uint32_t default_top_level_rect_resize = 10;
 
+typedef enum {
+        event_none      = 0,
+        event_resize,
+        event_move
+} current_event;
+
 /**
  * Structures which used to represent specific widget with privates fields
  * All of those must contained an attribute ei_widget_t in first.
@@ -61,6 +67,7 @@ typedef struct ei_top_level_t {
         ei_button_t*            close_button;
         ei_rect_t*              resize_rect;
         ei_rect_t*              top_bar;
+        current_event           current_event;
 } ei_top_level_t;
 
 typedef struct ei_frame_t {
