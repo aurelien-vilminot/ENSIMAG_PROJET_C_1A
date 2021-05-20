@@ -251,7 +251,7 @@ void top_level_release(struct ei_widget_t* widget) {
         ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
 
         if (top_level_widget->title) free(top_level_widget->title);
-        if (top_level_widget->min_size) free(top_level_widget->min_size);
+        //if (top_level_widget->min_size) free(top_level_widget->min_size);
         if (top_level_widget->resize_rect) free(top_level_widget->resize_rect);
         button_release((ei_widget_t *) top_level_widget->close_button);
 }
@@ -507,6 +507,7 @@ void set_default_top_level (ei_widget_t *widget) {
         top_level_widget->color = default_top_level_color;
         top_level_widget->border_width = default_top_level_border_width;
         top_level_widget->closable = default_top_level_closable;
+        top_level_widget->min_size = &default_top_level_min_size;
 }
 
 void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
