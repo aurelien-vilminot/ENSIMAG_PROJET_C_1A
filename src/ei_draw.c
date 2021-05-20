@@ -884,7 +884,7 @@ void ei_draw_frame (ei_widget_t*        widget,
                 free_list(pts_bottom);
         }
 
-        ei_linked_point_t *pts_frame = rounded_frame(middle_rect, 0, FULL);
+        ei_linked_point_t *pts_frame = get_rectangle_list(middle_rect);
         ei_draw_polygon(surface, pts_frame, frame->color, clipper);
 
         // Display in offscreen
@@ -964,19 +964,19 @@ void ei_draw_top_level (ei_widget_t*            widget,
         int place_x = top_level->widget.screen_location.top_left.x;
 
         // Get all points for border toplevel modelization
-        ei_linked_point_t *pts_border = rounded_frame(top_level->widget.screen_location, 0, FULL);
+        ei_linked_point_t *pts_border = get_rectangle_list(top_level->widget.screen_location);
 
         // Display border toplevel
         ei_draw_polygon(surface, pts_border, border_color, clipper);
 
         // Display in offscreen
-        ei_draw_polygon(surface, pts_border, border_color, clipper);
+        ei_draw_polygon(pick_surface, pts_border, *top_level->widget.pick_color, clipper);
 
         // Free memory
         free_list(pts_border);
 
         // Draw content rect part of top level
-        ei_linked_point_t *pts_content_rect = rounded_frame(*top_level->widget.content_rect, 0, FULL);
+        ei_linked_point_t *pts_content_rect = get_rectangle_list(*top_level->widget.content_rect);
         ei_draw_polygon(surface, pts_content_rect, top_level->color, clipper);
 
         // Change values of text_size if this one is greater than the parent
@@ -1017,7 +1017,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
 
         if (top_level->resizable != ei_axis_none) {
                 // Get all points for rectangle used to resize
-                ei_linked_point_t *pts_rect_resize = rounded_frame(*top_level->resize_rect, 0, FULL);
+                ei_linked_point_t *pts_rect_resize = get_rectangle_list(*top_level->resize_rect);
 
                 // Display rectangle used to resize
                 ei_draw_polygon(surface, pts_rect_resize, border_color, clipper);

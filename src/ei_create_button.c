@@ -31,7 +31,7 @@ ei_linked_point_t*       arc                     (ei_point_t             center,
         ll->next = NULL;
 
         // Number points to calculate
-        uint32_t nb_points = 20;
+        uint32_t nb_points = 2;
 
         for (uint32_t i = 1; i <= nb_points; ++i) {
                 struct ei_linked_point_t *next_point = malloc(sizeof(struct ei_linked_point_t));
@@ -226,3 +226,37 @@ void free_list(ei_linked_point_t *lc) {
                 lc = next_node;
         }
 }
+
+ei_linked_point_t *get_rectangle_list (ei_rect_t rectangle) {
+        // Head of linked list which represent the top-left point
+        ei_linked_point_t *ll = malloc((sizeof(ei_linked_point_t)));
+
+        ei_linked_point_t *p2 = malloc(sizeof(ei_linked_point_t));
+        ei_linked_point_t *p3 = malloc(sizeof(ei_linked_point_t));
+        ei_linked_point_t *p4 = malloc(sizeof(ei_linked_point_t));
+        ei_linked_point_t *last_point = malloc(sizeof(ei_linked_point_t));
+
+
+        ll->point.x = rectangle.top_left.x;
+        ll->point.y = rectangle.top_left.y;
+        ll->next = p2;
+
+        p2->point.x = rectangle.top_left.x + rectangle.size.width;
+        p2->point.y = rectangle.top_left.y;
+        p2->next = p3;
+
+        p3->point.x = rectangle.top_left.x + rectangle.size.width;
+        p3->point.y = rectangle.top_left.y + rectangle.size.height;
+        p3->next = p4;
+
+        p4->point.x = rectangle.top_left.x;
+        p4->point.y = rectangle.top_left.y + rectangle.size.height;
+        p4->next = last_point;
+
+        last_point->point.x = ll->point.x;
+        last_point->point.y = ll->point.y;
+        last_point->next = NULL;
+
+        return ll;
+}
+

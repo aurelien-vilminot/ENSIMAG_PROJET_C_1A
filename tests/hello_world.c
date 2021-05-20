@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 	int		button_y		= -20;
 	float		button_rel_x		= 1.0;
 	float		button_rel_y		= 1.0;
-	float		button_rel_width	= 0.5;
+	float		button_rel_width	= 1.0;
 	ei_color_t	button_color		= {0x88, 0x88, 0x88, 0xff};
 	char*		button_title		= "click";
 	ei_color_t	button_text_color	= {0x00, 0x00, 0x00, 0xff};
@@ -90,17 +90,17 @@ int main(int argc, char** argv)
         ei_color_t	frame_color		= {0xA0,0xAF,0xA0, 0xff};
         int		frame_border_width	= 5;
 
-	frame = ei_widget_create("frame", window, NULL, NULL);
-	ei_frame_configure(frame, NULL, &frame_color, &frame_border_width, &frame_relief, &frame_title,
-	        ei_default_font, &root_bgcol, &frame_text_anchor, NULL, NULL, NULL);
-	ei_place(frame, NULL, NULL, NULL, NULL, NULL, &frame_rel_x, &frame_rel_y, &frame_rel_width, &frame_rel_height);
+//	frame = ei_widget_create("frame", window, NULL, NULL);
+//	ei_frame_configure(frame, NULL, &frame_color, &frame_border_width, &frame_relief, &frame_title,
+//	        ei_default_font, &root_bgcol, &frame_text_anchor, NULL, NULL, NULL);
+//	ei_place(frame, NULL, NULL, NULL, NULL, NULL, &frame_rel_x, &frame_rel_y, &frame_rel_width, &frame_rel_height);
 
         /* Create, configure and place a button as a descendant of the toplevel window. */
-	button = ei_widget_create("button", frame, NULL, NULL);
-	ei_button_configure	(button, NULL, &button_color,
-				 &button_border_width, NULL, &button_relief, &button_title, NULL, &button_text_color, NULL,
-				NULL, NULL, NULL, &button_callback, NULL);
-	ei_place(button, &button_anchor, &button_x, &button_y, NULL, NULL, &button_rel_x, &button_rel_y, &button_rel_width, NULL);
+//	button = ei_widget_create("button", frame, NULL, NULL);
+//	ei_button_configure	(button, NULL, &button_color,
+//				 &button_border_width, NULL, &button_relief, &button_title, NULL, &button_text_color, NULL,
+//				NULL, NULL, NULL, &button_callback, NULL);
+//	ei_place(button, &button_anchor, &button_x, &button_y, NULL, NULL, &button_rel_x, &button_rel_y, &button_rel_width, NULL);
 
 	/* Run the application's main loop. */
 	ei_app_run();

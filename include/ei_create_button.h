@@ -56,8 +56,14 @@ ei_linked_point_t*       rounded_frame           (ei_rect_t              rectang
  */
 struct ei_linked_point_t * get_last_node(struct ei_linked_point_t *ll);
 
-
+/**
+ * @brief       Delete all linked list given in param. Free memory.
+ *
+ * @param       lc      The linked list to suppr
+ */
 void free_list(ei_linked_point_t *lc);
+
+ei_linked_point_t *get_rectangle_list (ei_rect_t          rectangle);
 
 
 
