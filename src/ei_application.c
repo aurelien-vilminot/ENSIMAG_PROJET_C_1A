@@ -161,6 +161,7 @@ void ei_app_run(void){
                 } while (widget_to_print != root_frame);
 
                 // Update screen and event
+
                 hw_surface_update_rects(root_windows, NULL);
                 hw_event_wait_next(next_event);
 
