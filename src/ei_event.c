@@ -7,11 +7,7 @@
  *				that a widget is no more being manipulated.
  */
 void ei_event_set_active_widget(ei_widget_t* widget){
-        if (widget){
-                *g_active_widget = *widget;
-        } else {
-                g_active_widget = NULL;
-        }
+        g_active_widget = widget;
 }
 
 /**
@@ -23,11 +19,11 @@ ei_widget_t* ei_event_get_active_widget(void){
         return g_active_widget;
 }
 
-static ei_bool_t is_in_button(ei_button_t *button, ei_point_t point){
-        int x_min = button->widget.screen_location.top_left.x;
-        int y_min = button->widget.screen_location.top_left.y;
-        int x_max = x_min + button->widget.screen_location.size.width;
-        int y_max = y_min + button->widget.screen_location.size.height;
+static ei_bool_t is_in_rectangle(ei_rect_t rectangle, ei_point_t point){
+        int x_min = rectangle.top_left.x;
+        int y_min = rectangle.top_left.y;
+        int x_max = x_min + rectangle.size.width;
+        int y_max = y_min + rectangle.size.height;
         return point.x <= x_max && point.x >= x_min && point.y <= y_max && point.y >= y_min;
 }
 
@@ -54,7 +50,6 @@ ei_bool_t situate_event_callback(ei_event_t *event){
                 return widget_to_treat->wclass->handlefunc(widget_to_treat, event);
         }
 
-//        printf("je vais atteindre la top_level\n");
         // Depth course of each widgets
         do {
                 if (widget_to_treat->children_head) {
@@ -76,7 +71,6 @@ ei_bool_t situate_event_callback(ei_event_t *event){
                 }
         } while (widget_to_treat != root_frame);
 
-//        printf("reach end of situate_event_callback\n");
         // If no widget handle_function is treated, so has to call the default function
         return EI_FALSE;
 }
@@ -89,51 +83,51 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                     struct ei_event_t* event){
         // Cast the widget to treat itself
         ei_top_level_t *toplevel_widget = (ei_top_level_t *) widget;
-//        printf("reach handle_top_level_function");
 
-        if (event->type == ei_ev_mouse_buttondown && event->param.mouse.button == ei_mouse_button_left){
+        if (event->param.mouse.button == ei_mouse_button_left){
+                if (event->type == ei_ev_mouse_buttondown){
+                        if (is_in_rectangle(toplevel_widget->close_button->widget.screen_location, event->param.mouse.where)){
+                                ei_widget_destroy(widget);
+                                return EI_TRUE;
+                        }
 
-                if (is_in_button(toplevel_widget->close_button, event->param.mouse.where)){
-                        printf("Doit fermer normalement\n\n\n");
-                        ei_widget_destroy(widget);
+                        if (is_in_rectangle(*(toplevel_widget->resize_rect), event->param.mouse.where)){
+                                ei_event_set_active_widget(widget);
+                        }
+                } else if (event->type == ei_ev_mouse_buttonup) {
+                        printf("j'arrive ici");
+                        ei_event_set_active_widget(NULL);
+                } else if (event->type == ei_ev_mouse_move && ei_event_get_active_widget() == widget){
+                        switch (toplevel_widget->resizable){
+                                int new_width;
+                                int new_height;
+                                case ei_axis_none:
+                                        break;
+                                case ei_axis_x:
+                                        new_width = event->param.mouse.where.x -
+                                                        toplevel_widget->widget.screen_location.top_left.x;
+                                        ei_place(widget, NULL, NULL, NULL, &new_width, NULL, NULL, NULL, NULL, NULL);
+                                        break;
+                                case ei_axis_y:
+                                        new_height = event->param.mouse.where.y -
+                                                        toplevel_widget->widget.screen_location.top_left.y;
+                                        ei_place(widget, NULL, NULL, NULL, NULL, &new_height, NULL, NULL, NULL, NULL);
+                                        break;
+                                case ei_axis_both:
+                                        new_width = event->param.mouse.where.x -
+                                                    toplevel_widget->widget.screen_location.top_left.x;
+                                        new_height = event->param.mouse.where.y -
+                                                     toplevel_widget->widget.screen_location.top_left.y;
+                                        ei_place(widget, NULL, NULL, NULL, &new_width, &new_height, NULL, NULL, NULL, NULL);
+                                        break;
+                        }
                         return EI_TRUE;
                 }
-
+        } else if (event->param.mouse.button == ei_mouse_button_middle){
+                return EI_FALSE;
+        } else if (event->param.mouse.button == ei_mouse_button_right){
+                return EI_FALSE;
         }
-
-
-
-
-
-//        typedef struct ei_top_level_t {
-//                ei_widget_t		widget;
-//                ei_color_t		color;
-//                int			border_width;
-//                char*			title;
-//                ei_bool_t		closable;
-//                ei_axis_set_t		resizable;
-//                ei_size_t*		min_size;
-//                ei_button_t*            close_button;
-//                ei_rect_t*              resize_rect;
-//        } ei_top_level_t;
-//
-//        typedef struct ei_button_t {
-//                ei_widget_t		widget;
-//                ei_color_t	        color;
-//                int			border_width;
-//                int			corner_radius;
-//                ei_relief_t		relief;
-//                char*			text;
-//                ei_font_t		text_font;
-//                ei_color_t		text_color;
-//                ei_anchor_t		text_anchor;
-//                ei_surface_t		img;
-//                ei_rect_t*		img_rect;
-//                ei_anchor_t		img_anchor;
-//                ei_callback_t		callback;
-//                void*			user_param;
-//        } ei_button_t;
-
 
 //        // Verify if mouse pointer is in resize rect
 //        int xmax = toplevel_widget->resize_rect->top_left.x + toplevel_widget->resize_rect->size.width;

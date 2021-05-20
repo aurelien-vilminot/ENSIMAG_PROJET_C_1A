@@ -16,7 +16,7 @@ ei_event_t *next_event;
 static ei_bool_t not_the_end = EI_TRUE;
 
 
-static ei_bool_t is_in_button(ei_button_t *button, ei_point_t point);
+static ei_bool_t is_in_rectangle(ei_rect_t rectangle, ei_point_t point);
 
 ei_bool_t situate_event_callback(ei_event_t *event);
 
