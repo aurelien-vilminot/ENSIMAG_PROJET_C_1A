@@ -7,7 +7,32 @@
 #include "ei_widgetclass.h"
 #include "application.h"
 
+/**
+ * Default values of widget parameters
+ */
+// BUTTON
+static ei_size_t default_button_size = {50, 30};
+static ei_color_t default_button_color = {0x7C, 0x87, 0x8E, 0xff};
+static ei_anchor_t default_text_button_anchor = ei_anc_center;
 
+// FRAME
+static ei_size_t default_frame_size = {400, 400};
+static ei_color_t default_frame_color = {0x89, 0xAb, 0xE3, 0xff};
+static int default_frame_border_width = 0;
+static ei_anchor_t default_text_frame_anchor = ei_anc_center;
+
+// TOP LEVEL
+static ei_size_t default_top_level_size = {400, 50};
+static ei_color_t default_top_level_color = {0xD0, 0xD3, 0xD4, 0xff};
+static int default_top_level_border_width = 0;
+static ei_bool_t default_top_level_closable = EI_TRUE;
+static ei_size_t default_top_level_min_size = {150, 150};
+static uint32_t default_top_level_rect_resize = 10;
+
+/**
+ * Structures which used to represent specific widget with privates fields
+ * All of those must contained an attribute ei_widget_t in first.
+ */
 typedef struct ei_button_t {
         ei_widget_t		widget;
         ei_color_t	        color;
@@ -51,75 +76,155 @@ typedef struct ei_frame_t {
         ei_anchor_t		img_anchor;
 } ei_frame_t;
 
-
-// TODO : voir dernière fonction de ei_widgetclass.h
-ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_name);
+/**
+ * @brief       Return widget class wich correspond to class name give in parameter.
+ *
+ * @param       ll              The linked list which contained all classes (button, top-level and frame).
+ * @param       class_name      The class name.
+ *
+ * @return      The class corresponding of class_name if exists. If not, return NULL.
+ */
+ ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_name);
 
 
 /**
- * Allocation memory
- * @return
+ * @brief       Allocate memory used by a button widget.
+ * @return      The corresponding widget.
  */
 ei_widget_t* button_alloc_func();
+
+/**
+ * @brief       Allocate memory used by a top-level widget.
+ * @return      The corresponding widget.
+ */
 ei_widget_t* top_level_alloc_func();
+
+/**
+ * @brief       Allocate memory used by a frame widget.
+ * @return      The corresponding widget.
+ */
 ei_widget_t* frame_alloc_func();
 
 /**
- * Release memory
- * @return
+ * @brief       Release memory for pointers attributes which were allocated in alloc function.
+ *
+ * @param       widget      The widget which resources are to be freed.
  */
 void button_release(ei_widget_t* widget);
-void top_level_release(ei_widget_t* widget);
-void frame_release(ei_widget_t* widget);
-
 
 /**
- * Draw functions
+ * @brief       Release memory for pointers attributes which were allocated in alloc function.
+ *
+ * @param       widget      The widget which resources are to be freed.
+ */
+void top_level_release(ei_widget_t* widget);
+
+/**
+ * @brief       Release memory for pointers attributes which were allocated in alloc function.
+ *
+ * @param       widget      The widget which resources are to be freed.
+ */
+void frame_release(ei_widget_t* widget);
+
+/**
+ * \brief	A function that draws widgets of button class.
+ *
+ * @param	widget		A pointer to the widget instance to draw.
+ * @param	surface		Where to draw the widget. The actual location of the widget in the
+ *				surface is stored in its "screen_location" field.
+ * @param	pick_surface	The picking offscreen.
+ * @param	clipper		If not NULL, the drawing is restricted within this rectangle
+ *				(expressed in the surface reference frame).
  */
 void ei_draw_button (ei_widget_t* widget,
                  ei_surface_t		surface,
                  ei_surface_t		pick_surface,
                  ei_rect_t*		clipper);
 
+/**
+ * \brief	A function that draws widgets of frame class.
+ *
+ * @param	widget		A pointer to the widget instance to draw.
+ * @param	surface		Where to draw the widget. The actual location of the widget in the
+ *				surface is stored in its "screen_location" field.
+ * @param	pick_surface	The picking offscreen.
+ * @param	clipper		If not NULL, the drawing is restricted within this rectangle
+ *				(expressed in the surface reference frame).
+ */
 void ei_draw_frame (ei_widget_t* widget,
                     ei_surface_t		surface,
                     ei_surface_t		pick_surface,
                     ei_rect_t*		clipper);
 
+/**
+ * \brief	A function that draws widgets of top-level class.
+ *
+ * @param	widget		A pointer to the widget instance to draw.
+ * @param	surface		Where to draw the widget. The actual location of the widget in the
+ *				surface is stored in its "screen_location" field.
+ * @param	pick_surface	The picking offscreen.
+ * @param	clipper		If not NULL, the drawing is restricted within this rectangle
+ *				(expressed in the surface reference frame).
+ */
 void ei_draw_top_level (ei_widget_t* widget,
                     ei_surface_t		surface,
                     ei_surface_t		pick_surface,
                     ei_rect_t*		clipper);
 
+/**
+ * \brief	A function that sets the default values for a widget button.
+ *
+ * @param	widget		A pointer to the widget instance to intialize.
+ */
 void set_default_button (ei_widget_t *widget);
-void set_default_frame (ei_widget_t *widget);
-void set_default_top_level (ei_widget_t *widget);
-
-void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
-void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
-void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
 
 /**
- * Default values of widget parameters
+ * \brief	A function that sets the default values for a widget frame.
+ *
+ * @param	widget		A pointer to the widget instance to intialize.
  */
-// BUTTON
-static ei_size_t default_button_size = {50, 30};
-static ei_color_t default_button_color = {0x7C, 0x87, 0x8E, 0xff};
-static ei_anchor_t default_text_button_anchor = ei_anc_center;
+void set_default_frame (ei_widget_t *widget);
 
-// FRAME
-static ei_size_t default_frame_size = {400, 400};
-static ei_color_t default_frame_color = {0x89, 0xAb, 0xE3, 0xff};
-static int default_frame_border_width = 0;
-static ei_anchor_t default_text_frame_anchor = ei_anc_center;
+/**
+ * \brief	A function that sets the default values for a widget top-level.
+ *
+ * @param	widget		A pointer to the widget instance to intialize.
+ */
+void set_default_top_level (ei_widget_t *widget);
 
-// TOP LEVEL
-static ei_size_t default_top_level_size = {400, 50};
-static ei_color_t default_top_level_color = {0xD0, 0xD3, 0xD4, 0xff};
-static int default_top_level_border_width = 0;
-static ei_bool_t default_top_level_closable = EI_TRUE;
-static ei_size_t default_top_level_min_size = {150, 150};
-static uint32_t default_top_level_rect_resize = 10;
+/**
+ * \brief 	This function is called to notify the widget that its geometry has been modified
+ *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
+ *		Calculate or recalculated the content_rect attribute.
+ *
+ * @param	widget		The widget instance to notify of a geometry change.
+ * @param	rect		The new rectangular screen location of the widget
+ *				(i.e. = widget->screen_location).
+ */
+void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
+
+/**
+ * \brief 	This function is called to notify the widget that its geometry has been modified
+ *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
+ *		Calculate or recalculated the content_rect attribute.
+ *
+ * @param	widget		The widget instance to notify of a geometry change.
+ * @param	rect		The new rectangular screen location of the widget
+ *				(i.e. = widget->screen_location).
+ */
+void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
+
+/**
+ * \brief 	This function is called to notify the widget that its geometry has been modified
+ *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
+ *		Calculate or recalculated the content_rect attribute.
+ *		Configure or reconfigure the close button.
+ *
+ * @param	widget		The widget instance to notify of a geometry change.
+ * @param	rect		The new rectangular screen location of the widget
+ *				(i.e. = widget->screen_location).
+ */
+void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
 
 /**
  * @brief       Give coordinates of top-left point where a text must be display depending on the anchor
@@ -132,17 +237,13 @@ static uint32_t default_top_level_rect_resize = 10;
 ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_t *widget_place, ei_size_t *widget_size);
 
 /**
- * @brief All is in the title
+ * @brief       All is in the title
  *
- * @param a uint32_t element which is convert into ei_color_t
+ * @param       surface             Used to know rgba position in the corresponding surface
+ * @param       color_to_convert    Element which is convert into ei_color_t
  *
- * @return ei_color_t corresponding to the 32 bits give as argument
+ * @return      A color corresponding to the 32 bits give as argument
  */
 ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert);
-
-///**
-// * @brief Inverse of previous function
-// */
-//ei_color_t *from_pick_color_to_pick_id(ei_surface_t surface, uint32_t *color_to_convert);
 
 #endif //PROJETC_IG_WIDGET_MANAGER_H

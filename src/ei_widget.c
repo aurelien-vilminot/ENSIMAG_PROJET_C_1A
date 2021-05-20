@@ -26,11 +26,12 @@ static uint32_t insert_child(ei_widget_t *widget, ei_widget_t *parent) {
 }
 
 /**
- * @brief All is in the title
+ * @brief       All is in the title
  *
- * @param a uint32_t element which is convert into ei_color_t
+ * @param       surface             Used to know rgba position in the corresponding surface
+ * @param       color_to_convert    Element which is convert into ei_color_t
  *
- * @return ei_color_t corresponding to the 32 bits give as argument
+ * @return      A color corresponding to the 32 bits give as argument
  */
 ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert){
         // Place of colors
@@ -52,31 +53,6 @@ ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert){
 
         return color_to_return;
 }
-//
-//
-///**
-// * @brief Inverse of previous function
-// */
-//ei_color_t *from_pick_color_to_pick_id(ei_surface_t surface, ei_color_t *color_to_convert) {
-//        // Place of colors
-//        int red_place;
-//        int green_place;
-//        int blue_place;
-//        int alpha_place;
-//        hw_surface_get_channel_indices(surface, &red_place, &green_place, &blue_place, &alpha_place);
-//
-//        // Pointer on the color_to_convert
-//        uint8_t *p = (uint8_t *) color_to_convert;
-//
-//        // Associate each value of the color with the corresponding bits
-//        ei_color_t *color_to_return = malloc(sizeof(ei_color_t));
-//        color_to_return->red = p[red_place];
-//        color_to_return->blue = p[blue_place];
-//        color_to_return->green = p[green_place];
-//        color_to_return->alpha = p[alpha_place];
-//
-//        return color_to_return;
-//}
 
 /**
  * @brief	Creates a new instance of a widget of some particular class, as a descendant of
@@ -176,7 +152,14 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
         free(widget_to_destroy->pick_color);
 }
 
-
+/**
+ * @brief       Return widget class wich correspond to class name give in parameter
+ *
+ * @param       ll              The linked list which contained all classes (button, top-level and frame)
+ * @param       class_name      The class name
+ *
+ * @return      The class corresponding of class_name if exists. If not, return NULL;
+ */
 ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_name) {
         while (ll != NULL) {
                 char * class_name_node = ll->name;
@@ -190,14 +173,18 @@ ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_na
 }
 
 /**
- * Allocation memory
- * @return
+ * @brief       Allocate memory used by a button widget
+ * @return      The corresponding widget
  */
 ei_widget_t* button_alloc_func() {
         ei_button_t * m_button = calloc(1, sizeof(ei_button_t));
         return (ei_widget_t *) m_button;
 }
 
+/**
+ * @brief       Allocate memory used by a top-level widget
+ * @return      The corresponding widget
+ */
 ei_widget_t* top_level_alloc_func() {
         ei_top_level_t *m_toplevel = calloc(1, sizeof(ei_top_level_t));
         m_toplevel->resize_rect = calloc(1, sizeof(ei_top_level_t));
@@ -209,6 +196,10 @@ ei_widget_t* top_level_alloc_func() {
         return (ei_widget_t *) m_toplevel;
 }
 
+/**
+ * @brief       Allocate memory used by a frame widget
+ * @return      The corresponding widget
+ */
 ei_widget_t* frame_alloc_func() {
         ei_frame_t * m_frame = calloc(1, sizeof(ei_frame_t));
         return (ei_widget_t *) m_frame;
@@ -451,6 +442,11 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
         }
 }
 
+/**
+ * \brief	A function that sets the default values for a widget button.
+ *
+ * @param	widget		A pointer to the widget instance to intialize.
+ */
 void set_default_button (ei_widget_t *widget) {
         // Cast into button widget to configure it
         ei_button_t *button_widget = (ei_button_t*) widget;
@@ -465,6 +461,11 @@ void set_default_button (ei_widget_t *widget) {
         button_widget->text_anchor = default_text_button_anchor;
 }
 
+/**
+ * \brief	A function that sets the default values for a widget frame.
+ *
+ * @param	widget		A pointer to the widget instance to intialize.
+ */
 void set_default_frame (ei_widget_t *widget) {
         // Cast into frame widget to configure it
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
@@ -478,6 +479,11 @@ void set_default_frame (ei_widget_t *widget) {
         frame_widget->text_anchor = default_text_frame_anchor;
 }
 
+/**
+ * \brief	A function that sets the default values for a widget top-level.
+ *
+ * @param	widget		A pointer to the widget instance to intialize.
+ */
 void set_default_top_level (ei_widget_t *widget) {
         // Cast into top_level widget to configure it
         ei_top_level_t *top_level_widget = (ei_top_level_t*) widget;
@@ -490,6 +496,15 @@ void set_default_top_level (ei_widget_t *widget) {
         top_level_widget->min_size = &default_top_level_min_size;
 }
 
+/**
+ * \brief 	This function is called to notify the widget that its geometry has been modified
+ *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
+ *		Calculate or recalculated the content_rect attribute.
+ *
+ * @param	widget		The widget instance to notify of a geometry change.
+ * @param	rect		The new rectangular screen location of the widget
+ *				(i.e. = widget->screen_location).
+ */
 void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         widget->screen_location = rect;
         ei_button_t *button = (ei_button_t *) widget;
@@ -508,6 +523,15 @@ void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         button->widget.content_rect = content_rect;
 }
 
+/**
+ * \brief 	This function is called to notify the widget that its geometry has been modified
+ *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
+ *		Calculate or recalculated the content_rect attribute.
+ *
+ * @param	widget		The widget instance to notify of a geometry change.
+ * @param	rect		The new rectangular screen location of the widget
+ *				(i.e. = widget->screen_location).
+ */
 void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         widget->screen_location = rect;
 
@@ -527,6 +551,16 @@ void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         frame->widget.content_rect = content_rect;
 }
 
+/**
+ * \brief 	This function is called to notify the widget that its geometry has been modified
+ *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
+ *		Calculate or recalculated the content_rect attribute.
+ *		Configure or reconfigure the close button.
+ *
+ * @param	widget		The widget instance to notify of a geometry change.
+ * @param	rect		The new rectangular screen location of the widget
+ *				(i.e. = widget->screen_location).
+ */
 void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         widget->screen_location = rect;
 
