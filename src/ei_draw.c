@@ -15,6 +15,20 @@ static int is_in_clipper(int point_x, int point_y, uint32_t x_max, uint32_t y_ma
         return (point_x <= x_max) && (point_y <= y_max) && (point_x >= clipper->top_left.x) && (point_y >= clipper->top_left.y);
 }
 
+static void cliper_content_rect(ei_widget_t *widget, ei_rect_t *clipper) {
+        if (clipper) {
+                if (widget->content_rect->size.width > clipper->size.width) {
+                        //widget->screen_location.size.width = widget->content_rect->size.width - clipper->size.width;
+                        widget->content_rect->size.width = clipper->size.width;
+                }
+
+                if (widget->content_rect->size.height > clipper->size.height) {
+                        //widget->screen_location.size.height = widget->content_rect->size.height - clipper->size.height;
+                        widget->content_rect->size.height = clipper->size.height;
+                }
+        }
+}
+
 /**
  * \brief	Converts the red, green, blue and alpha components of a color into a 32 bits integer
  * 		than can be written directly in the memory returned by \ref hw_surface_get_buffer.
@@ -100,9 +114,9 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                 if (dx != 0) {
                                         if (dx > 0) {
                                                 if (dy != 0) {
-                                                        // 1er cadran
+                                                        // 1st frame
                                                         if (dy > 0) {
-                                                                // Vecteur diagonal/oblique 1er octant
+                                                                // Diagonal/oblique 1st octant vector
                                                                 if (dx >= dy) {
                                                                         e = dx;
                                                                         dx = e * 2;
@@ -120,12 +134,12 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                                         e += dx;
                                                                                 }
                                                                         } while (p1.x != p2.x);
-                                                                // Vecteur proche de la verticale 2nd octant
+                                                                // Vector close to vertical 2nd octant
                                                                 } else {
                                                                         e = dy;
                                                                         dy = e * 2;
                                                                         dx *= 2;
-                                                                        // On trace la ligne
+                                                                        // Draw the line
                                                                         do {
                                                                                 if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
@@ -138,14 +152,14 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                                 }
                                                                         } while (p1.y != p2.y);
                                                                 }
-                                                        // Vecteur oblique 4me quadrant
+                                                        // Oblique 4th frame vector
                                                         } else {
-                                                                // Vecteur oblique/diagonal 8me octant
+                                                                // Diagonal/oblique 8th octant vector
                                                                 if (dx >= -dy) {
                                                                         e = dx;
                                                                         dx = e * 2;
                                                                         dy *= 2;
-                                                                        // On trace la ligne
+                                                                        // Draw the line
                                                                         do {
                                                                                 if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
@@ -157,12 +171,12 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                                         e += dx;
                                                                                 }
                                                                         } while (p1.x != p2.x);
-                                                                // Vecteur proche verticale 7me octant
+                                                                // Vector close to vertical 7th octant
                                                                 } else {
                                                                         e = dy;
                                                                         dy = e * 2;
                                                                         dx *= 2;
-                                                                        // On trace la ligne
+                                                                        // Draw the line
                                                                         do {
                                                                                 if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
@@ -176,9 +190,9 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                         } while (p1.y != p2.y);
                                                                 }
                                                         }
-                                                // Vecteur horizontal droite
+                                                // Right horizontal vector
                                                 } else {
-                                                        // On trace la ligne
+                                                        // Draw the line
                                                         do {
                                                                 if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
@@ -186,18 +200,18 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                 ++p1.x;
                                                         } while (p1.x != p2.x);
                                                 }
-                                        // Cas dx < 0
+                                        // Case dx < 0
                                         } else {
-                                                // Cas dy != 0
+                                                // Case dy != 0
                                                 if (dy != 0) {
-                                                        // On traite ici le 2nd cadran
+                                                        // We write in the 2nd cadran
                                                         if (dy > 0) {
 
                                                                 if (-dx >= dy) {
                                                                         e = dx;
                                                                         dx *= 2;
                                                                         dy *= 2;
-                                                                        // On trace la ligne
+                                                                        // Draw the line
                                                                         do {
                                                                                 if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
@@ -209,7 +223,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                                 }
                                                                         } while (p1.x != p2.x);
                                                                 }
-                                                                // On trace dans le 3eme octant
+                                                                // We write in the 3rd octant
                                                                 else {
                                                                         e = dy;
                                                                         dy *= 2;
@@ -271,9 +285,9 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                 } else {
                                         dy = p2.y - p1.y;
                                         if (dy != 0) {
-                                                // Vecteur vertical croissant
+                                                // Increasing vertical vector
                                                 if (dy > 0) {
-                                                        // On trace la ligne
+                                                        // Draw the line
                                                         do {
                                                                 if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
@@ -281,7 +295,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                                 ++p1.y;
                                                         } while (p1.y != p2.y);
                                                 } else {
-                                                        // On trace la ligne
+                                                        // Draw the line
                                                         do {
                                                                 if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                                                         first_pixel[p1.x + p1.y * size.width] = color_int;
@@ -291,12 +305,12 @@ void			ei_draw_polyline	(ei_surface_t			surface,
                                                 }
                                         }
                                 }
-                                // On trace le pixel final
+                                // Draw the final pixel
                                 if (!clipper || is_in_clipper(p1.x, p1.y, x_max, y_max, clipper)){
                                         first_pixel[p1.x + p1.y * size.width] = color_int;
                                 }
 
-                                // On passe au point suivant de la liste
+                                // Go to the next point of the list
                                 first_point = first_point->next;
                         }
                 }
@@ -659,14 +673,13 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                                                  ei_surface_t		pick_surface,
                                                  ei_rect_t*		clipper) {
         ei_button_t *button = (ei_button_t*) widget;
+        cliper_content_rect(widget, clipper);
 
         // Get size and place parameters
         int width_button = button->widget.screen_location.size.width;
         int height_button = button->widget.screen_location.size.height;
         int place_x = button->widget.screen_location.top_left.x;
         int place_y = button->widget.screen_location.top_left.y;
-//        printf("x : %d \n", button->widget.screen_location.top_left.x);
-//        printf("y : %d \n", button->widget.screen_location.top_left.y);
 
         // Set size and place for the rectangle used to model the center part of the button (all without border)
         ei_size_t size_middle_button = {width_button - 2*(button->border_width),
@@ -813,16 +826,17 @@ void ei_draw_frame (ei_widget_t*        widget,
                     ei_surface_t	pick_surface,
                     ei_rect_t*		clipper) {
         ei_frame_t *frame = (ei_frame_t*) widget;
+        cliper_content_rect(widget, clipper);
 
         // Get size and place parameters
-        int width_button = frame->widget.screen_location.size.width;
-        int height_button = frame->widget.screen_location.size.height;
+        int width_frame = frame->widget.screen_location.size.width;
+        int height_frame = frame->widget.screen_location.size.height;
         int place_x = frame->widget.screen_location.top_left.x;
         int place_y = frame->widget.screen_location.top_left.y;
 
         // Set size and place for the rectangle used to model the center part of the frame (all without border)
-        ei_size_t size_middle_frame= {width_button - 2*(frame->border_width),
-                                        height_button - 2*(frame->border_width)};
+        ei_size_t size_middle_frame= {width_frame - 2*(frame->border_width),
+                                        height_frame - 2*(frame->border_width)};
         ei_point_t place_middle_frame = {place_x + (frame->border_width), place_y + (frame->border_width)};
         ei_rect_t middle_rect = ei_rect(place_middle_frame, size_middle_frame);
 
@@ -830,7 +844,7 @@ void ei_draw_frame (ei_widget_t*        widget,
                 // In this case, it needs to create a border with relief
 
                 // Rectangle used for border
-                ei_rect_t border_rect = ei_rect(ei_point(place_x, place_y), ei_size(width_button, height_button));
+                ei_rect_t border_rect = ei_rect(ei_point(place_x, place_y), ei_size(width_frame, height_frame));
 
                 ei_color_t color_top;
                 ei_color_t color_bottom;
@@ -950,6 +964,9 @@ void ei_draw_top_level (ei_widget_t*            widget,
                         ei_surface_t		pick_surface,
                         ei_rect_t*		clipper) {
         ei_top_level_t *top_level = (ei_top_level_t *) widget;
+
+        cliper_content_rect(widget, clipper);
+
         ei_color_t border_color = {0x00, 0x00, 0x00, 0xff};
 
         // Configure text place

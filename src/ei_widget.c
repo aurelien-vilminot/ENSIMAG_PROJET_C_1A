@@ -256,6 +256,16 @@ void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         // Allocate memory for content_rect
         button->widget.content_rect->size = size_content_rect;
         button->widget.content_rect->top_left = place_content_rect;
+
+         // Set top-left position to 0 if it is negative and reduce width in this case
+         if (widget->screen_location.top_left.x < 0) {
+                 widget->screen_location.size.width += rect.top_left.x;
+                 widget->screen_location.top_left.x = 0;
+         }
+         if (rect.top_left.y < 0) {
+                 widget->screen_location.size.height += rect.top_left.y;
+                 widget->screen_location.top_left.y = 0;
+         }
 }
 
 /**
@@ -282,6 +292,16 @@ void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         // Specify content_rect
         frame->widget.content_rect->size = size_content_rect;
         frame->widget.content_rect->top_left = place_content_rect;
+
+        // Set top-left position to 0 if it is negative and reduce width in this case
+        if (widget->screen_location.top_left.x < 0) {
+                widget->screen_location.size.width += rect.top_left.x;
+                widget->screen_location.top_left.x = 0;
+        }
+        if (rect.top_left.y < 0) {
+                widget->screen_location.size.height += rect.top_left.y;
+                widget->screen_location.top_left.y = 0;
+        }
 }
 
 /**
