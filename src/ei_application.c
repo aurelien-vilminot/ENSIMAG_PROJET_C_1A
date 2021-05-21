@@ -162,6 +162,7 @@ void ei_app_run(void){
 
         }
         free(g_next_event);
+        free(g_previous_event);
 }
 
 /**

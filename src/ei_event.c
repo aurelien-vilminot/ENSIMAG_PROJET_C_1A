@@ -262,13 +262,16 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                 children_resizing(widget);
                         } else if (toplevel_widget->current_event == event_move){
                                 // New location of coord x and y
+                                printf("%u\n", g_previous_event->param.mouse.where.x);
                                 int new_loc_x = toplevel_widget->widget.screen_location.top_left.x + event->param.mouse.where.x - g_previous_event->param.mouse.where.x;
                                 int new_loc_y = toplevel_widget->widget.screen_location.top_left.y + event->param.mouse.where.y - g_previous_event->param.mouse.where.y;
                                 ei_point_t new_loc = {new_loc_x, new_loc_y};
                                 // If the mouse is still in the parent limit, so the top level is moved to the new coord
-                                if (toplevel_widget->widget.parent){
-                                        if (is_rectangle_in_rectangle(toplevel_widget->widget.parent->screen_location, new_loc, &toplevel_widget->widget.screen_location.size)){
-                                                ei_place(widget, NULL, &new_loc_x, &new_loc_y, NULL, NULL, NULL, NULL, NULL, NULL);
+                                if (strcmp(toplevel_widget->widget.parent->wclass->name, "toplevel") == 0){
+                                        if (is_rectangle_in_rectangle(*toplevel_widget->widget.parent->content_rect, new_loc, &toplevel_widget->widget.screen_location.size)){
+                                                new_loc_x -= toplevel_widget->widget.parent->content_rect->top_left.x;
+                                                new_loc_y -= toplevel_widget->widget.parent->content_rect->top_left.y;
+                                                ei_place(&toplevel_widget->widget, NULL, &new_loc_x, &new_loc_y, NULL, NULL, NULL, NULL, NULL, NULL);
                                                 children_resizing(widget);
                                         }
                                 // If there isn't parent, so verifies that the top level is still in the root frame
