@@ -84,7 +84,7 @@ int main(int argc, char** argv)
         float		frame_rel_y	        = 0.0;
         float		frame_rel_width	        = 1.0;
         float		frame_rel_height        = 0.8;
-        char*		frame_title		= "(re)Hello Worldeeee";
+        char*		frame_title		= "Troucheda & Vilminoa & Arvyp";
         ei_anchor_t     frame_text_anchor       = ei_anc_west;
         ei_relief_t     frame_relief            = ei_relief_raised;
         ei_color_t	frame_color		= {0xA0,0xAF,0xA0, 0xff};

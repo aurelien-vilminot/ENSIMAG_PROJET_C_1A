@@ -7,9 +7,10 @@
 #include "ei_widgetclass.h"
 #include "application.h"
 
-/**
+/*
  * Default values of widget parameters
  */
+
 // BUTTON
 static ei_size_t default_button_size = {50, 30};
 static ei_color_t default_button_color = {0x7C, 0x87, 0x8E, 0xff};
@@ -28,14 +29,13 @@ static int default_top_level_border_width = 0;
 static ei_bool_t default_top_level_closable = EI_TRUE;
 static ei_size_t default_top_level_min_size = {150, 150};
 static uint32_t default_top_level_rect_resize = 10;
-
 typedef enum {
         event_none      = 0,
         event_resize,
         event_move
 } current_event;
 
-/**
+/*
  * Structures which used to represent specific widget with privates fields
  * All of those must contained an attribute ei_widget_t in first.
  */
@@ -84,16 +84,9 @@ typedef struct ei_frame_t {
         ei_anchor_t		img_anchor;
 } ei_frame_t;
 
-/**
- * @brief       Return widget class wich correspond to class name give in parameter.
- *
- * @param       ll              The linked list which contained all classes (button, top-level and frame).
- * @param       class_name      The class name.
- *
- * @return      The class corresponding of class_name if exists. If not, return NULL.
+/*
+ * Allocation functions
  */
- ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_name);
-
 
 /**
  * @brief       Allocate memory used by a button widget.
@@ -112,6 +105,10 @@ ei_widget_t* top_level_alloc_func();
  * @return      The corresponding widget.
  */
 ei_widget_t* frame_alloc_func();
+
+/*
+ * Release functions
+ */
 
 /**
  * @brief       Release memory for pointers attributes which were allocated in alloc function.
@@ -133,6 +130,10 @@ void top_level_release(ei_widget_t* widget);
  * @param       widget      The widget which resources are to be freed.
  */
 void frame_release(ei_widget_t* widget);
+
+/*
+ * Draw functions
+ */
 
 /**
  * \brief	A function that draws widgets of button class.
@@ -179,6 +180,10 @@ void ei_draw_top_level (ei_widget_t* widget,
                     ei_surface_t		pick_surface,
                     ei_rect_t*		clipper);
 
+/*
+ * Default set functions
+ */
+
 /**
  * \brief	A function that sets the default values for a widget button.
  *
@@ -199,6 +204,10 @@ void set_default_frame (ei_widget_t *widget);
  * @param	widget		A pointer to the widget instance to intialize.
  */
 void set_default_top_level (ei_widget_t *widget);
+
+/*
+ * Geomnotify functions
+ */
 
 /**
  * \brief 	This function is called to notify the widget that its geometry has been modified
@@ -234,6 +243,10 @@ void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
  */
 void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect);
 
+/*
+ * Intermediate functions
+ */
+
 /**
  * @brief       Give coordinates of top-left point where a text must be display depending on the anchor
  *
@@ -255,5 +268,23 @@ ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_
  * @return      A color corresponding to the 32 bits give as argument
  */
 ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert);
+
+/**
+ * @brief       Update child field of parent. It is a course of linked list.
+ *
+ * @param       widget      The widget child
+ * @param       parent      The child's parent which the children field needs to be updated
+ */
+static uint32_t insert_child(ei_widget_t *widget, ei_widget_t *parent);
+
+/**
+ * @brief       Return widget class wich correspond to class name give in parameter.
+ *
+ * @param       ll              The linked list which contained all classes (button, top-level and frame).
+ * @param       class_name      The class name.
+ *
+ * @return      The class corresponding of class_name if exists. If not, return NULL.
+ */
+ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_name);
 
 #endif //PROJETC_IG_WIDGET_MANAGER_H

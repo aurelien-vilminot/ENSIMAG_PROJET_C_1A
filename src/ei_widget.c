@@ -1,29 +1,7 @@
 #include <ei_utils.h>
+
 #include "ei_widget.h"
-
 #include "widget_manager.h"
-
-/**
- * @brief       Update child field of parent. It is a course of linked list.
- *
- * @param       widget      The widget child
- * @param       parent      The child's parent which the children field needs to be updated
- */
-static uint32_t insert_child(ei_widget_t *widget, ei_widget_t *parent) {
-
-        uint32_t last_id;
-
-        if (parent->children_head) {
-                last_id = parent->children_tail->pick_id;
-                parent->children_tail->next_sibling = widget;
-        } else {
-                last_id = parent->pick_id;
-                parent->children_head = widget;
-        }
-        parent->children_tail = widget;
-
-        return last_id;
-}
 
 /**
  * @brief       All is in the title
@@ -55,105 +33,29 @@ ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert){
 }
 
 /**
- * @brief	Creates a new instance of a widget of some particular class, as a descendant of
- *		an existing widget.
+ * @brief       Update child field of parent. It is a course of linked list.
  *
- *		The widget is not displayed on screen until it is managed by a geometry manager.
- *		When no more needed, the widget must be released by calling \ref ei_widget_destroy.
- *
- * @param	class_name	The name of the class of the widget that is to be created.
- * @param	parent 		A pointer to the parent widget. Can not be NULL.
- * @param	user_data	A pointer provided by the programmer for private use. May be NULL.
- * @param	destructor	A pointer to a function to call before destroying a widget structure. May be NULL.
- *
- * @return			The newly created widget, or NULL if there was an error.
+ * @param       widget      The widget child
+ * @param       parent      The child's parent which the children field needs to be updated
  */
-ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
-                                                             ei_widget_t*		parent,
-                                                             void*			user_data,
-                                                             ei_widget_destructor_t destructor) {
-        // ll_classes is a linked list of ei_widgetclass_t elements.
-        ei_widgetclass_t *ll_classes = get_linked_list_classes();
-        ei_widgetclass_t *class = get_class(ll_classes, class_name);
+static uint32_t insert_child(ei_widget_t *widget, ei_widget_t *parent) {
 
-        if (class){
-                // Initialisation by functions of ei_widgetclass_t
-                ei_widget_t* widget_to_return = class->allocfunc();
-                class->setdefaultsfunc(widget_to_return);
+        uint32_t last_id;
 
-                // Initialisation of ei_widget_t attributs.
-                // We must to survey the value of the following arguments.
-                widget_to_return->wclass = class;
-                widget_to_return->parent = parent;
-
-                // Update parent's child, only if parent exists
-                if (parent) {
-                        uint32_t last_id = insert_child(widget_to_return, parent);
-                        widget_to_return->pick_id = last_id + 1;
-                        widget_to_return->pick_color = inverse_map_rgba(offscreen, widget_to_return->pick_id);
-                }
-                widget_to_return->user_data = user_data;
-                widget_to_return->destructor = destructor;
-
-                // We return a pointer on the new ei_widget_t
-                return widget_to_return;
+        if (parent->children_head) {
+                last_id = parent->children_tail->pick_id;
+                parent->children_tail->next_sibling = widget;
+        } else {
+                last_id = parent->pick_id;
+                parent->children_head = widget;
         }
+        parent->children_tail = widget;
 
-        // If class is NULL so there isn't widget of class class_name !
-        return NULL;
+        return last_id;
 }
 
 /**
- * @brief	Destroys a widget. Calls its destructor if it was provided.
- * 		Removes the widget from the screen if it is currently managed by the placer.
- * 		Destroys all its descendants.
- *
- * @param	widget		The widget that is to be destroyed.
- */
-void			ei_widget_destroy		(ei_widget_t*		widget) {
-        ei_widget_t * widget_to_destroy = widget;
-
-        // Depth course of each widgets
-        do {
-                if (widget_to_destroy->children_head) {
-
-                        widget_to_destroy = widget_to_destroy->children_head;
-                        // Call destructor if it provided by the user
-                        if (widget_to_destroy->destructor) {
-                                widget_to_destroy->destructor(widget_to_destroy);
-                        }
-                        widget_to_destroy->wclass->releasefunc(widget_to_destroy);
-                        free(widget_to_destroy->pick_color);
-                        free(widget_to_destroy);
-                } else {
-                        while (widget_to_destroy != widget && widget_to_destroy->next_sibling == NULL) {
-                                widget_to_destroy = widget_to_destroy->parent;
-                        }
-
-                        if (widget_to_destroy->next_sibling) {
-                                widget_to_destroy = widget_to_destroy->next_sibling;
-                                // Call destructor if it provided by the user
-                                if (widget_to_destroy->destructor) {
-                                        widget_to_destroy->destructor(widget_to_destroy);
-                                }
-                                widget_to_destroy->wclass->releasefunc(widget_to_destroy);
-                                free(widget_to_destroy->pick_color);
-                                free(widget_to_destroy);
-                        }
-                }
-        } while (widget_to_destroy != widget);
-
-        ei_placer_forget(widget_to_destroy);
-
-        if (widget_to_destroy->destructor) {
-                widget_to_destroy->destructor(widget_to_destroy);
-        }
-        widget_to_destroy->wclass->releasefunc(widget_to_destroy);
-        free(widget_to_destroy->pick_color);
-}
-
-/**
- * @brief       Return widget class wich correspond to class name give in parameter
+ * @brief       Return widget class which correspond to class name give in parameter
  *
  * @param       ll              The linked list which contained all classes (button, top-level and frame)
  * @param       class_name      The class name
@@ -171,6 +73,10 @@ ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_na
         }
         return ll;
 }
+
+/*
+ * Allocation functions
+ */
 
 /**
  * @brief       Allocate memory used by a button widget
@@ -206,10 +112,10 @@ ei_widget_t* frame_alloc_func() {
         return (ei_widget_t *) m_frame;
 }
 
-/**
- * Release memory
- * @return
+/*
+ * Release functions
  */
+
 void button_release(struct ei_widget_t*	widget) {
         // Cast into button widget to delete its ressources
         ei_button_t * button_widget = (ei_button_t*) widget;
@@ -236,6 +142,200 @@ void frame_release(struct ei_widget_t* widget) {
         if (frame_widget->text) free(frame_widget->text);
         if (frame_widget->img_rect) free(frame_widget->img_rect);
 }
+
+/*
+ * Default set functions
+ */
+
+/**
+ * \brief	A function that sets the default values for a widget button.
+ *
+ * @param	widget		A pointer to the widget instance to intialize.
+ */
+void set_default_button (ei_widget_t *widget) {
+        // Cast into button widget to configure it
+        ei_button_t *button_widget = (ei_button_t*) widget;
+
+        // Set default params initialized in header file
+        button_widget->widget.requested_size = default_button_size;
+        button_widget->color = (ei_color_t) default_button_color;
+        button_widget->border_width = (int)k_default_button_border_width;
+        button_widget->corner_radius = (int)k_default_button_corner_radius;
+        button_widget->text_color = (ei_color_t) ei_font_default_color;
+        button_widget->text_font = ei_default_font;
+        button_widget->text_anchor = default_text_button_anchor;
+
+        // Alloc memory for specific widget attributes
+        button_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
+}
+
+/**
+ * \brief	A function that sets the default values for a widget frame.
+ *
+ * @param	widget		A pointer to the widget instance to intialize.
+ */
+void set_default_frame (ei_widget_t *widget) {
+        // Cast into frame widget to configure it
+        ei_frame_t * frame_widget = (ei_frame_t*) widget;
+
+        // Set default params initialized in header file
+        frame_widget->widget.requested_size = default_frame_size;
+        frame_widget->color = default_frame_color;
+        frame_widget->border_width = default_frame_border_width;
+        frame_widget->text_color = (ei_color_t) ei_font_default_color;
+        frame_widget->text_font = ei_default_font;
+        frame_widget->text_anchor = default_text_frame_anchor;
+
+        // Alloc memory for specific widget attributes
+        frame_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
+}
+
+/**
+ * \brief	A function that sets the default values for a widget top-level.
+ *
+ * @param	widget		A pointer to the widget instance to intialize.
+ */
+void set_default_top_level (ei_widget_t *widget) {
+        // Cast into top_level widget to configure it
+        ei_top_level_t *top_level_widget = (ei_top_level_t*) widget;
+
+        // Set default params initialized in header file
+        top_level_widget->widget.requested_size = default_top_level_size;
+        top_level_widget->color = default_top_level_color;
+        top_level_widget->border_width = default_top_level_border_width;
+        top_level_widget->closable = default_top_level_closable;
+        top_level_widget->min_size = &default_top_level_min_size;
+        top_level_widget->current_event = event_none;
+
+        // Alloc memory for specific widget attributes
+        top_level_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
+}
+
+/*
+ * Geomnotify functions
+ */
+
+/**
+ * \brief 	This function is called to notify the widget that its geometry has been modified
+ *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
+ *		Calculate or recalculated the content_rect attribute.
+ *
+ * @param	widget		The widget instance to notify of a geometry change.
+ * @param	rect		The new rectangular screen location of the widget
+ *				(i.e. = widget->screen_location).
+ */
+void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
+        widget->screen_location = rect;
+        ei_button_t *button = (ei_button_t *) widget;
+
+        int32_t borders_to_remove = button->border_width * 2;
+
+        ei_size_t size_content_rect = {widget->screen_location.size.width - borders_to_remove,
+                                       widget->screen_location.size.height -  borders_to_remove};
+
+        ei_point_t place_content_rect = {widget->screen_location.top_left.x + button->border_width, widget->screen_location.top_left.y + button->border_width};
+
+        // Allocate memory for content_rect
+        button->widget.content_rect->size = size_content_rect;
+        button->widget.content_rect->top_left = place_content_rect;
+}
+
+/**
+ * \brief 	This function is called to notify the widget that its geometry has been modified
+ *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
+ *		Calculate or recalculated the content_rect attribute.
+ *
+ * @param	widget		The widget instance to notify of a geometry change.
+ * @param	rect		The new rectangular screen location of the widget
+ *				(i.e. = widget->screen_location).
+ */
+void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
+        widget->screen_location = rect;
+
+        ei_frame_t *frame = (ei_frame_t *) widget;
+
+        int32_t borders_to_remove = frame->border_width * 2;
+
+        ei_size_t size_content_rect = {widget->screen_location.size.width - borders_to_remove,
+                                       widget->screen_location.size.height -  borders_to_remove};
+
+        ei_point_t place_content_rect = {widget->screen_location.top_left.x + frame->border_width, widget->screen_location.top_left.y + frame->border_width};
+
+        // Specify content_rect
+        frame->widget.content_rect->size = size_content_rect;
+        frame->widget.content_rect->top_left = place_content_rect;
+}
+
+/**
+ * \brief 	This function is called to notify the widget that its geometry has been modified
+ *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
+ *		Calculate or recalculated the content_rect attribute.
+ *		Configure or reconfigure the close button.
+ *
+ * @param	widget		The widget instance to notify of a geometry change.
+ * @param	rect		The new rectangular screen location of the widget
+ *				(i.e. = widget->screen_location).
+ */
+void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
+        widget->screen_location = rect;
+
+        ei_top_level_t *top_level_widget = (ei_top_level_t *) widget;
+
+        // Configure text place
+        ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
+        hw_text_compute_size(top_level_widget->title, ei_default_font, &(text_size->width), &(text_size->height));
+
+        // Get size and place parameters
+        int width_top_level = top_level_widget->widget.screen_location.size.width;
+        int height_top_level = top_level_widget->widget.screen_location.size.height;
+        int place_x = top_level_widget->widget.screen_location.top_left.x;
+        int place_y = top_level_widget->widget.screen_location.top_left.y;
+
+        // Set size and place for the rectangle used to model the content part of the top level (all without border)
+        ei_size_t size_content_rect = {width_top_level - 2*(top_level_widget->border_width),
+                                       height_top_level - (top_level_widget->border_width + text_size->height)};
+        ei_point_t place_content_rect = {place_x + (top_level_widget->border_width), place_y + (text_size->height)};
+
+        // Specify content_rect
+        top_level_widget->widget.content_rect->size = size_content_rect;
+        top_level_widget->widget.content_rect->top_left = place_content_rect;
+
+        // Store top-bar
+        top_level_widget->top_bar->top_left = top_level_widget->widget.screen_location.top_left;
+        top_level_widget->top_bar->size = ei_size(top_level_widget->widget.screen_location.size.width, top_level_widget->widget.screen_location.size.height - top_level_widget->widget.content_rect->size.height);
+
+        // Close button configuration
+        int close_button_x = place_x + (top_level_widget->top_bar->size.height / 4);
+        int close_button_y = place_y + (top_level_widget->top_bar->size.height / 2);
+
+        int close_button_width_height = top_level_widget->top_bar->size.height / 2;
+        ei_size_t close_button_size = {close_button_width_height, close_button_width_height};
+
+        int close_button_corner_radius = (top_level_widget->top_bar->size.height/ 2) / 2;
+        ei_color_t close_button_color = {0xF9, 0x38, 0x22, 0xff};
+        ei_relief_t close_button_relief = ei_relief_raised;
+
+        ei_button_configure((ei_widget_t*) top_level_widget->close_button, &close_button_size, &close_button_color, 0, &close_button_corner_radius, &close_button_relief, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
+        top_level_widget->close_button->widget.screen_location.top_left.x = close_button_x;
+        top_level_widget->close_button->widget.screen_location.top_left.y = close_button_y - (close_button_width_height/ 2);
+        top_level_widget->close_button->widget.screen_location.size = close_button_size;
+        top_level_widget->close_button->widget.content_rect = &top_level_widget->close_button->widget.screen_location;
+        top_level_widget->close_button->relief = close_button_relief;
+
+        // Free memory
+        free(text_size);
+
+        // Resizable rect
+        top_level_widget->resize_rect->top_left.x = (place_x + width_top_level) - default_top_level_rect_resize;
+        top_level_widget->resize_rect->top_left.y = (place_y + height_top_level) - default_top_level_rect_resize;
+        top_level_widget->resize_rect->size.width = default_top_level_rect_resize;
+        top_level_widget->resize_rect->size.height = default_top_level_rect_resize;
+}
+
+/*
+ * Configure functions
+ */
 
 /**
  * @brief	Configures the attributes of widgets of the class "frame".
@@ -445,185 +545,101 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
 }
 
 /**
- * \brief	A function that sets the default values for a widget button.
+ * @brief	Creates a new instance of a widget of some particular class, as a descendant of
+ *		an existing widget.
  *
- * @param	widget		A pointer to the widget instance to intialize.
+ *		The widget is not displayed on screen until it is managed by a geometry manager.
+ *		When no more needed, the widget must be released by calling \ref ei_widget_destroy.
+ *
+ * @param	class_name	The name of the class of the widget that is to be created.
+ * @param	parent 		A pointer to the parent widget. Can not be NULL.
+ * @param	user_data	A pointer provided by the programmer for private use. May be NULL.
+ * @param	destructor	A pointer to a function to call before destroying a widget structure. May be NULL.
+ *
+ * @return			The newly created widget, or NULL if there was an error.
  */
-void set_default_button (ei_widget_t *widget) {
-        // Cast into button widget to configure it
-        ei_button_t *button_widget = (ei_button_t*) widget;
+ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
+                                                             ei_widget_t*		parent,
+                                                             void*			user_data,
+                                                             ei_widget_destructor_t destructor) {
+        // ll_classes is a linked list of ei_widgetclass_t elements.
+        ei_widgetclass_t *ll_classes = get_linked_list_classes();
+        ei_widgetclass_t *class = get_class(ll_classes, class_name);
 
-        // Set default params initialized in header file
-        button_widget->widget.requested_size = default_button_size;
-        button_widget->color = (ei_color_t) default_button_color;
-        button_widget->border_width = (int)k_default_button_border_width;
-        button_widget->corner_radius = (int)k_default_button_corner_radius;
-        button_widget->text_color = (ei_color_t) ei_font_default_color;
-        button_widget->text_font = ei_default_font;
-        button_widget->text_anchor = default_text_button_anchor;
+        if (class){
+                // Initialisation by functions of ei_widgetclass_t
+                ei_widget_t* widget_to_return = class->allocfunc();
+                class->setdefaultsfunc(widget_to_return);
 
-        // Alloc memory for specific widget attributes
-        button_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
+                // Initialisation of ei_widget_t elements.
+                // We must to survey the value of the following arguments.
+                widget_to_return->wclass = class;
+                widget_to_return->parent = parent;
+
+                // Update parent's child, only if parent exists
+                if (parent) {
+                        uint32_t last_id = insert_child(widget_to_return, parent);
+                        widget_to_return->pick_id = last_id + 1;
+                        widget_to_return->pick_color = inverse_map_rgba(offscreen, widget_to_return->pick_id);
+                }
+                widget_to_return->user_data = user_data;
+                widget_to_return->destructor = destructor;
+
+                // We return a pointer on the new ei_widget_t
+                return widget_to_return;
+        }
+
+        // If class is NULL so there isn't widget of class class_name !
+        return NULL;
 }
 
 /**
- * \brief	A function that sets the default values for a widget frame.
+ * @brief	Destroys a widget. Calls its destructor if it was provided.
+ * 		Removes the widget from the screen if it is currently managed by the placer.
+ * 		Destroys all its descendants.
  *
- * @param	widget		A pointer to the widget instance to intialize.
+ * @param	widget		The widget that is to be destroyed.
  */
-void set_default_frame (ei_widget_t *widget) {
-        // Cast into frame widget to configure it
-        ei_frame_t * frame_widget = (ei_frame_t*) widget;
+void			ei_widget_destroy		(ei_widget_t*		widget) {
+        ei_widget_t * widget_to_destroy = widget;
 
-        // Set default params initialized in header file
-        frame_widget->widget.requested_size = default_frame_size;
-        frame_widget->color = default_frame_color;
-        frame_widget->border_width = default_frame_border_width;
-        frame_widget->text_color = (ei_color_t) ei_font_default_color;
-        frame_widget->text_font = ei_default_font;
-        frame_widget->text_anchor = default_text_frame_anchor;
+        // Depth course of each widgets
+        do {
+                if (widget_to_destroy->children_head) {
 
-        // Alloc memory for specific widget attributes
-        frame_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
-}
+                        widget_to_destroy = widget_to_destroy->children_head;
+                        // Call destructor if it provided by the user
+                        if (widget_to_destroy->destructor) {
+                                widget_to_destroy->destructor(widget_to_destroy);
+                        }
+                        widget_to_destroy->wclass->releasefunc(widget_to_destroy);
+                        free(widget_to_destroy->pick_color);
+                        free(widget_to_destroy);
+                } else {
+                        while (widget_to_destroy != widget && widget_to_destroy->next_sibling == NULL) {
+                                widget_to_destroy = widget_to_destroy->parent;
+                        }
 
-/**
- * \brief	A function that sets the default values for a widget top-level.
- *
- * @param	widget		A pointer to the widget instance to intialize.
- */
-void set_default_top_level (ei_widget_t *widget) {
-        // Cast into top_level widget to configure it
-        ei_top_level_t *top_level_widget = (ei_top_level_t*) widget;
+                        if (widget_to_destroy->next_sibling) {
+                                widget_to_destroy = widget_to_destroy->next_sibling;
+                                // Call destructor if it provided by the user
+                                if (widget_to_destroy->destructor) {
+                                        widget_to_destroy->destructor(widget_to_destroy);
+                                }
+                                widget_to_destroy->wclass->releasefunc(widget_to_destroy);
+                                free(widget_to_destroy->pick_color);
+                                free(widget_to_destroy);
+                        }
+                }
+        } while (widget_to_destroy != widget);
 
-        // Set default params initialized in header file
-        top_level_widget->widget.requested_size = default_top_level_size;
-        top_level_widget->color = default_top_level_color;
-        top_level_widget->border_width = default_top_level_border_width;
-        top_level_widget->closable = default_top_level_closable;
-        top_level_widget->min_size = &default_top_level_min_size;
-        top_level_widget->current_event = event_none;
+        ei_placer_forget(widget_to_destroy);
 
-        // Alloc memory for specific widget attributes
-        top_level_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
-}
-
-/**
- * \brief 	This function is called to notify the widget that its geometry has been modified
- *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
- *		Calculate or recalculated the content_rect attribute.
- *
- * @param	widget		The widget instance to notify of a geometry change.
- * @param	rect		The new rectangular screen location of the widget
- *				(i.e. = widget->screen_location).
- */
-void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
-        widget->screen_location = rect;
-        ei_button_t *button = (ei_button_t *) widget;
-
-        int32_t borders_to_remove = button->border_width * 2;
-
-        ei_size_t size_content_rect = {widget->screen_location.size.width - borders_to_remove,
-                                       widget->screen_location.size.height -  borders_to_remove};
-
-        ei_point_t place_content_rect = {widget->screen_location.top_left.x + button->border_width, widget->screen_location.top_left.y + button->border_width};
-
-        // Allocate memory for content_rect
-        button->widget.content_rect->size = size_content_rect;
-        button->widget.content_rect->top_left = place_content_rect;
-}
-
-/**
- * \brief 	This function is called to notify the widget that its geometry has been modified
- *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
- *		Calculate or recalculated the content_rect attribute.
- *
- * @param	widget		The widget instance to notify of a geometry change.
- * @param	rect		The new rectangular screen location of the widget
- *				(i.e. = widget->screen_location).
- */
-void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
-        widget->screen_location = rect;
-
-        ei_frame_t *frame = (ei_frame_t *) widget;
-
-        int32_t borders_to_remove = frame->border_width * 2;
-
-        ei_size_t size_content_rect = {widget->screen_location.size.width - borders_to_remove,
-                                       widget->screen_location.size.height -  borders_to_remove};
-
-        ei_point_t place_content_rect = {widget->screen_location.top_left.x + frame->border_width, widget->screen_location.top_left.y + frame->border_width};
-
-        // Specify content_rect
-        frame->widget.content_rect->size = size_content_rect;
-        frame->widget.content_rect->top_left = place_content_rect;
-}
-
-/**
- * \brief 	This function is called to notify the widget that its geometry has been modified
- *		by its geometry manager. Can set to NULL in \ref ei_widgetclass_t.
- *		Calculate or recalculated the content_rect attribute.
- *		Configure or reconfigure the close button.
- *
- * @param	widget		The widget instance to notify of a geometry change.
- * @param	rect		The new rectangular screen location of the widget
- *				(i.e. = widget->screen_location).
- */
-void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
-        widget->screen_location = rect;
-
-        ei_top_level_t *top_level_widget = (ei_top_level_t *) widget;
-
-        // Configure text place
-        ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
-        hw_text_compute_size(top_level_widget->title, ei_default_font, &(text_size->width), &(text_size->height));
-
-        // Get size and place parameters
-        int width_top_level = top_level_widget->widget.screen_location.size.width;
-        int height_top_level = top_level_widget->widget.screen_location.size.height;
-        int place_x = top_level_widget->widget.screen_location.top_left.x;
-        int place_y = top_level_widget->widget.screen_location.top_left.y;
-
-        // Set size and place for the rectangle used to model the content part of the top level (all without border)
-        ei_size_t size_content_rect = {width_top_level - 2*(top_level_widget->border_width),
-                                       height_top_level - (top_level_widget->border_width + text_size->height)};
-        ei_point_t place_content_rect = {place_x + (top_level_widget->border_width), place_y + (text_size->height)};
-
-        // Specify content_rect
-        top_level_widget->widget.content_rect->size = size_content_rect;
-        top_level_widget->widget.content_rect->top_left = place_content_rect;
-
-        // Store top-bar
-        top_level_widget->top_bar->top_left = top_level_widget->widget.screen_location.top_left;
-        top_level_widget->top_bar->size = ei_size(top_level_widget->widget.screen_location.size.width, top_level_widget->widget.screen_location.size.height - top_level_widget->widget.content_rect->size.height);
-
-        // Close button configuration
-        int close_button_x = place_x + (top_level_widget->top_bar->size.height / 4);
-        int close_button_y = place_y + (top_level_widget->top_bar->size.height / 2);
-
-        int close_button_width_height = top_level_widget->top_bar->size.height / 2;
-        ei_size_t close_button_size = {close_button_width_height, close_button_width_height};
-
-        int close_button_corner_radius = (top_level_widget->top_bar->size.height/ 2) / 2;
-        ei_color_t close_button_color = {0xF9, 0x38, 0x22, 0xff};
-        ei_relief_t close_button_relief = ei_relief_raised;
-
-        ei_button_configure((ei_widget_t*) top_level_widget->close_button, &close_button_size, &close_button_color, 0, &close_button_corner_radius, &close_button_relief, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-
-        top_level_widget->close_button->widget.screen_location.top_left.x = close_button_x;
-        top_level_widget->close_button->widget.screen_location.top_left.y = close_button_y - (close_button_width_height/ 2);
-        top_level_widget->close_button->widget.screen_location.size = close_button_size;
-        top_level_widget->close_button->widget.content_rect = &top_level_widget->close_button->widget.screen_location;
-        top_level_widget->close_button->relief = close_button_relief;
-
-        // Free memory
-        free(text_size);
-
-        // Resizable rect
-        top_level_widget->resize_rect->top_left.x = (place_x + width_top_level) - default_top_level_rect_resize;
-        top_level_widget->resize_rect->top_left.y = (place_y + height_top_level) - default_top_level_rect_resize;
-        top_level_widget->resize_rect->size.width = default_top_level_rect_resize;
-        top_level_widget->resize_rect->size.height = default_top_level_rect_resize;
+        if (widget_to_destroy->destructor) {
+                widget_to_destroy->destructor(widget_to_destroy);
+        }
+        widget_to_destroy->wclass->releasefunc(widget_to_destroy);
+        free(widget_to_destroy->pick_color);
 }
 
 /**

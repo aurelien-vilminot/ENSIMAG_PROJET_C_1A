@@ -128,13 +128,13 @@ void ei_app_free(void){
  */
 void ei_app_run(void){
 
-        // Must allocate the memory for use next_event in hw_event_wait_next
-        next_event = malloc(sizeof(ei_event_t));
+        // Must allocate the memory for use g_next_event in hw_event_wait_next
+        g_next_event = malloc(sizeof(ei_event_t));
 
-        // Fill next_event with the next_event
-        hw_event_wait_next(next_event);
+        // Fill g_next_event with the g_next_event
+        hw_event_wait_next(g_next_event);
 
-        while (not_the_end) {
+        while (g_not_the_end) {
 
                 // Draw root
                 root_frame->wclass->drawfunc(root_frame, root_windows, offscreen, NULL);
@@ -163,28 +163,28 @@ void ei_app_run(void){
                 // Update screen and event
 
                 hw_surface_update_rects(root_windows, NULL);
-                hw_event_wait_next(next_event);
+                hw_event_wait_next(g_next_event);
 
                 // Not a panacea to break after change while condition
-                if (next_event->type == ei_ev_keydown){
-                        if (next_event->param.key.key_code == SDLK_ESCAPE){
+                if (g_next_event->type == ei_ev_keydown){
+                        if (g_next_event->param.key.key_code == SDLK_ESCAPE){
                                 ei_app_quit_request();
                                 break;
                         }
                 }
 
                 // This is a situate event
-                if (next_event->type <= 7 && next_event->type >= 5){
-                        situate_event_callback(next_event);
+                if (g_next_event->type <= 7 && g_next_event->type >= 5){
+                        situate_event_callback(g_next_event);
                 }
 
-                if (next_event->type == 3){
-                        keyword_event_callback(next_event);
+                if (g_next_event->type == 3){
+                        keyword_event_callback(g_next_event);
                 }
 
 
         }
-        free(next_event);
+        free(g_next_event);
 }
 
 /**
@@ -212,7 +212,7 @@ ei_surface_t ei_app_root_surface(void){
  *		when pressing the "Escape" key).
  */
 void ei_app_quit_request(void) {
-        not_the_end = EI_FALSE;
+        g_not_the_end = EI_FALSE;
 }
 
 /**
