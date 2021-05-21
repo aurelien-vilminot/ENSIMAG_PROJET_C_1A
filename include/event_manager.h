@@ -20,6 +20,8 @@ ei_event_t *g_next_event;
 static ei_bool_t g_not_the_end = EI_TRUE;
 // Previous position of the mouse. Used to compute movement.
 ei_event_t *g_previous_event;
+// Global default handle function
+ei_default_handle_func_t *g_default_handle_func;
 
 
 /*

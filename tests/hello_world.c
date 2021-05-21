@@ -25,6 +25,7 @@ void button_press(ei_widget_t* widget, ei_event_t* event, void* user_param)
  */
 ei_bool_t process_key(ei_event_t* event)
 {
+        printf("coucou");
 	if (event->type == ei_ev_keydown)
 		if (event->param.key.key_code == SDLK_ESCAPE) {
 			ei_app_quit_request();
@@ -71,7 +72,7 @@ int main(int argc, char** argv)
 	/* Create the application and change the color of the background. */
 	ei_app_create(screen_size, EI_FALSE); 
 	ei_frame_configure(ei_app_root_widget(), NULL, &root_bgcol, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-	//ei_event_set_default_handle_func(process_key);
+	ei_event_set_default_handle_func(process_key);
 
 	/* Create, configure and place a toplevel window on screen. */
 	window = ei_widget_create("toplevel", ei_app_root_widget(), NULL, NULL);

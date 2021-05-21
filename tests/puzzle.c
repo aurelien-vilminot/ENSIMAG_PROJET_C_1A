@@ -122,7 +122,7 @@ void create_puzzle_window(char* image_filename)
 	
 	puzzle_t*		puzzle;
 	tile_t*			tile;
-
+        ei_app_root_surface();
 	image		= hw_image_load(image_filename, ei_app_root_surface());
 	image_size	= hw_surface_get_size(image);
 	n		= ei_size(image_size.width / k_tile_size, image_size.height / k_tile_size);
@@ -214,6 +214,7 @@ int main(int argc, char* argv[])
 	ei_bool_t	fullscreen			= EI_FALSE;
 
 	ei_app_create(root_window_size, fullscreen);
+
 	ei_frame_configure(ei_app_root_widget(), NULL, &root_bgcol, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 	
 	//ei_event_set_default_handle_func(global_handler);

@@ -238,13 +238,13 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                         if (is_rectangle_in_rectangle(toplevel_widget->close_button->widget.screen_location, event->param.mouse.where, NULL)){
                                 ei_widget_destroy(widget);
                                 ei_event_set_active_widget(NULL);
-                                return EI_TRUE;
                         } else {
                                 // Put all elements to NONE or NULL
                                 toplevel_widget->current_event = event_none;
                                 ei_event_set_active_widget(NULL);
                                 g_previous_event = NULL;
                         }
+                        return EI_TRUE;
                 // If the mouse move, move the top level corresponding to
                 } else if (event->type == ei_ev_mouse_move && ei_event_get_active_widget() == widget){
                         // We consider that a widget has always a min_size
@@ -315,7 +315,6 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                 // The current event is saved as previous event for the next computation of new location
                                 *g_previous_event = *event;
                         }
-
                         return EI_TRUE;
                 }
         } else if (event->param.mouse.button == ei_mouse_button_middle){
@@ -323,7 +322,6 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
         } else if (event->param.mouse.button == ei_mouse_button_right){
                 return EI_FALSE;
         }
-
         return EI_FALSE;
 
 }
@@ -341,13 +339,13 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
 ei_bool_t handle_button_function(struct ei_widget_t* widget,
                                  struct ei_event_t* event){
 
-        ei_button_t *button_widget = (ei_button_t *) widget;
         if (event->type == ei_ev_mouse_buttondown){
                 replace_order(widget);
+                return EI_TRUE;
         }
 
+        ei_button_t *button_widget = (ei_button_t *) widget;
         if (event->param.mouse.button == ei_mouse_button_left) {
-
                 // If the left button of the mouse is down
                 if (event->type == ei_ev_mouse_buttondown) {
                         button_widget->relief = ei_relief_sunken;
@@ -379,6 +377,7 @@ ei_bool_t handle_frame_function(struct ei_widget_t* widget,
                                  struct ei_event_t* event){
         if (event->type == ei_ev_mouse_buttondown){
                 replace_order(widget);
+                return EI_TRUE;
         }
         return EI_FALSE;
 }
@@ -406,39 +405,23 @@ ei_widget_t* ei_event_get_active_widget(void){
         return g_active_widget;
 }
 
+/**
+ * Sets the function that must be called when an event has been received but no processed
+ *	by any widget.
+ *
+ * @param	func		The event handling function.
+ */
+void ei_event_set_default_handle_func(ei_default_handle_func_t func){
+        g_default_handle_func = malloc(sizeof(ei_default_handle_func_t));
+        *g_default_handle_func = func;
+}
 
-///**
-// * @brief	A function that is called in response to an event that has not been processed
-// *		by any widget.
-// *
-// * @param	event		The event containing all its parameters (type, etc.)
-// *
-// * @return			EI_TRUE if the function handled the event,
-// *				EI_FALSE otherwise, in this case the event is dismissed.
-// */
-//typedef ei_bool_t		(*ei_default_handle_func_t)(struct ei_event_t* event){
-//
-//}
-//
-//
-//
-///**
-// * Sets the function that must be called when an event has been received but no processed
-// *	by any widget.
-// *
-// * @param	func		The event handling function.
-// */
-//void ei_event_set_default_handle_func(ei_default_handle_func_t func) {
-//
-//}
-//
-//
-///**
-// * Returns the function that must be called when an event has been received but no processed
-// *	by any widget.
-// *
-// * @return			The address of the event handling function.
-// */
-//ei_default_handle_func_t ei_event_get_default_handle_func(void){
-//
-//}
+/**
+ * Returns the function that must be called when an event has been received but no processed
+ *	by any widget.
+ *
+ * @return			The address of the event handling function.
+ */
+ei_default_handle_func_t ei_event_get_default_handle_func(void){
+        return *g_default_handle_func;
+}

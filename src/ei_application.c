@@ -142,27 +142,25 @@ void ei_app_run(void){
                 hw_surface_update_rects(root_windows, NULL);
                 hw_event_wait_next(g_next_event);
 
-                // Not a panacea to break after change while condition
-                if (g_next_event->type == ei_ev_keydown){
-                        if (g_next_event->param.key.key_code == SDLK_ESCAPE){
-                                ei_app_quit_request();
-                                break;
-                        }
-                }
-
-                // This is a situate event
+                // Used to know if the event has been treated or not
+                ei_bool_t has_been_treated = EI_FALSE;
+                // Treats a situate event
                 if (g_next_event->type <= 7 && g_next_event->type >= 5){
-                        situate_event_callback(g_next_event);
+                        has_been_treated = situate_event_callback(g_next_event);
+                }
+//                // Treats a keyboard event
+                else if (g_next_event->type == 3 || g_next_event->type == 4){
+                        has_been_treated = keyword_event_callback(g_next_event);
                 }
 
-                if (g_next_event->type == 3){
-                        keyword_event_callback(g_next_event);
+                // The event hasn't been treated so we call the default handle function
+                if (has_been_treated == EI_FALSE) {
+                        ei_event_get_default_handle_func()(g_next_event);
                 }
-
-
         }
         free(g_next_event);
         free(g_previous_event);
+        free(g_default_handle_func);
 }
 
 /**
