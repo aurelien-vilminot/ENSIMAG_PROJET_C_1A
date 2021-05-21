@@ -154,6 +154,7 @@ void ei_app_run(void){
                                 }
 
                                 if (widget_to_print->next_sibling) {
+                                        parent = widget_to_print->parent;
                                         widget_to_print = widget_to_print->next_sibling;
                                         widget_to_print->wclass->drawfunc(widget_to_print, root_windows, offscreen, parent->content_rect);
                                 }

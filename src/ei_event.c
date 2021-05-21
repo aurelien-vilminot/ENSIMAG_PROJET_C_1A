@@ -46,7 +46,7 @@ void children_resizing(struct ei_widget_t* widget){
                                 widget_to_change = widget_to_change->parent;
                         }
 
-                        if (widget_to_change->next_sibling) {
+                        if (widget_to_change->next_sibling && widget_to_change != widget) {
                                 widget_to_change = widget_to_change->next_sibling;
                                 ei_placer_run(widget_to_change);
                         }

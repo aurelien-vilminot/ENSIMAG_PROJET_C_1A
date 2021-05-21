@@ -275,7 +275,9 @@ ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert);
  * @param       widget      The widget child
  * @param       parent      The child's parent which the children field needs to be updated
  */
-static uint32_t insert_child(ei_widget_t *widget, ei_widget_t *parent);
+static void insert_child(ei_widget_t *widget, ei_widget_t *parent);
+
+static uint32_t last_id(void);
 
 /**
  * @brief       Return widget class wich correspond to class name give in parameter.

@@ -38,20 +38,38 @@ ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert){
  * @param       widget      The widget child
  * @param       parent      The child's parent which the children field needs to be updated
  */
-static uint32_t insert_child(ei_widget_t *widget, ei_widget_t *parent) {
-
-        uint32_t last_id;
+static void insert_child(ei_widget_t *widget, ei_widget_t *parent) {
 
         if (parent->children_head) {
-                last_id = parent->children_tail->pick_id;
                 parent->children_tail->next_sibling = widget;
         } else {
-                last_id = parent->pick_id;
                 parent->children_head = widget;
         }
         parent->children_tail = widget;
 
-        return last_id;
+}
+
+static uint32_t last_id(void) {
+        ei_widget_t * current_widget = root_frame;
+        uint32_t count_id = 0;
+
+        // Depth course of each widgets
+        do {
+                if (current_widget->children_head) {
+                        current_widget = current_widget->children_head;
+                        count_id++;
+                } else {
+                        while (current_widget != root_frame && current_widget->next_sibling == NULL) {
+                                current_widget = current_widget->parent;
+                        }
+
+                        if (current_widget->next_sibling) {
+                                current_widget = current_widget->next_sibling;
+                                count_id++;
+                        }
+                }
+        } while (current_widget != root_frame);
+        return count_id;
 }
 
 /**
@@ -578,8 +596,9 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
 
                 // Update parent's child, only if parent exists
                 if (parent) {
-                        uint32_t last_id = insert_child(widget_to_return, parent);
-                        widget_to_return->pick_id = last_id + 1;
+                        uint32_t last_widget_id = last_id();
+                        insert_child(widget_to_return, parent);
+                        widget_to_return->pick_id = last_widget_id + 1;
                         widget_to_return->pick_color = inverse_map_rgba(offscreen, widget_to_return->pick_id);
                 }
                 widget_to_return->user_data = user_data;
@@ -620,7 +639,7 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
                                 widget_to_destroy = widget_to_destroy->parent;
                         }
 
-                        if (widget_to_destroy->next_sibling) {
+                        if (widget_to_destroy->next_sibling && widget_to_destroy != widget ) {
                                 widget_to_destroy = widget_to_destroy->next_sibling;
                                 // Call destructor if it provided by the user
                                 if (widget_to_destroy->destructor) {

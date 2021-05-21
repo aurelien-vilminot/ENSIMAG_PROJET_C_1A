@@ -665,6 +665,8 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         int height_button = button->widget.screen_location.size.height;
         int place_x = button->widget.screen_location.top_left.x;
         int place_y = button->widget.screen_location.top_left.y;
+//        printf("x : %d \n", button->widget.screen_location.top_left.x);
+//        printf("y : %d \n", button->widget.screen_location.top_left.y);
 
         // Set size and place for the rectangle used to model the center part of the button (all without border)
         ei_size_t size_middle_button = {width_button - 2*(button->border_width),

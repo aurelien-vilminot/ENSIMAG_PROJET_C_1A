@@ -79,6 +79,30 @@ int main(int argc, char** argv)
 				&window_title, &window_closable, &window_resizable, NULL);
 	ei_place(window, NULL, &(window_position.x), &(window_position.y), NULL, NULL, NULL, NULL, NULL, NULL);
 
+	ei_widget_t*	window2;
+	char*		window_title2		= "(re)Hello World";
+	ei_point_t	window_position2	= {300, 100};
+
+	/* Create, configure and place a toplevel window on screen. */
+	window2 = ei_widget_create("toplevel", ei_app_root_widget(), NULL, NULL);
+	ei_toplevel_configure(window2, &window_size, &window_color, &window_border_width,
+				&window_title2, &window_closable, &window_resizable, NULL);
+	ei_place(window2, NULL, &(window_position2.x), &(window_position2.y), NULL, NULL, NULL, NULL, NULL, NULL);
+
+	ei_widget_t*	window3;
+	char*		window_title3		= "((re)re)Hello World";
+        ei_color_t	window3_color		= {0xA0,0xA0,0xAF, 0xff};
+        float		widows3_rel_x		= 0.0;
+        float		widows3_rel_y		= 0.0;
+        float		widows3_rel_width	= 0.5;
+        float		widows3_rel_height	= 0.5;
+
+	/* Create, configure and place a toplevel window on screen. */
+	window3 = ei_widget_create("toplevel", window2, NULL, NULL);
+	ei_toplevel_configure(window3, &window_size, &window3_color, &window_border_width,
+				&window_title3, &window_closable, &window_resizable, NULL);
+	ei_place(window3, NULL, NULL, NULL, NULL, NULL, &widows3_rel_x, &widows3_rel_y, &widows3_rel_width, &widows3_rel_height);
+
         ei_widget_t*	frame;
         float		frame_rel_x	        = 0.0;
         float		frame_rel_y	        = 0.0;
