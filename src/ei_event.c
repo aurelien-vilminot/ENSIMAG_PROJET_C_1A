@@ -341,7 +341,6 @@ ei_bool_t handle_button_function(struct ei_widget_t* widget,
 
         if (event->type == ei_ev_mouse_buttondown){
                 replace_order(widget);
-                return EI_TRUE;
         }
 
         ei_button_t *button_widget = (ei_button_t *) widget;
