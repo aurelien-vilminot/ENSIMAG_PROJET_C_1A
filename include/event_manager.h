@@ -44,7 +44,7 @@ static ei_bool_t is_rectangle_in_rectangle(ei_rect_t rectangle, ei_point_t t_poi
  */
 void children_resizing(struct ei_widget_t* widget);
 
-
+static void replace_order(ei_widget_t* widget);
 /*
  * Callback functions
  */

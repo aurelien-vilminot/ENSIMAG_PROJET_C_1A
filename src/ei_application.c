@@ -1,9 +1,43 @@
 #include <ei_utils.h>
 #include <ei_event.h>
+
 #include "ei_application.h"
 #include "ei_widget.h"
 #include "widget_manager.h"
 #include "event_manager.h"
+
+/**
+ * @brief	Registers a class to the program so that widgets of this class can be created.
+ *		This must be done only once per widged class in the application.
+ *
+ * @param	widgetclass	The structure describing the class.
+ */
+void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass) {
+        char * class_name = ei_widgetclass_stringname(widgetclass->name);
+
+        if (strcmp(class_name, "button") == 0) {
+                button_class->allocfunc = &button_alloc_func;
+                button_class->releasefunc = &button_release;
+                button_class->drawfunc = &ei_draw_button;
+                button_class->setdefaultsfunc = &set_default_button;
+                button_class->next = NULL;
+                button_class->geomnotifyfunc = &button_geomnotifyfunc; button_class->handlefunc = &handle_button_function;
+        } else if (strcmp(class_name, "toplevel") == 0) {
+                top_level_class->allocfunc = &top_level_alloc_func;
+                top_level_class->releasefunc = &top_level_release;
+                top_level_class->drawfunc= &ei_draw_top_level;
+                top_level_class->setdefaultsfunc = &set_default_top_level;
+                top_level_class->next = button_class;
+                top_level_class->geomnotifyfunc = &top_level_geomnotifyfunc; top_level_class->handlefunc = &handle_top_level_function;
+        } else if (strcmp(class_name, "frame") == 0) {
+                frame_class->allocfunc = &frame_alloc_func;
+                frame_class->releasefunc = &frame_release;
+                frame_class->drawfunc = &ei_draw_frame;
+                frame_class->setdefaultsfunc = &set_default_frame;
+                frame_class->next = top_level_class;
+                frame_class->geomnotifyfunc = &frame_geomnotifyfunc; frame_class->handlefunc = &handle_frame_function;
+        }
+}
 
 /**
  * \brief	Creates an application.
@@ -62,64 +96,6 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         // Event management
         root_frame->pick_id = 0;
         root_frame->pick_color = inverse_map_rgba(offscreen, root_frame->pick_id);
-}
-
-/**
- * @brief	Registers a class to the program so that widgets of this class can be created.
- *		This must be done only once per widged class in the application.
- *
- * @param	widgetclass	The structure describing the class.
- */
-void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass) {
-        char * class_name = ei_widgetclass_stringname(widgetclass->name);
-
-        if (strcmp(class_name, "button") == 0) {
-                button_class->allocfunc = &button_alloc_func;
-                button_class->releasefunc = &button_release;
-                button_class->drawfunc = &ei_draw_button;
-                button_class->setdefaultsfunc = &set_default_button;
-                button_class->next = NULL;
-                button_class->geomnotifyfunc = &button_geomnotifyfunc; button_class->handlefunc = &handle_button_function;
-        } else if (strcmp(class_name, "toplevel") == 0) {
-                top_level_class->allocfunc = &top_level_alloc_func;
-                top_level_class->releasefunc = &top_level_release;
-                top_level_class->drawfunc= &ei_draw_top_level;
-                top_level_class->setdefaultsfunc = &set_default_top_level;
-                top_level_class->next = button_class;
-                top_level_class->geomnotifyfunc = &top_level_geomnotifyfunc; top_level_class->handlefunc = &handle_top_level_function;
-        } else if (strcmp(class_name, "frame") == 0) {
-                frame_class->allocfunc = &frame_alloc_func;
-                frame_class->releasefunc = &frame_release;
-                frame_class->drawfunc = &ei_draw_frame;
-                frame_class->setdefaultsfunc = &set_default_frame;
-                frame_class->next = top_level_class;
-                frame_class->geomnotifyfunc = &frame_geomnotifyfunc; frame_class->handlefunc = &handle_frame_function;
-        }
-}
-
-/**
- * \brief	Releases all the resources of the application, and releases the hardware
- *		(ie. calls \ref hw_quit).
- */
-void ei_app_free(void){
-
-
-        // Delete all existing widgets
-        ei_widget_destroy(root_frame);
-
-        // Delete linked list classes
-        ei_widgetclass_t *linked_list_classes = frame_class;
-
-        while (linked_list_classes->next != NULL) {
-                ei_widgetclass_t *to_suppr = linked_list_classes;
-                linked_list_classes = linked_list_classes->next;
-                free(to_suppr);
-        }
-
-        free(linked_list_classes);
-
-        // Release the hardware
-        hw_quit();
 }
 
 /**
@@ -186,6 +162,31 @@ void ei_app_run(void){
 
         }
         free(g_next_event);
+}
+
+/**
+ * \brief	Releases all the resources of the application, and releases the hardware
+ *		(ie. calls \ref hw_quit).
+ */
+void ei_app_free(void){
+
+
+        // Delete all existing widgets
+        ei_widget_destroy(root_frame);
+
+        // Delete linked list classes
+        ei_widgetclass_t *linked_list_classes = frame_class;
+
+        while (linked_list_classes->next != NULL) {
+                ei_widgetclass_t *to_suppr = linked_list_classes;
+                linked_list_classes = linked_list_classes->next;
+                free(to_suppr);
+        }
+
+        free(linked_list_classes);
+
+        // Release the hardware
+        hw_quit();
 }
 
 /**
