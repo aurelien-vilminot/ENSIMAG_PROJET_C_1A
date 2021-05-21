@@ -15,16 +15,19 @@ static int is_in_clipper(int point_x, int point_y, uint32_t x_max, uint32_t y_ma
         return (point_x <= x_max) && (point_y <= y_max) && (point_x >= clipper->top_left.x) && (point_y >= clipper->top_left.y);
 }
 
-static void cliper_content_rect(ei_widget_t *widget, ei_rect_t *clipper) {
+static void clipper_content_rect(ei_widget_t *widget, ei_rect_t *clipper) {
         if (clipper) {
                 if (widget->content_rect->size.width > clipper->size.width) {
-                        //widget->screen_location.size.width = widget->content_rect->size.width - clipper->size.width;
                         widget->content_rect->size.width = clipper->size.width;
                 }
 
                 if (widget->content_rect->size.height > clipper->size.height) {
-                        //widget->screen_location.size.height = widget->content_rect->size.height - clipper->size.height;
                         widget->content_rect->size.height = clipper->size.height;
+                }
+
+                if (widget->content_rect->top_left.x < clipper->top_left.x) {
+                        widget->content_rect->size.width += widget->content_rect->top_left.x - clipper->top_left.x;
+                        widget->content_rect->top_left.x = clipper->top_left.x;
                 }
         }
 }
@@ -673,7 +676,7 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
                                                  ei_surface_t		pick_surface,
                                                  ei_rect_t*		clipper) {
         ei_button_t *button = (ei_button_t*) widget;
-        cliper_content_rect(widget, clipper);
+        clipper_content_rect(widget, clipper);
 
         // Get size and place parameters
         int width_button = button->widget.screen_location.size.width;
@@ -826,7 +829,7 @@ void ei_draw_frame (ei_widget_t*        widget,
                     ei_surface_t	pick_surface,
                     ei_rect_t*		clipper) {
         ei_frame_t *frame = (ei_frame_t*) widget;
-        cliper_content_rect(widget, clipper);
+        clipper_content_rect(widget, clipper);
 
         // Get size and place parameters
         int width_frame = frame->widget.screen_location.size.width;
@@ -965,7 +968,7 @@ void ei_draw_top_level (ei_widget_t*            widget,
                         ei_rect_t*		clipper) {
         ei_top_level_t *top_level = (ei_top_level_t *) widget;
 
-        cliper_content_rect(widget, clipper);
+        clipper_content_rect(widget, clipper);
 
         ei_color_t border_color = {0x00, 0x00, 0x00, 0xff};
 

@@ -91,7 +91,8 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         // Geometry management
         root_frame->screen_location.size.width = main_window_size.width;
         root_frame->screen_location.size.height = main_window_size.height;
-        root_frame->content_rect = &root_frame->screen_location;
+        root_frame->content_rect->top_left = root_frame->screen_location.top_left;
+        root_frame->content_rect->size = root_frame->screen_location.size;
 
         // Event management
         root_frame->pick_id = 0;

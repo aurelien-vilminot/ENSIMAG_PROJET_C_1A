@@ -99,32 +99,52 @@ void		ei_place	(struct ei_widget_t*	widget,
                 }
 
                 if (rel_x) {
-                        struct_placer->rx = rel_x;
-                        struct_placer->rx_data = *rel_x;
+                        if (*rel_x > 1.0) {
+                                struct_placer->rx_data = 1.0;
+                                struct_placer->rx = &struct_placer->rx_data;
+                        } else {
+                                struct_placer->rx = rel_x;
+                                struct_placer->rx_data = *rel_x;
+                        }
                 } else {
                         struct_placer->rx_data = 0.0;
                         struct_placer->rx = &struct_placer->rx_data;
                 }
 
                 if (rel_y) {
-                        struct_placer->ry = rel_y;
-                        struct_placer->ry_data = *rel_y;
+                        if (*rel_y > 1.0) {
+                                struct_placer->ry_data = 1.0;
+                                struct_placer->ry = &struct_placer->ry_data;
+                        } else {
+                                struct_placer->ry = rel_y;
+                                struct_placer->ry_data = *rel_y;
+                        }
                 } else {
                         struct_placer->ry_data = 0.0;
                         struct_placer->ry = &struct_placer->ry_data;
                 }
 
                 if (rel_width) {
-                        struct_placer->rw = rel_width;
-                        struct_placer->rw_data = *rel_width;
+                        if (*rel_width > 1.0) {
+                                struct_placer->rw_data = 1.0;
+                                struct_placer->rw = &struct_placer->rw_data;
+                        } else {
+                                struct_placer->rw = rel_width;
+                                struct_placer->rw_data = *rel_width;
+                        }
                 } else {
                         struct_placer->rw_data = 0.0;
                         struct_placer->rw = &struct_placer->rw_data;
                 }
 
                 if (rel_height) {
-                        struct_placer->rh= rel_height;
-                        struct_placer->rh_data = *rel_height;
+                        if (*rel_height > 1.0) {
+                                struct_placer->rh_data = 1.0;
+                                struct_placer->rh = &struct_placer->rh_data;
+                        } else {
+                                struct_placer->rh = rel_height;
+                                struct_placer->rh_data = *rel_height;
+                        }
                 } else {
                         struct_placer->rh_data = 0.0;
                         struct_placer->rh = &struct_placer->rh_data;
@@ -288,6 +308,6 @@ void ei_placer_forget(struct ei_widget_t* widget) {
         widget->parent = NULL;
 
         // Delete and free struct placer
-        widget->placer_params = NULL;
         free(widget->placer_params);
+        widget->placer_params = NULL;
 }

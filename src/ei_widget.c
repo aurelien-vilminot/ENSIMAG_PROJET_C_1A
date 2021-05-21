@@ -134,6 +134,12 @@ ei_widget_t* frame_alloc_func() {
  * Release functions
  */
 
+
+/**
+ * @brief       Release memory for pointers attributes which were allocated in alloc function.
+ *
+ * @param       widget      The widget which resources are to be freed.
+ */
 void button_release(struct ei_widget_t*	widget) {
         // Cast into button widget to delete its ressources
         ei_button_t * button_widget = (ei_button_t*) widget;
@@ -142,6 +148,11 @@ void button_release(struct ei_widget_t*	widget) {
         if (button_widget->img_rect) free(button_widget->img_rect);
 }
 
+/**
+ * @brief       Release memory for pointers attributes which were allocated in alloc function.
+ *
+ * @param       widget      The widget which resources are to be freed.
+ */
 void top_level_release(struct ei_widget_t* widget) {
         // Cast into top_level widget to delete its ressources
         ei_top_level_t * top_level_widget = (ei_top_level_t*) widget;
@@ -150,9 +161,29 @@ void top_level_release(struct ei_widget_t* widget) {
         //if (top_level_widget->min_size) free(top_level_widget->min_size);
         if (top_level_widget->resize_rect) free(top_level_widget->resize_rect);
         if (top_level_widget->top_bar) free(top_level_widget->top_bar);
+
+        // Delete and free close button
+
+        // Call destructor if it provided by the user
+        if (top_level_widget->close_button->widget.destructor) {
+                top_level_widget->close_button->widget.destructor(widget);
+        }
         button_release((ei_widget_t *) top_level_widget->close_button);
+        free(top_level_widget->close_button->widget.pick_color);
+        free(top_level_widget->close_button->widget.placer_params);
+//        free(top_level_widget->close_button->widget.content_rect);
+        top_level_widget->close_button->widget.parent = NULL;
+        top_level_widget->close_button->widget.placer_params = NULL;
+        top_level_widget->close_button->widget.content_rect = NULL;
+        top_level_widget->close_button->widget.pick_color = NULL;
+        free(top_level_widget->close_button);
 }
 
+/**
+ * @brief       Release memory for pointers attributes which were allocated in alloc function.
+ *
+ * @param       widget      The widget which resources are to be freed.
+ */
 void frame_release(struct ei_widget_t* widget) {
         // Cast into frame widget to delete its ressources
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
@@ -633,6 +664,25 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
 }
 
 /**
+ * @brief       Delete and free from memory the widget given in parameter
+ *
+ * @param       widget      The widget to destroy
+ */
+static void free_widget(ei_widget_t *widget) {
+        // Call destructor if it provided by the user
+        if (widget->destructor) {
+                widget->destructor(widget);
+        }
+        ei_placer_forget(widget);
+        widget->wclass->releasefunc(widget);
+        free(widget->pick_color);
+        free(widget->content_rect);
+        widget->pick_color = NULL;
+        widget->content_rect = NULL;
+        free(widget);
+}
+
+/**
  * @brief	Destroys a widget. Calls its destructor if it was provided.
  * 		Removes the widget from the screen if it is currently managed by the placer.
  * 		Destroys all its descendants.
@@ -641,44 +691,32 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
  */
 void			ei_widget_destroy		(ei_widget_t*		widget) {
         ei_widget_t * widget_to_destroy = widget;
+        ei_widget_t *tmp_to_destroy;
 
         // Depth course of each widgets
         do {
                 if (widget_to_destroy->children_head) {
-
                         widget_to_destroy = widget_to_destroy->children_head;
-                        // Call destructor if it provided by the user
-                        if (widget_to_destroy->destructor) {
-                                widget_to_destroy->destructor(widget_to_destroy);
-                        }
-                        widget_to_destroy->wclass->releasefunc(widget_to_destroy);
-                        free(widget_to_destroy->pick_color);
-                        free(widget_to_destroy);
                 } else {
                         while (widget_to_destroy != widget && widget_to_destroy->next_sibling == NULL) {
+                                tmp_to_destroy = widget_to_destroy;
                                 widget_to_destroy = widget_to_destroy->parent;
+                                free_widget(tmp_to_destroy);
                         }
 
-                        if (widget_to_destroy->next_sibling && widget_to_destroy != widget ) {
+                        if (widget_to_destroy->next_sibling && widget_to_destroy != widget) {
+                                tmp_to_destroy = widget_to_destroy;
                                 widget_to_destroy = widget_to_destroy->next_sibling;
-                                // Call destructor if it provided by the user
-                                if (widget_to_destroy->destructor) {
-                                        widget_to_destroy->destructor(widget_to_destroy);
-                                }
-                                widget_to_destroy->wclass->releasefunc(widget_to_destroy);
-                                free(widget_to_destroy->pick_color);
-                                free(widget_to_destroy);
+                                free_widget(tmp_to_destroy);
                         }
                 }
         } while (widget_to_destroy != widget);
 
+        // Forget placer param for the widget given in param and its children
         ei_placer_forget(widget_to_destroy);
 
-        if (widget_to_destroy->destructor) {
-                widget_to_destroy->destructor(widget_to_destroy);
-        }
-        widget_to_destroy->wclass->releasefunc(widget_to_destroy);
-        free(widget_to_destroy->pick_color);
+        // The final widget correspond to the widget given in param
+        free_widget(widget_to_destroy);
 }
 
 /**
