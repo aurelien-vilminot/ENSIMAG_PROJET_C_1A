@@ -122,7 +122,7 @@ void create_puzzle_window(char* image_filename)
 	
 	puzzle_t*		puzzle;
 	tile_t*			tile;
-        ei_app_root_surface();
+        ei_surface_t test = ei_app_root_surface();
 	image		= hw_image_load(image_filename, ei_app_root_surface());
 	image_size	= hw_surface_get_size(image);
 	n		= ei_size(image_size.width / k_tile_size, image_size.height / k_tile_size);

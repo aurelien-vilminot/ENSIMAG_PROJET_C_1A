@@ -205,7 +205,7 @@ ei_widget_t* ei_app_root_widget(void){
  * @return 			The surface of the root window.
  */
 ei_surface_t ei_app_root_surface(void){
-        return *root_windows;
+        return root_windows;
 }
 
 /**

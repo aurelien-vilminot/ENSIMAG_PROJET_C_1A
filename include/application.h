@@ -8,7 +8,7 @@ static ei_widgetclass_t *button_class;
 
 // TODO : rename globale var with 'g' at begin
 // Root elements
-ei_surface_t *root_windows;
+ei_surface_t root_windows;
 ei_widget_t *root_frame;
 
 // Offscreen
