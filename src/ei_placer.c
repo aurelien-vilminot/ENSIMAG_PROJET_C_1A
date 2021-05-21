@@ -253,7 +253,7 @@ void ei_placer_run(struct ei_widget_t* widget) {
                         break;
         }
 
-        // Call geometry function
+         // Call geometry function
         widget->wclass->geomnotifyfunc(widget, rect);
 }
 
