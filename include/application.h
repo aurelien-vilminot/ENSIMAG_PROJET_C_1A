@@ -6,13 +6,12 @@ static ei_widgetclass_t *frame_class;
 static ei_widgetclass_t *top_level_class;
 static ei_widgetclass_t *button_class;
 
-// TODO : rename globale var with 'g' at begin
 // Root elements
-ei_surface_t root_windows;
-ei_widget_t *root_frame;
+ei_surface_t g_root_windows;
+ei_widget_t *g_root_frame;
 
 // Offscreen
-ei_surface_t offscreen;
+ei_surface_t g_offscreen;
 
 /**
  * @brief       Return a linked list which represent all widget classes

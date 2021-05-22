@@ -36,7 +36,7 @@ extern void move(struct side **ll1, struct side **ll2);
 /*
  * Test if the tab tc is empty
  */
-extern int is_empty (struct side **tc, int size_tab);
+extern int is_empty (struct side **tc, uint32_t size_tab);
 
 /*
  * Sort linked list by abscisse with an insertion sort

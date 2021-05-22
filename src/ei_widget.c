@@ -50,7 +50,7 @@ static void insert_child(ei_widget_t *widget, ei_widget_t *parent) {
 }
 
 static uint32_t last_id(void) {
-        ei_widget_t * current_widget = root_frame;
+        ei_widget_t * current_widget = g_root_frame;
         uint32_t count_id = 0;
 
         // Depth course of each widgets
@@ -59,7 +59,7 @@ static uint32_t last_id(void) {
                         current_widget = current_widget->children_head;
                         count_id++;
                 } else {
-                        while (current_widget != root_frame && current_widget->next_sibling == NULL) {
+                        while (current_widget != g_root_frame && current_widget->next_sibling == NULL) {
                                 current_widget = current_widget->parent;
                         }
 
@@ -68,7 +68,7 @@ static uint32_t last_id(void) {
                                 count_id++;
                         }
                 }
-        } while (current_widget != root_frame);
+        } while (current_widget != g_root_frame);
         return count_id;
 }
 
@@ -101,8 +101,12 @@ ei_widgetclass_t *get_class(ei_widgetclass_t *ll, ei_widgetclass_name_t class_na
  * @return      The corresponding widget
  */
 ei_widget_t* button_alloc_func() {
-        ei_button_t * m_button = calloc(1, sizeof(ei_button_t));
-        return (ei_widget_t *) m_button;
+        ei_button_t * button = calloc(1, sizeof(ei_button_t));
+
+        // Alloc memory for specific widget attributes
+        button->widget.content_rect = calloc(1, sizeof(ei_rect_t));
+
+        return (ei_widget_t *) button;
 }
 
 /**
@@ -110,15 +114,18 @@ ei_widget_t* button_alloc_func() {
  * @return      The corresponding widget
  */
 ei_widget_t* top_level_alloc_func() {
-        ei_top_level_t *m_toplevel = calloc(1, sizeof(ei_top_level_t));
-        m_toplevel->resize_rect = calloc(1, sizeof(ei_rect_t));
-        m_toplevel->top_bar = calloc(1, sizeof(ei_rect_t));
+        ei_top_level_t *toplevel = calloc(1, sizeof(ei_top_level_t));
+        toplevel->resize_rect = calloc(1, sizeof(ei_rect_t));
+        toplevel->top_bar = calloc(1, sizeof(ei_rect_t));
+
+        // Alloc memory for specific widget attributes
+        toplevel->widget.content_rect = calloc(1, sizeof(ei_rect_t));
 
         // Initialisation of close button widget
-        m_toplevel->close_button = (ei_button_t *) button_alloc_func();
-        m_toplevel->close_button->widget.parent = (ei_widget_t *) m_toplevel;
+        toplevel->close_button = (ei_button_t *) button_alloc_func();
+        toplevel->close_button->widget.parent = (ei_widget_t *) toplevel;
 
-        return (ei_widget_t *) m_toplevel;
+        return (ei_widget_t *) toplevel;
 }
 
 /**
@@ -126,8 +133,12 @@ ei_widget_t* top_level_alloc_func() {
  * @return      The corresponding widget
  */
 ei_widget_t* frame_alloc_func() {
-        ei_frame_t * m_frame = calloc(1, sizeof(ei_frame_t));
-        return (ei_widget_t *) m_frame;
+        ei_frame_t * frame = calloc(1, sizeof(ei_frame_t));
+
+        // Alloc memory for specific widget attributes
+        frame->widget.content_rect = calloc(1, sizeof(ei_rect_t));
+
+        return (ei_widget_t *) frame;
 }
 
 /*
@@ -171,7 +182,6 @@ void top_level_release(struct ei_widget_t* widget) {
         button_release((ei_widget_t *) top_level_widget->close_button);
         free(top_level_widget->close_button->widget.pick_color);
         free(top_level_widget->close_button->widget.placer_params);
-//        free(top_level_widget->close_button->widget.content_rect);
         top_level_widget->close_button->widget.parent = NULL;
         top_level_widget->close_button->widget.placer_params = NULL;
         top_level_widget->close_button->widget.content_rect = NULL;
@@ -213,9 +223,6 @@ void set_default_button (ei_widget_t *widget) {
         button_widget->text_color = (ei_color_t) ei_font_default_color;
         button_widget->text_font = ei_default_font;
         button_widget->text_anchor = default_text_button_anchor;
-
-        // Alloc memory for specific widget attributes
-        button_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
 }
 
 /**
@@ -234,9 +241,6 @@ void set_default_frame (ei_widget_t *widget) {
         frame_widget->text_color = (ei_color_t) ei_font_default_color;
         frame_widget->text_font = ei_default_font;
         frame_widget->text_anchor = default_text_frame_anchor;
-
-        // Alloc memory for specific widget attributes
-        frame_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
 }
 
 /**
@@ -255,9 +259,6 @@ void set_default_top_level (ei_widget_t *widget) {
         top_level_widget->closable = default_top_level_closable;
         top_level_widget->min_size = &default_top_level_min_size;
         top_level_widget->current_event = event_none;
-
-        // Alloc memory for specific widget attributes
-        top_level_widget->widget.content_rect = calloc(1, sizeof(ei_rect_t));
 }
 
 /*
@@ -593,10 +594,22 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
                 top_level_widget->min_size = *min_size;
         }
 
-        if (border_width || title) {
-                if (top_level_widget->widget.placer_params && (top_level_widget->border_width != *border_width || top_level_widget->title != *title)) {
+        if (border_width) {
+                if (top_level_widget->widget.placer_params && top_level_widget->border_width != *border_width) {
                         // Case when top level has already called ei_place
                         top_level_widget->border_width = *border_width;
+
+                        // Call the placer
+                        ei_placer_run(widget);
+                }else {
+                        // Configure attributes for the first time
+                        top_level_widget->border_width = *border_width;
+                }
+        }
+
+        if (title) {
+                if (top_level_widget->widget.placer_params && top_level_widget->title != *title) {
+                        // Case when top level has already called ei_place
                         free(top_level_widget->title);
                         top_level_widget->title = calloc(strlen(*title) + 1, sizeof(char));
                         strcpy(top_level_widget->title, *title);
@@ -605,7 +618,6 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
                         ei_placer_run(widget);
                 } else {
                         // Configure attributes for the first time
-                        top_level_widget->border_width = *border_width;
                         free(top_level_widget->title);
                         top_level_widget->title = calloc(strlen(*title) + 1, sizeof(char));
                         strcpy(top_level_widget->title, *title);
@@ -650,7 +662,7 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
                         uint32_t last_widget_id = last_id();
                         insert_child(widget_to_return, parent);
                         widget_to_return->pick_id = last_widget_id + 1;
-                        widget_to_return->pick_color = inverse_map_rgba(offscreen, widget_to_return->pick_id);
+                        widget_to_return->pick_color = inverse_map_rgba(g_offscreen, widget_to_return->pick_id);
                 }
                 widget_to_return->user_data = user_data;
                 widget_to_return->destructor = destructor;

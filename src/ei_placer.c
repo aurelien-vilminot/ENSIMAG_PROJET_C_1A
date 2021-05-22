@@ -211,7 +211,6 @@ void		ei_place	(struct ei_widget_t*	widget,
  *
  * @param	widget		The widget which geometry must be re-computed.
  */
- // TODO : gérer l'appel de cet fonction (voir p.26)
 void ei_placer_run(struct ei_widget_t* widget) {
         ei_anchor_t widget_anchor = widget->placer_params->anchor_data;
 

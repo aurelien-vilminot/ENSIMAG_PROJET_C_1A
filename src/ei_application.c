@@ -77,26 +77,26 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
         ei_widgetclass_register(button_class);
 
         // Creates the root window. It is released by calling hw_quit later
-        root_windows = hw_create_window(main_window_size, fullscreen);
+        g_root_windows = hw_create_window(main_window_size, fullscreen);
 
         // Def offscreen
-        offscreen = hw_surface_create(root_windows, hw_surface_get_size(root_windows), hw_surface_has_alpha(root_windows));
+        g_offscreen = hw_surface_create(g_root_windows, hw_surface_get_size(g_root_windows), hw_surface_has_alpha(g_root_windows));
 
         // Init default font
         ei_default_font = hw_text_font_create(ei_default_font_filename, ei_style_normal, ei_font_default_size);
 
         // Initialize root frame (root widget)
-        root_frame = ei_widget_create("frame", NULL, NULL, NULL);
+        g_root_frame = ei_widget_create("frame", NULL, NULL, NULL);
 
         // Geometry management
-        root_frame->screen_location.size.width = main_window_size.width;
-        root_frame->screen_location.size.height = main_window_size.height;
-        root_frame->content_rect->top_left = root_frame->screen_location.top_left;
-        root_frame->content_rect->size = root_frame->screen_location.size;
+        g_root_frame->screen_location.size.width = main_window_size.width;
+        g_root_frame->screen_location.size.height = main_window_size.height;
+        g_root_frame->content_rect->top_left = g_root_frame->screen_location.top_left;
+        g_root_frame->content_rect->size = g_root_frame->screen_location.size;
 
         // Event management
-        root_frame->pick_id = 0;
-        root_frame->pick_color = inverse_map_rgba(offscreen, root_frame->pick_id);
+        g_root_frame->pick_id = 0;
+        g_root_frame->pick_color = inverse_map_rgba(g_offscreen, g_root_frame->pick_id);
 }
 
 /**
@@ -114,9 +114,9 @@ void ei_app_run(void){
         while (g_not_the_end) {
 
                 // Draw root
-                root_frame->wclass->drawfunc(root_frame, root_windows, offscreen, NULL);
+                g_root_frame->wclass->drawfunc(g_root_frame, g_root_windows, g_offscreen, NULL);
 
-                ei_widget_t *widget_to_print = root_frame;
+                ei_widget_t *widget_to_print = g_root_frame;
 
                 // Depth course of each widgets
                 do {
@@ -124,23 +124,23 @@ void ei_app_run(void){
                         if (widget_to_print->children_head) {
                                 parent = widget_to_print;
                                 widget_to_print = widget_to_print->children_head;
-                                widget_to_print->wclass->drawfunc(widget_to_print, root_windows, offscreen, parent->content_rect);
+                                widget_to_print->wclass->drawfunc(widget_to_print, g_root_windows, g_offscreen, parent->content_rect);
                         } else {
-                                while (widget_to_print != root_frame && widget_to_print->next_sibling == NULL) {
+                                while (widget_to_print != g_root_frame && widget_to_print->next_sibling == NULL) {
                                         widget_to_print = widget_to_print->parent;
                                 }
 
                                 if (widget_to_print->next_sibling) {
                                         parent = widget_to_print->parent;
                                         widget_to_print = widget_to_print->next_sibling;
-                                        widget_to_print->wclass->drawfunc(widget_to_print, root_windows, offscreen, parent->content_rect);
+                                        widget_to_print->wclass->drawfunc(widget_to_print, g_root_windows, g_offscreen, parent->content_rect);
                                 }
                         }
-                } while (widget_to_print != root_frame);
+                } while (widget_to_print != g_root_frame);
 
                 // Update screen and event
 
-                hw_surface_update_rects(root_windows, NULL);
+                hw_surface_update_rects(g_root_windows, NULL);
                 hw_event_wait_next(g_next_event);
 
                 // Used to know if the event has been treated or not
@@ -172,7 +172,7 @@ void ei_app_free(void){
 
 
         // Delete all existing widgets
-        ei_widget_destroy(root_frame);
+        ei_widget_destroy(g_root_frame);
 
         // Delete linked list classes
         ei_widgetclass_t *linked_list_classes = frame_class;
@@ -196,7 +196,7 @@ void ei_app_free(void){
  * @return 			The root widget.
  */
 ei_widget_t* ei_app_root_widget(void){
-        return root_frame;
+        return g_root_frame;
 }
 
 /**
@@ -206,7 +206,7 @@ ei_widget_t* ei_app_root_widget(void){
  * @return 			The surface of the root window.
  */
 ei_surface_t ei_app_root_surface(void){
-        return root_windows;
+        return g_root_windows;
 }
 
 /**

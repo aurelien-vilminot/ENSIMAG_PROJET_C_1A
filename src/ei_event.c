@@ -55,7 +55,7 @@ void children_resizing(struct ei_widget_t* widget){
 }
 
 static void replace_order(ei_widget_t* widget){
-        while (widget != root_frame) {
+        while (widget != g_root_frame) {
                 if (strcmp(widget->wclass->name, "toplevel") == 0) {
                         if (widget != widget->parent->children_tail) {
                                 ei_widget_t *widget_to_change = widget->parent->children_head;
@@ -97,7 +97,7 @@ ei_bool_t keyword_event_callback(ei_event_t *event){
                 // The last toplevel created (with the highest pick_id) is deleted by the following depth course
                 if (event->param.key.key_code == SDLK_w && ei_has_modifier(event->param.key.modifier_mask, ei_mod_ctrl_left)){
                         ei_widget_t *widget_to_destroy = NULL;
-                        ei_widget_t *widget_to_treat = root_frame;
+                        ei_widget_t *widget_to_treat = g_root_frame;
                         // Depth course of each widgets
                         do {
                                 if (widget_to_treat->children_head) {
@@ -112,7 +112,7 @@ ei_bool_t keyword_event_callback(ei_event_t *event){
                                                 }
                                         }
                                 } else {
-                                        while (widget_to_treat != root_frame && widget_to_treat->next_sibling == NULL) {
+                                        while (widget_to_treat != g_root_frame && widget_to_treat->next_sibling == NULL) {
                                                 widget_to_treat = widget_to_treat->parent;
                                         }
 
@@ -127,7 +127,7 @@ ei_bool_t keyword_event_callback(ei_event_t *event){
                                                 }
                                         }
                                 }
-                        } while (widget_to_treat != root_frame);
+                        } while (widget_to_treat != g_root_frame);
                         if (widget_to_destroy){
                                 ei_widget_destroy(widget_to_destroy);
                                 return EI_TRUE;
@@ -152,16 +152,16 @@ ei_bool_t situate_event_callback(ei_event_t *event){
         }
         // Otherwise, we search the event to treat
         // Parameters of the offscreen
-        hw_surface_lock(offscreen);
-        uint32_t *clicked_pixel = (uint32_t *) hw_surface_get_buffer(offscreen);
-        ei_size_t offscreen_size = hw_surface_get_size(offscreen);
+        hw_surface_lock(g_offscreen);
+        uint32_t *clicked_pixel = (uint32_t *) hw_surface_get_buffer(g_offscreen);
+        ei_size_t offscreen_size = hw_surface_get_size(g_offscreen);
 
         // Compute memory location of clicked_pixel and put the its value in widget_id
         clicked_pixel += (offscreen_size.width * event->param.mouse.where.y) + event->param.mouse.where.x;
         uint32_t widget_id = *clicked_pixel;
 
-        // Test if the clicked pixel is in the root_frame
-        ei_widget_t *widget_to_treat = root_frame;
+        // Test if the clicked pixel is in the g_root_frame
+        ei_widget_t *widget_to_treat = g_root_frame;
         if (widget_to_treat->pick_id == widget_id){
                 return widget_to_treat->wclass->handlefunc(widget_to_treat, event);
         }
@@ -174,7 +174,7 @@ ei_bool_t situate_event_callback(ei_event_t *event){
                                 return widget_to_treat->wclass->handlefunc(widget_to_treat, event);
                         }
                 } else {
-                        while (widget_to_treat != root_frame && widget_to_treat->next_sibling == NULL) {
+                        while (widget_to_treat != g_root_frame && widget_to_treat->next_sibling == NULL) {
                                 widget_to_treat = widget_to_treat->parent;
                         }
 
@@ -185,7 +185,7 @@ ei_bool_t situate_event_callback(ei_event_t *event){
                                 }
                         }
                 }
-        } while (widget_to_treat != root_frame);
+        } while (widget_to_treat != g_root_frame);
 
         // If no widget handle_function is treated, so has to call the default function
         return EI_FALSE;
@@ -307,7 +307,7 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                         }
                                 // If there isn't parent, so verifies that the top level is still in the root frame
                                 } else {
-                                        if (is_rectangle_in_rectangle(root_frame->screen_location, new_loc, &toplevel_widget->widget.screen_location.size)){
+                                        if (is_rectangle_in_rectangle(g_root_frame->screen_location, new_loc, &toplevel_widget->widget.screen_location.size)){
                                                 ei_place(widget, NULL, &new_loc_x, &new_loc_y, NULL, NULL, NULL, NULL, NULL, NULL);
                                                 children_resizing(widget);
                                         }

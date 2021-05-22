@@ -95,7 +95,7 @@ void move(side **ll1, side **ll2) {
  * @return	A boolean: \ref EI_TRUE means that the array is empty,
  *		\ref EI_FALSE means it does not.
  */
-int is_empty (side **tc, int size_tab) {
+int is_empty (side **tc, uint32_t size_tab) {
         for (uint32_t i = 0 ; i < size_tab ; ++i) {
                 if (tc[i] != NULL) {
                         return EI_FALSE;

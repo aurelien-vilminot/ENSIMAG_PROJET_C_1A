@@ -24,7 +24,7 @@ void test_line(ei_surface_t surface, ei_rect_t* clipper)
 
 	pts[0].point.x = 200; pts[0].point.y = 200; pts[0].next = &pts[1];
 	pts[1].point.x = 600; pts[1].point.y = 400; pts[1].next = NULL;
-	
+
 	ei_draw_polyline(surface, pts, color, clipper);
 }
 
@@ -111,7 +111,7 @@ void test_square(ei_surface_t surface, ei_rect_t* clipper)
 
 /* test_dot --
  *
- *	Draws a dot in the middle of the screen. This is meant to test the special 
+ *	Draws a dot in the middle of the screen. This is meant to test the special
  *	case when dx = dy = 0
  */
 void test_dot(ei_surface_t surface, ei_rect_t* clipper)
@@ -285,9 +285,9 @@ int main(int argc, char** argv)
 	ei_event_t		event;
 
 	hw_init();
-		
+
 	main_window = hw_create_window(win_size, EI_FALSE);
-	
+
 	/* Lock the drawing surface, paint it white. */
 	hw_surface_lock	(main_window);
 	ei_fill		(main_window, &white, clipper_ptr);
@@ -313,7 +313,7 @@ int main(int argc, char** argv)
 	/* Unlock and update the surface. */
 	hw_surface_unlock(main_window);
 	hw_surface_update_rects(main_window, NULL);
-	
+
 	/* Wait for a character on command line. */
 	event.type = ei_ev_none;
 	while (event.type != ei_ev_keydown)
