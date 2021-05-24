@@ -12,7 +12,7 @@
  *
  * @param	widgetclass	The structure describing the class.
  */
-void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass) {
+void ei_widgetclass_register(ei_widgetclass_t* widgetclass) {
         char * class_name = ei_widgetclass_stringname(widgetclass->name);
 
         if (strcmp(class_name, "button") == 0) {
@@ -106,62 +106,60 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 void ei_app_run(void){
 
         // Must allocate the memory for use g_next_event in hw_event_wait_next
-        g_next_event = malloc(sizeof(ei_event_t));
-
-        // Fill g_next_event with the g_next_event
-        hw_event_wait_next(g_next_event);
+        if (!g_next_event) g_next_event = malloc(sizeof(ei_event_t));
 
         while (g_not_the_end) {
 
-                // Draw root
+                // Draw the root frame
                 g_root_frame->wclass->drawfunc(g_root_frame, g_root_windows, g_offscreen, NULL);
 
+                // Depth course of each widgets in order to print them.
+                // The last children is printed at the end (i.e. the front).
+                // The first children is printed at the background (but in front of the root frame).
                 ei_widget_t *widget_to_print = g_root_frame;
-
-                // Depth course of each widgets
                 do {
-                        ei_widget_t * parent;
                         if (widget_to_print->children_head) {
-                                parent = widget_to_print;
                                 widget_to_print = widget_to_print->children_head;
-                                widget_to_print->wclass->drawfunc(widget_to_print, g_root_windows, g_offscreen, parent->content_rect);
+                                widget_to_print->wclass->drawfunc(widget_to_print, g_root_windows, g_offscreen, widget_to_print->content_rect);
                         } else {
                                 while (widget_to_print != g_root_frame && widget_to_print->next_sibling == NULL) {
                                         widget_to_print = widget_to_print->parent;
                                 }
 
                                 if (widget_to_print->next_sibling) {
-                                        parent = widget_to_print->parent;
                                         widget_to_print = widget_to_print->next_sibling;
-                                        widget_to_print->wclass->drawfunc(widget_to_print, g_root_windows, g_offscreen, parent->content_rect);
+                                        widget_to_print->wclass->drawfunc(widget_to_print, g_root_windows, g_offscreen, widget_to_print->parent->content_rect);
                                 }
                         }
                 } while (widget_to_print != g_root_frame);
 
                 // Update screen and event
-
                 hw_surface_update_rects(g_root_windows, NULL);
                 hw_event_wait_next(g_next_event);
 
                 // Used to know if the event has been treated or not
                 ei_bool_t has_been_treated = EI_FALSE;
+
                 // Treats a situate event
                 if (g_next_event->type <= 7 && g_next_event->type >= 5){
                         has_been_treated = situate_event_callback(g_next_event);
                 }
-//                // Treats a keyboard event
+                // Treats a keyboard event
                 else if (g_next_event->type == 3 || g_next_event->type == 4){
                         has_been_treated = keyword_event_callback(g_next_event);
                 }
 
                 // The event hasn't been treated so we call the default handle function
                 if (has_been_treated == EI_FALSE) {
-                        ei_event_get_default_handle_func()(g_next_event);
+                        if (ei_event_get_default_handle_func()) ei_event_get_default_handle_func()(g_next_event);
                 }
         }
+
+        // Free the global variables that have been malloced.
         free(g_next_event);
-        free(g_previous_event);
-        free(g_default_handle_func);
+        if (g_default_handle_func) free(g_default_handle_func);
+        if (g_previous_event) free(g_previous_event);
+
 }
 
 /**

@@ -4,24 +4,23 @@
 #include <string.h>
 
 #include "ei_event.h"
-#include "event_manager.h"
 #include "widget_manager.h"
 #include "ei_widget.h"
 
 /*
- * Global variables
+ * Global variables and associate function
  */
 
 // Represents what is the widget currently used by the user. If no widget is used, equals NULL.
-ei_widget_t *g_active_widget;
+static ei_widget_t *g_active_widget = NULL;
 // Represents the next user event. Is used in the main program.
-ei_event_t *g_next_event;
+static ei_event_t *g_next_event = NULL;
 // Boolean of the main program which quit the program or not.
 static ei_bool_t g_not_the_end = EI_TRUE;
 // Previous position of the mouse. Used to compute movement.
-ei_event_t *g_previous_event;
-// Global default handle function
-ei_default_handle_func_t *g_default_handle_func;
+static ei_event_t *g_previous_event = NULL;
+// Global default handle function. Used when an event isn't treated.
+static ei_default_handle_func_t *g_default_handle_func = NULL;
 
 
 /*
@@ -46,7 +45,15 @@ static ei_bool_t is_rectangle_in_rectangle(ei_rect_t rectangle, ei_point_t t_poi
  */
 void children_resizing(struct ei_widget_t* widget);
 
+/**
+ * @brief Replace all the parents that are toplevel of the widget to the front, i.e. the top parent
+ * before the root frame is put as children tail (the last widget subtree printed).
+ * The function is used when the mouse clicks on a certain widget.
+ *
+ * @param widget, the widget concerned by the replacement
+ */
 static void replace_order(ei_widget_t* widget);
+
 /*
  * Callback functions
  */
