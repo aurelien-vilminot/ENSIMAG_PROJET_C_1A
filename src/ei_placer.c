@@ -212,20 +212,18 @@ void		ei_place	(struct ei_widget_t*	widget,
  * @param	widget		The widget which geometry must be re-computed.
  */
 void ei_placer_run(struct ei_widget_t* widget) {
-        ei_anchor_t widget_anchor = widget->placer_params->anchor_data;
-
-        // Calcul size of widget
+        // Calculate size of widget
         ei_rect_t rect;
         rect.size.width = widget->placer_params->w_data + (int) (widget->placer_params->rw_data * widget->parent->content_rect->size.width);
         rect.size.height = widget->placer_params->h_data + (int) (widget->placer_params->rh_data * widget->parent->content_rect->size.height);
 
-        // Calcul place of widget
+        // Calculate place of widget
         ei_point_t rel_coord;
         rel_coord.x = widget->placer_params->x_data + (int) ((widget->placer_params->rx_data * widget->parent->content_rect->size.width) + widget->parent->content_rect->top_left.x);
         rel_coord.y = widget->placer_params->y_data + (int) ((widget->placer_params->ry_data * widget->parent->content_rect->size.height) + widget->parent->content_rect->top_left.y);
 
-        // Adapt top-left coord at the anchor given in parameter
-        switch (widget_anchor) {
+        // Adapt top-left coordinates at the anchor given in parameter
+        switch (widget->placer_params->anchor_data) {
                 case ei_anc_center:
                         rect.top_left.x = rel_coord.x - (rect.size.width / 2);
                         rect.top_left.y = rel_coord.y - (rect.size.height / 2);
@@ -272,7 +270,7 @@ void ei_placer_run(struct ei_widget_t* widget) {
                         break;
         }
 
-         // Call geometry function
+        // Call geomnotify function to update widget proportions
         widget->wclass->geomnotifyfunc(widget, rect);
 }
 

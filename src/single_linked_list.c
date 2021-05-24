@@ -185,6 +185,7 @@ void set_xymin(side **ll) {
         side *first = *ll;
 
         while (*ll != NULL) {
+                // Use Bresenham algorithm
                 (*ll)->error += abs((*ll)->dx);
                 uint32_t dx_signe = (*ll)->dx > 0 ? 1 : -1;
 

@@ -63,6 +63,14 @@ struct ei_linked_point_t * get_last_node(struct ei_linked_point_t *ll);
  */
 void free_list(ei_linked_point_t *lc);
 
+/**
+ * @brief       Generate a linked list of points which represent a rectangle.
+ *              This function is more efficient to generate a rectangle without any rounded edges.
+ *
+ * @param       rectangle       The rectangle (size and top-left position) which must be generated.
+ *
+ * @return      The linked list of points.
+ */
 ei_linked_point_t *get_rectangle_list (ei_rect_t          rectangle);
 
 

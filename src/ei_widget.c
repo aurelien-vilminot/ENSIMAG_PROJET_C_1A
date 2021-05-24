@@ -9,7 +9,7 @@
  * @param       surface             Used to know rgba position in the corresponding surface
  * @param       color_to_convert    Element which is convert into ei_color_t
  *
- * @return      A color corresponding to the 32 bits give as argument
+ * @return      A color corresponding to the 32 bits give as argument. This color must be free by user.
  */
 ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert){
         // Place of colors
@@ -39,7 +39,6 @@ ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert){
  * @param       parent      The child's parent which the children field needs to be updated
  */
 static void insert_child(ei_widget_t *widget, ei_widget_t *parent) {
-
         if (parent->children_head) {
                 parent->children_tail->next_sibling = widget;
         } else {
@@ -49,8 +48,15 @@ static void insert_child(ei_widget_t *widget, ei_widget_t *parent) {
 
 }
 
+/**
+ * @brief       This function return the higher id used into tree which represents all the widgets.
+ *              It useful because the last element inserted is not necessarily on the bottom-right corner of the tree.
+ *
+ * @return      An uint32_t which is the id.
+ */
 static uint32_t last_id(void) {
-        ei_widget_t * current_widget = g_root_frame;
+        // Init
+        ei_widget_t *current_widget = g_root_frame;
         uint32_t count_id = 0;
 
         // Depth course of each widgets
@@ -275,17 +281,19 @@ void set_default_top_level (ei_widget_t *widget) {
  *				(i.e. = widget->screen_location).
  */
 void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
+        // Init
         widget->screen_location = rect;
         ei_button_t *button = (ei_button_t *) widget;
 
         int32_t borders_to_remove = button->border_width * 2;
 
+        // Calculate size and place of content rect
         ei_size_t size_content_rect = {widget->screen_location.size.width - borders_to_remove,
                                        widget->screen_location.size.height -  borders_to_remove};
 
         ei_point_t place_content_rect = {widget->screen_location.top_left.x + button->border_width, widget->screen_location.top_left.y + button->border_width};
 
-        // Allocate memory for content_rect
+        // Specify content_rect
         button->widget.content_rect->size = size_content_rect;
         button->widget.content_rect->top_left = place_content_rect;
 
@@ -310,12 +318,13 @@ void button_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
  *				(i.e. = widget->screen_location).
  */
 void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
+        // Init
         widget->screen_location = rect;
-
         ei_frame_t *frame = (ei_frame_t *) widget;
 
         int32_t borders_to_remove = frame->border_width * 2;
 
+        // Calculate size and place of content rect
         ei_size_t size_content_rect = {widget->screen_location.size.width - borders_to_remove,
                                        widget->screen_location.size.height -  borders_to_remove};
 
@@ -347,8 +356,8 @@ void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
  *				(i.e. = widget->screen_location).
  */
 void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
+        // Init
         widget->screen_location = rect;
-
         ei_top_level_t *top_level_widget = (ei_top_level_t *) widget;
 
         // Configure text place
@@ -387,6 +396,7 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
 
         ei_button_configure((ei_widget_t*) top_level_widget->close_button, &close_button_size, &close_button_color, 0, &close_button_corner_radius, &close_button_relief, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
+        // Params widget attributes of close button
         top_level_widget->close_button->widget.screen_location.top_left.x = close_button_x;
         top_level_widget->close_button->widget.screen_location.top_left.y = close_button_y - (close_button_width_height/ 2);
         top_level_widget->close_button->widget.screen_location.size = close_button_size;
@@ -467,7 +477,10 @@ void			ei_frame_configure		(ei_widget_t*		widget,
         frame_widget->relief = relief != NULL ? *relief : frame_widget-> relief;
 
         if (text) {
+                // Delete the old text
                 free(frame_widget->text);
+
+                // The new text must be copy into text attribute of frame widget
                 frame_widget->text = calloc(strlen(*text) + 1, sizeof(char));
                 strcpy(frame_widget->text, *text);
         }
@@ -478,8 +491,6 @@ void			ei_frame_configure		(ei_widget_t*		widget,
                 frame_widget->text = malloc(sizeof(ei_rect_t));
                 frame_widget->img_rect = *img_rect;
         }
-
-        frame_widget->img_rect = img_rect != NULL ? *img_rect : frame_widget-> img_rect;
 
         frame_widget->text_font = text_font != NULL ? text_font : frame_widget-> text_font;
         frame_widget->text_color = text_color != NULL ? *text_color : frame_widget-> text_color;
@@ -530,7 +541,10 @@ void			ei_button_configure		(ei_widget_t*		widget,
         button_widget->relief = relief != NULL ? *relief : button_widget->relief;
 
         if (text) {
+                // Delete the old text
                 free(button_widget->text);
+
+                // The new text must be copy into text attribute of frame widget
                 button_widget->text = calloc(strlen(*text) + 1, sizeof(char));
                 strcpy(button_widget->text, *text);
         }
@@ -656,6 +670,8 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
                 // We must to survey the value of the following arguments.
                 widget_to_return->wclass = class;
                 widget_to_return->parent = parent;
+                widget_to_return->user_data = user_data;
+                widget_to_return->destructor = destructor;
 
                 // Update parent's child, only if parent exists
                 if (parent) {
@@ -664,8 +680,6 @@ ei_widget_t*		ei_widget_create		(ei_widgetclass_name_t	class_name,
                         widget_to_return->pick_id = last_widget_id + 1;
                         widget_to_return->pick_color = inverse_map_rgba(g_offscreen, widget_to_return->pick_id);
                 }
-                widget_to_return->user_data = user_data;
-                widget_to_return->destructor = destructor;
 
                 // We return a pointer on the new ei_widget_t
                 return widget_to_return;
@@ -742,8 +756,10 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
  * @return      A point which represents coordinates of top-left text place
  */
  ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_t *widget_place, ei_size_t *widget_size) {
-        ei_point_t * text_coord = malloc(sizeof(ei_point_t));
+         // Allocate memory
+        ei_point_t *text_coord = malloc(sizeof(ei_point_t));
 
+        // Adapt top-left coordinates at the anchor given in parameter
         switch (*text_anchor) {
                 case ei_anc_center:
                         text_coord->x = widget_place->x + (widget_size->width - text_size->width) / 2;

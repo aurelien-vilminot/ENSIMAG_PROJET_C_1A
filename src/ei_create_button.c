@@ -213,6 +213,11 @@ ei_linked_point_t * get_last_node(ei_linked_point_t *ll) {
         return ll;
 }
 
+/**
+ * @brief       Delete all linked list given in param. Free memory.
+ *
+ * @param       lc      The linked list to suppr
+ */
 void free_list(ei_linked_point_t *lc) {
         ei_linked_point_t *next_node = lc;
         while (lc != NULL) {
@@ -222,15 +227,23 @@ void free_list(ei_linked_point_t *lc) {
         }
 }
 
+/**
+ * @brief       Generate a linked list of points which represent a rectangle.
+ *              This function is more efficient to generate a rectangle without any rounded edges.
+ *
+ * @param       rectangle       The rectangle (size and top-left position) which must be generated.
+ *
+ * @return      The linked list of points.
+ */
 ei_linked_point_t *get_rectangle_list (ei_rect_t rectangle) {
         // Head of linked list which represent the top-left point
         ei_linked_point_t *ll = malloc((sizeof(ei_linked_point_t)));
 
+        // Allocated memory for all points
         ei_linked_point_t *p2 = malloc(sizeof(ei_linked_point_t));
         ei_linked_point_t *p3 = malloc(sizeof(ei_linked_point_t));
         ei_linked_point_t *p4 = malloc(sizeof(ei_linked_point_t));
         ei_linked_point_t *last_point = malloc(sizeof(ei_linked_point_t));
-
 
         ll->point.x = rectangle.top_left.x;
         ll->point.y = rectangle.top_left.y;

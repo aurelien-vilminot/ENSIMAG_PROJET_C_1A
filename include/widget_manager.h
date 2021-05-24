@@ -265,7 +265,7 @@ ei_point_t* text_place(ei_anchor_t *text_anchor, ei_size_t *text_size, ei_point_
  * @param       surface             Used to know rgba position in the corresponding surface
  * @param       color_to_convert    Element which is convert into ei_color_t
  *
- * @return      A color corresponding to the 32 bits give as argument
+ * @return      A color corresponding to the 32 bits give as argument. This color must be free by user.
  */
 ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert);
 
@@ -277,6 +277,13 @@ ei_color_t *inverse_map_rgba(ei_surface_t surface, uint32_t color_to_convert);
  */
 static void insert_child(ei_widget_t *widget, ei_widget_t *parent);
 
+
+/**
+ * @brief       This function return the higher id used into tree which represents all the widgets.
+ *              It useful because the last element inserted is not necessarily on the bottom-right corner of the tree.
+ *
+ * @return      An uint32_t which is the id.
+ */
 static uint32_t last_id(void);
 
 /**

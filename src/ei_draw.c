@@ -3,21 +3,15 @@
 #include "ei_create_button.h"
 #include "widget_manager.h"
 
-/* Cette fonction doit peut-être directement d'adapter au fonctions qui l'utilisent.
- * En tout cas, il faut absolument qu'en paramètre soit donné les coordonnées limite et pas le clipper.
- * Les premières lignes de la fonction sont à écrires directement dans les fonctions qui l'utilisent.
- *
- * Elle retourne True si le point donné en paramètre se situe dans le clipper également donné en paramètre.
- * Sinon elle retourne False
- */
-
 /**
  * @brief       Return if a point is in a certain area which is the clipper
+ *
  * @param       point_x
  * @param       point_y
  * @param       x_max
  * @param       y_max
- * @param       clipper
+ * @param       clipper     The clipper, it could be NULL.
+ *
  * @return      True if point given in param is in clipper, False if not.
  */
 static int is_in_clipper(int point_x, int point_y, const ei_rect_t* clipper) {
@@ -32,19 +26,35 @@ static int is_in_clipper(int point_x, int point_y, const ei_rect_t* clipper) {
         return EI_TRUE;
 }
 
+/**
+ * @brief       Do a clipping on the content_rect of the widget given in parameter.
+ *              This function could be used when the content_rect of parent's widget is smaller than its.
+ *
+ * @param       widget      The widget where the content_rect attribute must be updated.
+ * @param       clipper     The new clipper. Could be NULL.
+ */
 static void clipper_content_rect(ei_widget_t *widget, ei_rect_t *clipper) {
         if (clipper) {
+                // Update width
                 if (widget->content_rect->size.width > clipper->size.width) {
                         widget->content_rect->size.width = clipper->size.width;
                 }
 
+                // Update height
                 if (widget->content_rect->size.height > clipper->size.height) {
                         widget->content_rect->size.height = clipper->size.height;
                 }
 
+                // Update top-left x coordinate
                 if (widget->content_rect->top_left.x < clipper->top_left.x) {
                         widget->content_rect->size.width += widget->content_rect->top_left.x - clipper->top_left.x;
                         widget->content_rect->top_left.x = clipper->top_left.x;
+                }
+
+                // Update top-left y coordinate
+                if (widget->content_rect->top_left.y < clipper->top_left.y) {
+                        widget->content_rect->size.height += widget->content_rect->top_left.y - clipper->top_left.y;
+                        widget->content_rect->top_left.y = clipper->top_left.y;
                 }
         }
 }
@@ -62,7 +72,7 @@ static void clipper_content_rect(ei_widget_t *widget, ei_rect_t *clipper) {
  *				alpha channel.
  */
 uint32_t		ei_map_rgba		(ei_surface_t surface, ei_color_t color) {
-
+        // Init
         int red_place;
         int green_place;
         int blue_place;
@@ -348,6 +358,7 @@ void			ei_draw_polygon		(ei_surface_t			surface,
                                                             const ei_linked_point_t*	first_point,
                                                             ei_color_t			color,
                                                             const ei_rect_t*		clipper) {
+        // Get surface parameters
         hw_surface_lock(surface);
         uint32_t *first_pixel = (uint32_t*)hw_surface_get_buffer(surface);
         ei_size_t surface_size = hw_surface_get_size(surface);
@@ -530,8 +541,8 @@ void ei_draw_text (ei_surface_t surface, const ei_point_t* where, const char* te
 void			ei_fill			(ei_surface_t		surface,
                                                             const ei_color_t*	color,
                                                             const ei_rect_t*	clipper) {
+        // Get all parameters
         hw_surface_lock(surface);
-
         uint32_t *first_pixel = (uint32_t*)hw_surface_get_buffer(surface);
         ei_size_t size = hw_surface_get_size(surface);
         uint32_t color_int = ei_map_rgba(surface, *color);
@@ -657,17 +668,20 @@ int	ei_copy_surface	(ei_surface_t destination, const ei_rect_t* dst_rect, ei_sur
 }
 
 /**
- * @brief   Draw button
+ * \brief	A function that draws widgets of button class.
  *
- * @param widget
- * @param surface
- * @param pick_surface
- * @param clipper
+ * @param	widget		A pointer to the widget instance to draw.
+ * @param	surface		Where to draw the widget. The actual location of the widget in the
+ *				surface is stored in its "screen_location" field.
+ * @param	pick_surface	The picking offscreen.
+ * @param	clipper		If not NULL, the drawing is restricted within this rectangle
+ *				(expressed in the surface reference frame).
  */
 void                    ei_draw_button          (ei_widget_t*	        widget,
                                                  ei_surface_t		surface,
                                                  ei_surface_t		pick_surface,
                                                  ei_rect_t*		clipper) {
+        // Init
         ei_button_t *button = (ei_button_t*) widget;
         clipper_content_rect(widget, clipper);
 
@@ -761,6 +775,7 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
         // Free memory
         free_list(pts_middle);
 
+        // Image treatment only if there is an image to display
         if (button->img) {
                 ei_point_t *img_coord = text_place(&button->img_anchor, &button->img_rect->size,
                                                    &button->widget.content_rect->top_left,
@@ -811,16 +826,20 @@ void                    ei_draw_button          (ei_widget_t*	        widget,
 }
 
 /**
- * @brief       Draw frame
- * @param widget
- * @param surface
- * @param pick_surface
- * @param clipper
+ * \brief	A function that draws widgets of frame class.
+ *
+ * @param	widget		A pointer to the widget instance to draw.
+ * @param	surface		Where to draw the widget. The actual location of the widget in the
+ *				surface is stored in its "screen_location" field.
+ * @param	pick_surface	The picking offscreen.
+ * @param	clipper		If not NULL, the drawing is restricted within this rectangle
+ *				(expressed in the surface reference frame).
  */
 void ei_draw_frame (ei_widget_t*        widget,
                     ei_surface_t	surface,
                     ei_surface_t	pick_surface,
                     ei_rect_t*		clipper) {
+        // Init
         ei_frame_t *frame = (ei_frame_t*) widget;
         clipper_content_rect(widget, clipper);
 
@@ -906,6 +925,7 @@ void ei_draw_frame (ei_widget_t*        widget,
         // Free memory
         free_list(pts_frame);
 
+        // Frame treatment only if there is a frame to display
         if (frame->img) {
                 ei_point_t *img_coord = text_place(&frame->img_anchor, &frame->img_rect->size,
                                                    &frame->widget.content_rect->top_left,
@@ -955,14 +975,23 @@ void ei_draw_frame (ei_widget_t*        widget,
         }
 }
 
+/**
+ * \brief	A function that draws widgets of top-level class.
+ *
+ * @param	widget		A pointer to the widget instance to draw.
+ * @param	surface		Where to draw the widget. The actual location of the widget in the
+ *				surface is stored in its "screen_location" field.
+ * @param	pick_surface	The picking offscreen.
+ * @param	clipper		If not NULL, the drawing is restricted within this rectangle
+ *				(expressed in the surface reference frame).
+ */
 void ei_draw_top_level (ei_widget_t*            widget,
                         ei_surface_t		surface,
                         ei_surface_t		pick_surface,
                         ei_rect_t*		clipper) {
+        // Init
         ei_top_level_t *top_level = (ei_top_level_t *) widget;
-
         clipper_content_rect(widget, clipper);
-
         ei_color_t border_color = {0x00, 0x00, 0x00, 0xff};
 
         // Configure text place
