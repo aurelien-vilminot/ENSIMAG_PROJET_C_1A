@@ -517,7 +517,7 @@ int main(int argc, char* argv[])
 	new_game(4, 4, 80, 4);
 	new_game(4, 4, 100, 4);
 
-//	ei_event_set_default_handle_func(global_event_handler);
+	ei_event_set_default_handle_func(global_event_handler);
 
 	ei_app_run();
 	

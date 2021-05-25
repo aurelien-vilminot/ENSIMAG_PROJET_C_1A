@@ -508,7 +508,7 @@ void			ei_frame_configure		(ei_widget_t*		widget,
                 ei_copy_surface(frame_widget->img, NULL, *img, NULL, EI_TRUE);
         }
 
-        frame_widget->text_font = text_font != NULL ? text_font : frame_widget-> text_font;
+        frame_widget->text_font = text_font != NULL ? *text_font : frame_widget-> text_font;
         frame_widget->text_color = text_color != NULL ? *text_color : frame_widget-> text_color;
         frame_widget->text_anchor = text_anchor != NULL ? *text_anchor : frame_widget-> text_anchor;
         frame_widget->img_anchor = img_anchor != NULL ? *img_anchor : frame_widget-> img_anchor;
@@ -583,7 +583,7 @@ void			ei_button_configure		(ei_widget_t*		widget,
                 ei_copy_surface(button_widget->img, NULL, *img, NULL, EI_TRUE);
         }
 
-        button_widget->text_font = text_font != NULL ? text_font : button_widget->text_font;
+        button_widget->text_font = text_font != NULL ? *text_font : button_widget->text_font;
         button_widget->text_color = text_color != NULL ? *text_color : button_widget->text_color;
         button_widget->text_anchor = text_anchor != NULL ? *text_anchor : button_widget->text_anchor;
         button_widget->img_anchor = img_anchor != NULL ? *img_anchor : button_widget->img_anchor;
