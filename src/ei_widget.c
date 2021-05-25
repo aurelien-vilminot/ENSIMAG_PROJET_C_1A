@@ -474,7 +474,11 @@ void			ei_frame_configure		(ei_widget_t*		widget,
         // Cast into frame widget to configure it
         ei_frame_t * frame_widget = (ei_frame_t*) widget;
 
-        frame_widget->widget.requested_size = requested_size != NULL ? *requested_size : frame_widget->widget.requested_size;
+        if (requested_size) {
+                frame_widget->widget.requested_size = *requested_size;
+                ei_place(widget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        }
+
         frame_widget->color = color != NULL ? *color : frame_widget->color;
         frame_widget->border_width = border_width != NULL ? *border_width : frame_widget-> border_width;
         frame_widget->relief = relief != NULL ? *relief : frame_widget-> relief;
@@ -507,6 +511,7 @@ void			ei_frame_configure		(ei_widget_t*		widget,
                 // Copy img surface parameter into the surface created
                 ei_copy_surface(frame_widget->img, NULL, *img, NULL, EI_TRUE);
         }
+
 
         frame_widget->text_font = text_font != NULL ? *text_font : frame_widget-> text_font;
         frame_widget->text_color = text_color != NULL ? *text_color : frame_widget-> text_color;
@@ -588,7 +593,6 @@ void			ei_button_configure		(ei_widget_t*		widget,
         button_widget->text_anchor = text_anchor != NULL ? *text_anchor : button_widget->text_anchor;
         button_widget->img_anchor = img_anchor != NULL ? *img_anchor : button_widget->img_anchor;
         button_widget->callback = callback != NULL ? *callback : button_widget->callback;
-
         button_widget->user_param = user_param != NULL ? *user_param : button_widget->user_param;
 }
 

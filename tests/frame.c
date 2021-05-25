@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 	/* Create, configure and place the frame on screen. */
 	frame = ei_widget_create("frame", ei_app_root_widget(), NULL, NULL);
 	ei_frame_configure	(frame, &frame_size, &frame_color,
-				 &frame_border_width, &frame_relief, &text, ei_default_font, &root_bgcol, NULL,
+				 &frame_border_width, &frame_relief, &text, &ei_default_font, &root_bgcol, NULL,
 				 NULL, NULL, NULL);
 	ei_place(frame, NULL, &frame_x, &frame_y, NULL, NULL, NULL, NULL, NULL, NULL );
 

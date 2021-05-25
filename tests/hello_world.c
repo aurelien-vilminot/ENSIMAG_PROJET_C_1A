@@ -116,7 +116,7 @@ int main(int argc, char** argv)
 
 	frame = ei_widget_create("frame", window, NULL, NULL);
 	ei_frame_configure(frame, NULL, &frame_color, &frame_border_width, &frame_relief, &frame_title,
-	        ei_default_font, &root_bgcol, &frame_text_anchor, NULL, NULL, NULL);
+	        &ei_default_font, &root_bgcol, &frame_text_anchor, NULL, NULL, NULL);
 	ei_place(frame, NULL, NULL, NULL, NULL, NULL, &frame_rel_x, &frame_rel_y, &frame_rel_width, &frame_rel_height);
 
         /* Create, configure and place a button as a descendant of the toplevel window. */
