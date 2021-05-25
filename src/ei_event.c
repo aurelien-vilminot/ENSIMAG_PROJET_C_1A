@@ -233,6 +233,9 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                 return EI_TRUE;
                         }
 
+                        // Put the widget to the front
+                        replace_order(widget);
+
                         // If the mouse is in the resizing rectangle
                         if (is_rectangle_in_rectangle(*(toplevel_widget->resize_rect), event->param.mouse.where, NULL)){
                                 ei_event_set_active_widget(widget);
@@ -249,16 +252,13 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                 return EI_TRUE;
                         }
 
-                        // Put the widget to the front
-                        replace_order(widget);
-
-                // If the mouse button is up, release the active widget
+                        // If the mouse button is up, release the active widget
                 } else if (event->type == ei_ev_mouse_buttonup) {
                         // If the mouse button is still on the close button so it closes the toplevel
                         if (is_rectangle_in_rectangle(toplevel_widget->close_button->widget.screen_location, event->param.mouse.where, NULL)) {
                                 ei_widget_destroy(widget);
                         }
-                        // Otherwise it put the current event to none.
+                                // Otherwise it put the current event to none.
                         else {
                                 toplevel_widget->current_event = event_none;
                         }
@@ -266,7 +266,7 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                         ei_event_set_active_widget(NULL);
                         return EI_TRUE;
 
-                // If the mouse move and that the toplevel is active, move the top level corresponding to
+                        // If the mouse move and that the toplevel is active, move the top level corresponding to
                 } else if (event->type == ei_ev_mouse_move && ei_event_get_active_widget() == widget){
                         // Case of resizing
                         if (toplevel_widget->current_event == event_resize) {
@@ -323,7 +323,7 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                 // Resize also the children of the removed widget
                                 children_resizing(widget);
                         }
-                        // Case of moving
+                                // Case of moving
                         else if (toplevel_widget->current_event == event_move){
                                 // New location of coord x and y
                                 int new_loc_x = toplevel_widget->widget.screen_location.top_left.x + event->param.mouse.where.x - g_previous_event->param.mouse.where.x;
@@ -341,7 +341,7 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                                 children_resizing(widget);
                                         }
                                 }
-                                // If there isn't parent, so verifies that the top level is still in the root frame
+                                        // If there isn't parent, so verifies that the top level is still in the root frame
                                 else {
                                         if (is_rectangle_in_rectangle(g_root_frame->screen_location, new_loc, &toplevel_widget->widget.screen_location.size)){
                                                 ei_place(widget, NULL, &new_loc_x, &new_loc_y, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -394,10 +394,11 @@ ei_bool_t handle_button_function(struct ei_widget_t* widget,
                 if (event->type == ei_ev_mouse_buttondown) {
                         button_widget->relief = ei_relief_sunken;
                         ei_event_set_active_widget(widget);
+                        button_widget->callback(widget, event, button_widget->user_param);
                         return EI_TRUE;
                 }
 
-                // If the left button of the mouse is up
+                        // If the left button of the mouse is up
                 else if (event->type == ei_ev_mouse_buttonup) {
                         button_widget->relief = ei_relief_raised;
                         ei_event_set_active_widget(NULL);
@@ -418,7 +419,7 @@ ei_bool_t handle_button_function(struct ei_widget_t* widget,
  */
 
 ei_bool_t handle_frame_function(struct ei_widget_t* widget,
-                                 struct ei_event_t* event){
+                                struct ei_event_t* event){
 
         // If a mouse is clicked on a frame, it parents are replaced to the front
         if (event->type == ei_ev_mouse_buttondown){
@@ -441,7 +442,7 @@ ei_bool_t handle_frame_function(struct ei_widget_t* widget,
  */
 void ei_event_set_active_widget(ei_widget_t* widget){
         if (!g_active_widget) g_active_widget = malloc(sizeof(widget));
-        *g_active_widget = *widget;
+        g_active_widget = widget;
 }
 
 /**

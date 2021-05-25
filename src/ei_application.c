@@ -118,17 +118,20 @@ void ei_app_run(void){
                 // The first children is printed at the background (but in front of the root frame).
                 ei_widget_t *widget_to_print = g_root_frame;
                 do {
+                        ei_widget_t* parent;
                         if (widget_to_print->children_head) {
+                                parent = widget_to_print;
                                 widget_to_print = widget_to_print->children_head;
-                                widget_to_print->wclass->drawfunc(widget_to_print, g_root_windows, g_offscreen, widget_to_print->content_rect);
+                                widget_to_print->wclass->drawfunc(widget_to_print, g_root_windows, g_offscreen, parent->content_rect);
                         } else {
                                 while (widget_to_print != g_root_frame && widget_to_print->next_sibling == NULL) {
                                         widget_to_print = widget_to_print->parent;
                                 }
 
                                 if (widget_to_print->next_sibling) {
+                                        parent = widget_to_print->parent;
                                         widget_to_print = widget_to_print->next_sibling;
-                                        widget_to_print->wclass->drawfunc(widget_to_print, g_root_windows, g_offscreen, widget_to_print->parent->content_rect);
+                                        widget_to_print->wclass->drawfunc(widget_to_print, g_root_windows, g_offscreen, parent->content_rect);
                                 }
                         }
                 } while (widget_to_print != g_root_frame);
