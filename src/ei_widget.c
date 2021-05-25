@@ -163,6 +163,7 @@ void button_release(struct ei_widget_t*	widget) {
 
         if (button_widget->text) free(button_widget->text);
         if (button_widget->img_rect) free(button_widget->img_rect);
+        if (button_widget->img) hw_surface_free(button_widget->img);
 }
 
 /**
@@ -206,6 +207,7 @@ void frame_release(struct ei_widget_t* widget) {
 
         if (frame_widget->text) free(frame_widget->text);
         if (frame_widget->img_rect) free(frame_widget->img_rect);
+        if (frame_widget->img) hw_surface_free(frame_widget->img);
 }
 
 /*
@@ -365,15 +367,16 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         hw_text_compute_size(top_level_widget->title, ei_default_font, &(text_size->width), &(text_size->height));
 
         // Get size and place parameters
-        int width_top_level = top_level_widget->widget.screen_location.size.width;
-        int height_top_level = top_level_widget->widget.screen_location.size.height;
         int place_x = top_level_widget->widget.screen_location.top_left.x;
         int place_y = top_level_widget->widget.screen_location.top_left.y;
 
+        // Resize screen_location including border and top_bar
+        widget->screen_location.size.width += 2*(top_level_widget->border_width);
+        widget->screen_location.size.height += (top_level_widget->border_width + text_size->height);
+
         // Set size and place for the rectangle used to model the content part of the top level (all without border)
-        ei_size_t size_content_rect = {width_top_level - 2*(top_level_widget->border_width),
-                                       height_top_level - (top_level_widget->border_width + text_size->height)};
-        ei_point_t place_content_rect = {place_x + (top_level_widget->border_width), place_y + (text_size->height)};
+        ei_size_t size_content_rect = rect.size;
+        ei_point_t place_content_rect = {place_x + top_level_widget->border_width, place_y + text_size->height};
 
         // Specify content_rect
         top_level_widget->widget.content_rect->size = size_content_rect;
@@ -384,8 +387,8 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         top_level_widget->top_bar->size = ei_size(top_level_widget->widget.screen_location.size.width, top_level_widget->widget.screen_location.size.height - top_level_widget->widget.content_rect->size.height);
 
         // Close button configuration
-        int close_button_x = place_x + (top_level_widget->top_bar->size.height / 4);
-        int close_button_y = place_y + (top_level_widget->top_bar->size.height / 2);
+        int close_button_x = widget->screen_location.top_left.x + (top_level_widget->top_bar->size.height / 4);
+        int close_button_y = widget->screen_location.top_left.y + (top_level_widget->top_bar->size.height / 2);
 
         int close_button_width_height = top_level_widget->top_bar->size.height / 2;
         ei_size_t close_button_size = {close_button_width_height, close_button_width_height};
@@ -407,8 +410,8 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         free(text_size);
 
         // Resizable rect
-        top_level_widget->resize_rect->top_left.x = (place_x + width_top_level) - default_top_level_rect_resize;
-        top_level_widget->resize_rect->top_left.y = (place_y + height_top_level) - default_top_level_rect_resize;
+        top_level_widget->resize_rect->top_left.x = (widget->screen_location.top_left.x + widget->screen_location.size.width) - default_top_level_rect_resize;
+        top_level_widget->resize_rect->top_left.y = (widget->screen_location.top_left.y + widget->screen_location.size.height) - default_top_level_rect_resize;
         top_level_widget->resize_rect->size.width = default_top_level_rect_resize;
         top_level_widget->resize_rect->size.height = default_top_level_rect_resize;
 }
@@ -477,8 +480,10 @@ void			ei_frame_configure		(ei_widget_t*		widget,
         frame_widget->relief = relief != NULL ? *relief : frame_widget-> relief;
 
         if (text) {
-                // Delete the old text
-                free(frame_widget->text);
+                // Delete the old text if exists
+                if (frame_widget->text) {
+                        free(frame_widget->text);
+                }
 
                 // The new text must be copy into text attribute of frame widget
                 frame_widget->text = calloc(strlen(*text) + 1, sizeof(char));
@@ -487,15 +492,25 @@ void			ei_frame_configure		(ei_widget_t*		widget,
 
 
         if (img_rect) {
-                free(frame_widget->img_rect);
-                frame_widget->text = malloc(sizeof(ei_rect_t));
-                frame_widget->img_rect = *img_rect;
+                if (frame_widget->img_rect == NULL) {
+                        // Allocate memory if its the first time
+                        frame_widget->img_rect = calloc(1, sizeof(ei_rect_t));
+                }
+                frame_widget->img_rect->size = (*img_rect)->size;
+                frame_widget->img_rect->top_left = (*img_rect)->top_left;
+        }
+
+
+        if (img) {
+                // Create a new surface with size of img parameter
+                frame_widget->img = hw_surface_create(*img, hw_surface_get_size(*img), EI_FALSE);
+                // Copy img surface parameter into the surface created
+                ei_copy_surface(frame_widget->img, NULL, *img, NULL, EI_TRUE);
         }
 
         frame_widget->text_font = text_font != NULL ? text_font : frame_widget-> text_font;
         frame_widget->text_color = text_color != NULL ? *text_color : frame_widget-> text_color;
         frame_widget->text_anchor = text_anchor != NULL ? *text_anchor : frame_widget-> text_anchor;
-        frame_widget->img = img != NULL ? img : frame_widget-> img;
         frame_widget->img_anchor = img_anchor != NULL ? *img_anchor : frame_widget-> img_anchor;
 }
 
@@ -541,27 +556,40 @@ void			ei_button_configure		(ei_widget_t*		widget,
         button_widget->relief = relief != NULL ? *relief : button_widget->relief;
 
         if (text) {
-                // Delete the old text
-                free(button_widget->text);
+                // Delete the old text if exists
+                if (button_widget->text) {
+                        free(button_widget->text);
+                }
 
                 // The new text must be copy into text attribute of frame widget
                 button_widget->text = calloc(strlen(*text) + 1, sizeof(char));
                 strcpy(button_widget->text, *text);
         }
 
+
         if (img_rect) {
-                free(button_widget->img_rect);
-                button_widget->text = malloc(sizeof(ei_rect_t));
-                button_widget->img_rect = *img_rect;
+                if (button_widget->img_rect == NULL) {
+                        // Allocate memory if its the first time
+                        button_widget->img_rect = calloc(1, sizeof(ei_rect_t));
+                }
+                button_widget->img_rect->size = (*img_rect)->size;
+                button_widget->img_rect->top_left = (*img_rect)->top_left;
+        }
+
+        if (img) {
+                // Create a new surface with size of img parameter
+                button_widget->img = hw_surface_create(*img, hw_surface_get_size(*img), EI_FALSE);
+                // Copy img surface parameter into the surface created
+                ei_copy_surface(button_widget->img, NULL, *img, NULL, EI_TRUE);
         }
 
         button_widget->text_font = text_font != NULL ? text_font : button_widget->text_font;
         button_widget->text_color = text_color != NULL ? *text_color : button_widget->text_color;
         button_widget->text_anchor = text_anchor != NULL ? *text_anchor : button_widget->text_anchor;
-        button_widget->img = img != NULL ? img : button_widget->img;
         button_widget->img_anchor = img_anchor != NULL ? *img_anchor : button_widget->img_anchor;
         button_widget->callback = callback != NULL ? *callback : button_widget->callback;
-        button_widget->user_param = user_param != NULL ? user_param : button_widget->user_param;
+
+        button_widget->user_param = user_param != NULL ? *user_param : button_widget->user_param;
 }
 
 /**
@@ -615,7 +643,7 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
 
                         // Call the placer
                         ei_placer_run(widget);
-                }else {
+                } else {
                         // Configure attributes for the first time
                         top_level_widget->border_width = *border_width;
                 }

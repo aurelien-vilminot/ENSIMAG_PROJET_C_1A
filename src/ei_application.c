@@ -21,22 +21,43 @@ void ei_widgetclass_register(ei_widgetclass_t* widgetclass) {
                 button_class->drawfunc = &ei_draw_button;
                 button_class->setdefaultsfunc = &set_default_button;
                 button_class->next = NULL;
-                button_class->geomnotifyfunc = &button_geomnotifyfunc; button_class->handlefunc = &handle_button_function;
+                button_class->geomnotifyfunc = &button_geomnotifyfunc;
+                button_class->handlefunc = &handle_button_function;
         } else if (strcmp(class_name, "toplevel") == 0) {
                 top_level_class->allocfunc = &top_level_alloc_func;
                 top_level_class->releasefunc = &top_level_release;
                 top_level_class->drawfunc= &ei_draw_top_level;
                 top_level_class->setdefaultsfunc = &set_default_top_level;
                 top_level_class->next = button_class;
-                top_level_class->geomnotifyfunc = &top_level_geomnotifyfunc; top_level_class->handlefunc = &handle_top_level_function;
+                top_level_class->geomnotifyfunc = &top_level_geomnotifyfunc;
+                top_level_class->handlefunc = &handle_top_level_function;
         } else if (strcmp(class_name, "frame") == 0) {
                 frame_class->allocfunc = &frame_alloc_func;
                 frame_class->releasefunc = &frame_release;
                 frame_class->drawfunc = &ei_draw_frame;
                 frame_class->setdefaultsfunc = &set_default_frame;
                 frame_class->next = top_level_class;
-                frame_class->geomnotifyfunc = &frame_geomnotifyfunc; frame_class->handlefunc = &handle_frame_function;
+                frame_class->geomnotifyfunc = &frame_geomnotifyfunc;
+                frame_class->handlefunc = &handle_frame_function;
         }
+}
+
+/**
+ * @brief	Returns the structure describing a class, from its name.
+ *
+ * @param	name		The name of the class of widget.
+ *
+ * @return			The structure describing the class.
+ */
+ei_widgetclass_t*	ei_widgetclass_from_name	(ei_widgetclass_name_t name) {
+        ei_widgetclass_t *current_class = frame_class;
+        while (current_class) {
+              if (current_class->name == name) {
+                      return current_class;
+              }
+              current_class = current_class->next;
+        }
+        return NULL;
 }
 
 /**
