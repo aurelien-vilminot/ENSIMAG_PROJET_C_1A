@@ -597,7 +597,6 @@ int	ei_copy_surface	(ei_surface_t destination, const ei_rect_t* dst_rect, ei_sur
         ei_size_t src_size_rect;
         uint32_t sum_src_next_line;
 
-        /////// Le -1 est à surveiller dans le if ici et plus bas
         if (src_rect){
                 src_size_rect = src_rect->size;
                 src_pixel += (src_rect->top_left.y * src_size_surface.width + src_rect->top_left.x - 1) * 4;
