@@ -164,7 +164,8 @@ ei_bool_t situate_event_callback(ei_event_t *event){
                 ei_event_get_active_widget()->wclass->handlefunc(ei_event_get_active_widget(), event);
         }
         ei_widget_t *widget_concerned = ei_widget_pick(&event->param.mouse.where);
-        return widget_concerned->wclass->handlefunc(widget_concerned, event);
+        if (widget_concerned) return widget_concerned->wclass->handlefunc(widget_concerned, event);
+        else return EI_FALSE;
 }
 
 /*
