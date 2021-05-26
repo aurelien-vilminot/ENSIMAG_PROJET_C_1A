@@ -172,21 +172,11 @@ void		ei_place	(struct ei_widget_t*	widget,
                 if (width) {
                         struct_placer->w = width;
                         struct_placer->w_data = *width;
-                } else {
-                        if (!rel_width && widget->requested_size.width) {
-                                struct_placer->w_data= widget->requested_size.width;
-                                struct_placer->w = &widget->requested_size.width;
-                        }
                 }
 
                 if (height) {
                         struct_placer->h = height;
                         struct_placer->h_data = *height;
-                } else {
-                        if (!rel_height && widget->requested_size.height) {
-                                struct_placer->h_data= widget->requested_size.height;
-                                struct_placer->h = &widget->requested_size.height;
-                        }
                 }
 
                 if (rel_x) {

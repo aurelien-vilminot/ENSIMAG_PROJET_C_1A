@@ -476,6 +476,10 @@ void			ei_frame_configure		(ei_widget_t*		widget,
 
         if (requested_size) {
                 frame_widget->widget.requested_size = *requested_size;
+                if (frame_widget->widget.placer_params) {
+                        frame_widget->widget.placer_params->w_data = requested_size->width;
+                        frame_widget->widget.placer_params->h_data = requested_size->height;
+                }
                 ei_place(widget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         }
 
