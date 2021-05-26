@@ -29,6 +29,8 @@ static int default_top_level_border_width = 0;
 static ei_bool_t default_top_level_closable = EI_TRUE;
 static ei_size_t default_top_level_min_size = {150, 150};
 static uint32_t default_top_level_rect_resize = 10;
+
+// State of active toplevel
 typedef enum {
         event_none      = 0,
         event_resize,
