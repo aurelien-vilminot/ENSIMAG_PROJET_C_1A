@@ -277,7 +277,7 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
 
                                 // If the toplevel is in another toplevel
                                 if (strcmp(toplevel_widget->widget.parent->wclass->name, "toplevel") == 0) {
-                                        ei_size_t new_size = {new_width, new_height};
+                                        ei_size_t new_size = {new_width + toplevel_widget->border_width, new_height + toplevel_widget->top_bar->size.height};
                                         float new_rel_width = (float) new_width /
                                                               toplevel_widget->widget.parent->content_rect->size.width;
                                         float new_rel_height = (float) new_height /
