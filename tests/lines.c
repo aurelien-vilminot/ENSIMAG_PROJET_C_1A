@@ -280,7 +280,7 @@ int main(int argc, char** argv)
 	ei_surface_t		main_window	= NULL;
 	ei_color_t		white		= { 0xff, 0xff, 0xff, 0xff };
 	ei_rect_t*		clipper_ptr	= NULL;
-	ei_rect_t		clipper		= ei_rect(ei_point(0, 0), ei_size(800, 600));
+	ei_rect_t		clipper		= ei_rect(ei_point(150, 150), ei_size(250, 250));
 	clipper_ptr		= &clipper;
 	ei_event_t		event;
 
@@ -293,10 +293,10 @@ int main(int argc, char** argv)
 	ei_fill		(main_window, &white, clipper_ptr);
 
 	/* Draw polylines. */
-	test_line	(main_window, clipper_ptr);
-	test_octogone	(main_window, clipper_ptr);
+//	test_line	(main_window, clipper_ptr);
+//	test_octogone	(main_window, clipper_ptr);
 	test_square	(main_window, clipper_ptr);
-	test_dot	(main_window, clipper_ptr);
+//	test_dot	(main_window, clipper_ptr);
 //
         /* Test copy surface */
 //        test_copy_surface(main_window, clipper_ptr);
@@ -308,7 +308,7 @@ int main(int argc, char** argv)
 //        test_arc(main_window, clipper_ptr);
 
         /* Test rounded_frame */
-        test_rounded_frame(main_window, clipper_ptr);
+//        test_rounded_frame(main_window, clipper_ptr);
 
 	/* Unlock and update the surface. */
 	hw_surface_unlock(main_window);

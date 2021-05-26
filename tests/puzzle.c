@@ -228,6 +228,11 @@ int main(int argc, char* argv[])
 	else
 		create_puzzle_window(k_default_image_filename);
 
+	if (argc > 1)
+	        create_puzzle_window(argv[1]);
+	else
+	        create_puzzle_window(k_default_image_filename);
+
 	ei_app_run();
 	
 	ei_app_free();
