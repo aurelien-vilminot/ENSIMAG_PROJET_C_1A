@@ -163,45 +163,8 @@ ei_bool_t situate_event_callback(ei_event_t *event){
         if (ei_event_get_active_widget()){
                 ei_event_get_active_widget()->wclass->handlefunc(ei_event_get_active_widget(), event);
         }
-        // Otherwise, we search the event to treat
-        // Parameters of the offscreen
-        hw_surface_lock(g_offscreen);
-        uint32_t *clicked_pixel = (uint32_t *) hw_surface_get_buffer(g_offscreen);
-        ei_size_t offscreen_size = hw_surface_get_size(g_offscreen);
-
-        // Compute memory location of clicked_pixel and put the its value in widget_id
-        clicked_pixel += (offscreen_size.width * event->param.mouse.where.y) + event->param.mouse.where.x;
-        uint32_t widget_id = *clicked_pixel;
-
-        // Test if the clicked pixel is in the g_root_frame
-        ei_widget_t *widget_to_treat = g_root_frame;
-        if (widget_to_treat->pick_id == widget_id){
-                return widget_to_treat->wclass->handlefunc(widget_to_treat, event);
-        }
-
-        // Depth course of each widgets
-        do {
-                if (widget_to_treat->children_head) {
-                        widget_to_treat = widget_to_treat->children_head;
-                        if (widget_to_treat->pick_id == widget_id){
-                                return widget_to_treat->wclass->handlefunc(widget_to_treat, event);
-                        }
-                } else {
-                        while (widget_to_treat != g_root_frame && widget_to_treat->next_sibling == NULL) {
-                                widget_to_treat = widget_to_treat->parent;
-                        }
-
-                        if (widget_to_treat->next_sibling) {
-                                widget_to_treat = widget_to_treat->next_sibling;
-                                if (widget_to_treat->pick_id == widget_id){
-                                        return widget_to_treat->wclass->handlefunc(widget_to_treat, event);
-                                }
-                        }
-                }
-        } while (widget_to_treat != g_root_frame);
-
-        // If no widget handle_function is treated, so has to call the default function
-        return EI_FALSE;
+        ei_widget_t *widget_concerned = ei_widget_pick(&event->param.mouse.where);
+        return widget_concerned->wclass->handlefunc(widget_concerned, event);
 }
 
 /*
@@ -297,7 +260,7 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                                 if ((toplevel_widget->resizable == ei_axis_y ||
                                                      toplevel_widget->resizable == ei_axis_both) &&
                                                     (new_height >= (toplevel_widget->min_size->height - toplevel_widget->top_bar->size.height) || new_height >=
-                                                                                                        toplevel_widget->widget.screen_location.size.height)) {
+                                                                                                                                                  toplevel_widget->widget.screen_location.size.height)) {
                                                         ei_place(widget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                                                                  &new_rel_height);
                                                 }
@@ -475,4 +438,3 @@ ei_default_handle_func_t ei_event_get_default_handle_func(void){
         if (g_default_handle_func) return *g_default_handle_func;
         else return NULL;
 }
-
