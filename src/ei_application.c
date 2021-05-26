@@ -241,6 +241,7 @@ void ei_app_quit_request(void) {
 
 /**
  * @brief       Return a linked list which represent all widget classes
+ * 
  * @return      A pointeur on the linked list
  */
 extern ei_widgetclass_t* get_linked_list_classes(void) {

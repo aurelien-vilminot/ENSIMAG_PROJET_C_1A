@@ -63,7 +63,7 @@ static inline void replace_order(ei_widget_t* widget){
         // Replace each toplevel parent until to the root_frame
         while (widget != g_root_frame) {
                 // Put all (and just) the toplevel concerned to the front
-                if (strcmp(widget->wclass->name, "toplevel") == 0) {
+                if (strcmp(ei_widgetclass_stringname(widget->wclass->name), "toplevel") == 0) {
                         // If the widget is not yet the last children, put it as
                         if (widget != widget->parent->children_tail) {
                                 ei_widget_t *widget_to_change = widget->parent->children_head;
@@ -115,7 +115,7 @@ ei_bool_t keyword_event_callback(ei_event_t *event){
                         do {
                                 if (widget_to_treat->children_head) {
                                         widget_to_treat = widget_to_treat->children_head;
-                                        if (strcmp(widget_to_treat->wclass->name,"toplevel")==0){
+                                        if (strcmp(ei_widgetclass_stringname(widget_to_treat->wclass->name),"toplevel")==0){
                                                 if (widget_to_destroy){
                                                         if (widget_to_treat->pick_id > widget_to_destroy->pick_id){
                                                                 widget_to_destroy = widget_to_treat;
@@ -276,7 +276,7 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                         event->param.mouse.where.y - toplevel_widget->widget.content_rect->top_left.y;
 
                                 // If the toplevel is in another toplevel
-                                if (strcmp(toplevel_widget->widget.parent->wclass->name, "toplevel") == 0) {
+                                if (strcmp(ei_widgetclass_stringname(toplevel_widget->widget.parent->wclass->name), "toplevel") == 0) {
                                         ei_size_t new_size = {new_width + toplevel_widget->border_width, new_height + toplevel_widget->top_bar->size.height};
                                         float new_rel_width = (float) new_width /
                                                               toplevel_widget->widget.parent->content_rect->size.width;
@@ -331,7 +331,7 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                 ei_point_t new_loc = {new_loc_x, new_loc_y};
 
                                 // Case of toplevel in another one
-                                if (strcmp(toplevel_widget->widget.parent->wclass->name, "toplevel") == 0) {
+                                if (strcmp(ei_widgetclass_stringname(toplevel_widget->widget.parent->wclass->name), "toplevel") == 0) {
                                         // If the mouse is still in the parent limit, so the top level is moved to the new coord
                                         if (is_rectangle_in_rectangle(*toplevel_widget->widget.parent->content_rect, new_loc, &toplevel_widget->widget.screen_location.size)) {
                                                 // The location is relative to the coord of the parent

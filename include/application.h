@@ -16,7 +16,7 @@ ei_surface_t g_offscreen;
 /**
  * @brief       Return a linked list which represent all widget classes
  *
- * @return      A pointeur on the linked list
+ * @return      A pointer on the linked list
  */
 extern ei_widgetclass_t* get_linked_list_classes();
 
