@@ -271,9 +271,9 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                         // Case of resizing
                         if (toplevel_widget->current_event == event_resize) {
                                 int new_width =
-                                        event->param.mouse.where.x - toplevel_widget->widget.screen_location.top_left.x;
+                                        event->param.mouse.where.x - toplevel_widget->widget.content_rect->top_left.x;
                                 int new_height =
-                                        event->param.mouse.where.y - toplevel_widget->widget.screen_location.top_left.y;
+                                        event->param.mouse.where.y - toplevel_widget->widget.content_rect->top_left.y;
 
                                 // If the toplevel is in another toplevel
                                 if (strcmp(toplevel_widget->widget.parent->wclass->name, "toplevel") == 0) {
@@ -296,7 +296,7 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                                 // Resize the height if is resizable and is greater than minimum height
                                                 if ((toplevel_widget->resizable == ei_axis_y ||
                                                      toplevel_widget->resizable == ei_axis_both) &&
-                                                    (new_height >= toplevel_widget->min_size->height || new_height >=
+                                                    (new_height >= (toplevel_widget->min_size->height - toplevel_widget->top_bar->size.height) || new_height >=
                                                                                                         toplevel_widget->widget.screen_location.size.height)) {
                                                         ei_place(widget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                                                                  &new_rel_height);
@@ -315,7 +315,7 @@ ei_bool_t handle_top_level_function(struct ei_widget_t* widget,
                                         // Resize the height if is resizable and is greater than minimum height
                                         if ((toplevel_widget->resizable == ei_axis_y ||
                                              toplevel_widget->resizable == ei_axis_both) &&
-                                            new_height >= toplevel_widget->min_size->height) {
+                                            new_height >= (toplevel_widget->min_size->height - toplevel_widget->top_bar->size.height)) {
                                                 ei_place(widget, NULL, NULL, NULL, NULL, &new_height, NULL, NULL, NULL,
                                                          NULL);
                                         }

@@ -359,20 +359,20 @@ void frame_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
  */
 void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         // Init
-        widget->screen_location = rect;
         ei_top_level_t *top_level_widget = (ei_top_level_t *) widget;
+        widget->screen_location = rect;
 
-        // Configure text place
+        // Get text size
         ei_size_t *text_size = calloc(1, sizeof(ei_size_t));
         hw_text_compute_size(top_level_widget->title, ei_default_font, &(text_size->width), &(text_size->height));
-
-        // Get size and place parameters
-        int place_x = top_level_widget->widget.screen_location.top_left.x;
-        int place_y = top_level_widget->widget.screen_location.top_left.y;
 
         // Resize screen_location including border and top_bar
         widget->screen_location.size.width += 2*(top_level_widget->border_width);
         widget->screen_location.size.height += (top_level_widget->border_width + text_size->height);
+
+        // Get size and place parameters
+        int place_x = top_level_widget->widget.screen_location.top_left.x;
+        int place_y = top_level_widget->widget.screen_location.top_left.y;
 
         // Set size and place for the rectangle used to model the content part of the top level (all without border)
         ei_size_t size_content_rect = rect.size;
@@ -477,6 +477,7 @@ void			ei_frame_configure		(ei_widget_t*		widget,
         if (requested_size) {
                 frame_widget->widget.requested_size = *requested_size;
                 if (frame_widget->widget.placer_params) {
+                        // If there is already a placer, change width and height
                         frame_widget->widget.placer_params->w_data = requested_size->width;
                         frame_widget->widget.placer_params->h_data = requested_size->height;
                 }
