@@ -109,8 +109,6 @@ void			ei_widget_destroy		(ei_widget_t*		widget);
 ei_widget_t*		ei_widget_pick			(ei_point_t*		where);
 
 
-
-
 /**
  * @brief	Configures the attributes of widgets of the class "frame".
  *

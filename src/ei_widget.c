@@ -416,53 +416,6 @@ void top_level_geomnotifyfunc (struct ei_widget_t* widget, ei_rect_t rect) {
         top_level_widget->resize_rect->size.height = default_top_level_rect_resize;
 }
 
-/**
- * @brief	Returns the widget that is at a given location on screen.
- *
- * @param	where		The location on screen, expressed in the root window coordinates.
- *
- * @return			The top-most widget at this location, or NULL if there is no widget
- *				at this location (except for the root widget).
- */
-ei_widget_t*		ei_widget_pick			(ei_point_t*		where){
-        // Otherwise, we search the event to treat
-        // Parameters of the offscreen
-        hw_surface_lock(g_offscreen);
-        uint32_t *clicked_pixel = (uint32_t *) hw_surface_get_buffer(g_offscreen);
-        ei_size_t offscreen_size = hw_surface_get_size(g_offscreen);
-
-        // Compute memory location of clicked_pixel and put the its value in widget_id
-        clicked_pixel += (offscreen_size.width * where->y) + where->x;
-        uint32_t widget_id = *clicked_pixel;
-
-        // Test if the clicked pixel is in the g_root_frame
-        ei_widget_t *widget_to_treat = g_root_frame;
-        if (widget_to_treat->pick_id == widget_id){
-                return widget_to_treat;
-        }
-
-        // Depth course of each widgets
-        do {
-                if (widget_to_treat->children_head) {
-                        widget_to_treat = widget_to_treat->children_head;
-                        if (widget_to_treat->pick_id == widget_id){
-                                return widget_to_treat;
-                        }
-                } else {
-                        while (widget_to_treat != g_root_frame && widget_to_treat->next_sibling == NULL) {
-                                widget_to_treat = widget_to_treat->parent;
-                        }
-
-                        if (widget_to_treat->next_sibling) {
-                                widget_to_treat = widget_to_treat->next_sibling;
-                                if (widget_to_treat->pick_id == widget_id){
-                                        return widget_to_treat;
-                                }
-                        }
-                }
-        } while (widget_to_treat != g_root_frame);
-}
-
 /*
  * Configure functions
  */
@@ -828,6 +781,54 @@ void			ei_widget_destroy		(ei_widget_t*		widget) {
         // The final widget correspond to the widget given in param
         free_widget(widget_to_destroy);
 }
+
+/**
+ * @brief	Returns the widget that is at a given location on screen.
+ *
+ * @param	where		The location on screen, expressed in the root window coordinates.
+ *
+ * @return			The top-most widget at this location, or NULL if there is no widget
+ *				at this location (except for the root widget).
+ */
+ei_widget_t*		ei_widget_pick			(ei_point_t*		where){
+        // Otherwise, we search the event to treat
+        // Parameters of the offscreen
+        hw_surface_lock(g_offscreen);
+        uint32_t *clicked_pixel = (uint32_t *) hw_surface_get_buffer(g_offscreen);
+        ei_size_t offscreen_size = hw_surface_get_size(g_offscreen);
+
+        // Compute memory location of clicked_pixel and put the its value in widget_id
+        clicked_pixel += (offscreen_size.width * where->y) + where->x;
+        uint32_t widget_id = *clicked_pixel;
+
+        // Test if the clicked pixel is in the g_root_frame
+        ei_widget_t *widget_to_treat = g_root_frame;
+        if (widget_to_treat->pick_id == widget_id){
+                return widget_to_treat;
+        }
+
+        // Depth course of each widgets
+        do {
+                if (widget_to_treat->children_head) {
+                        widget_to_treat = widget_to_treat->children_head;
+                        if (widget_to_treat->pick_id == widget_id){
+                                return widget_to_treat;
+                        }
+                } else {
+                        while (widget_to_treat != g_root_frame && widget_to_treat->next_sibling == NULL) {
+                                widget_to_treat = widget_to_treat->parent;
+                        }
+
+                        if (widget_to_treat->next_sibling) {
+                                widget_to_treat = widget_to_treat->next_sibling;
+                                if (widget_to_treat->pick_id == widget_id){
+                                        return widget_to_treat;
+                                }
+                        }
+                }
+        } while (widget_to_treat != g_root_frame);
+}
+
 
 /**
  * @brief       Give coordinates of top-left point where a text must be display depending on the anchor
